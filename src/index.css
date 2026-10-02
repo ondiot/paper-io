@@ -2711,174 +2711,35 @@ input {
   }
 }
 
-/* =========================================
-   GLOBAL LEAVE BUTTON
-   ========================================= */
-
 .global-leave-container {
   position: fixed;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-
-  z-index: 10000;
-
+  top: 20px;
+  left: 20px;
+  z-index: 2147483647;
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.global-leave-button {
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  border-radius: 10px;
-
-  padding: 11px 16px;
-
-  background: rgba(15, 15, 15, 0.88);
-  color: #ffffff;
-
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.25);
-
-  backdrop-filter: blur(10px);
-
-  transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.global-leave-button:hover {
-  transform: scale(1.05);
-
-  background: rgba(35, 35, 35, 0.95);
-
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.global-leave-button:active {
-  transform: scale(0.96);
-}
-
-
-/* Confirmation box */
-
-.global-leave-confirm {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 9px 10px;
-
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  border-radius: 12px;
-
-  background: rgba(15, 15, 15, 0.94);
-
-  color: #ffffff;
-
-  font-size: 12px;
-
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.3);
-
-  backdrop-filter: blur(12px);
-
-  white-space: nowrap;
-}
-
-.global-leave-confirm span {
-  margin-right: 3px;
-}
-
-.global-leave-confirm-button,
-.global-leave-cancel-button {
-  appearance: none;
-
-  border: 0;
-
-  border-radius: 7px;
-
-  padding: 6px 9px;
-
-  font-family: inherit;
-
-  font-size: 11px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.global-leave-confirm-button {
-  background: #ffffff;
-  color: #000000;
-}
-
-.global-leave-cancel-button {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-.global-leave-confirm-button:hover,
-.global-leave-cancel-button:hover {
-  transform: scale(1.05);
-}
-
-.global-leave-confirm-button:active,
-.global-leave-cancel-button:active {
-  transform: scale(0.95);
-}
-
-
-/* Mobile */
-
-@media (max-width: 600px) {
-  .global-leave-container {
-    left: 10px;
-  }
-
-  .global-leave-button {
-    padding: 9px 12px;
-    font-size: 12px;
-  }
-
-  .global-leave-confirm {
-    gap: 5px;
-    padding: 7px;
-  }
+  pointer-events: auto;
 }
 
 .global-leave-button {
   appearance: none;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
-  padding: 11px 16px;
+  padding: 10px 15px;
   background: rgba(15, 15, 15, 0.92);
   color: #fff;
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
+  transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .global-leave-button:hover {
   background: rgba(35, 35, 35, 0.96);
-  transform: scale(1.05);
+  transform: translateY(-1px);
 }
 
 .global-leave-button:active {
@@ -2889,13 +2750,14 @@ input {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 10px;
+  padding: 9px 11px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
+  border-radius: 11px;
   background: rgba(15, 15, 15, 0.96);
   color: #fff;
+  font-size: 12px;
   white-space: nowrap;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
 }
 
