@@ -619,7 +619,7 @@ function RevealScreen({
 
               {author?.avatar && (
                 <img
-                  src={`/assets/avatars/${author.avatar}`}
+                  src={`${import.meta.env.BASE_URL}assets/avatars/${author.avatar}`}
                   alt={
                     author.name
                   }
@@ -706,7 +706,7 @@ function RevealScreen({
 
                         {guesser?.avatar && (
                           <img
-                            src={`/assets/avatars/${guesser.avatar}`}
+                            src={`${import.meta.env.BASE_URL}assets/avatars/${guesser.avatar}`}
                             alt={
                               guesser.name
                             }
@@ -737,7 +737,7 @@ function RevealScreen({
 
                         {guessedPlayer?.avatar && (
                           <img
-                            src={`/assets/avatars/${guessedPlayer.avatar}`}
+                            src={`${import.meta.env.BASE_URL}assets/avatars/${guessedPlayer.avatar}`}
                             alt={
                               guessedPlayer.name
                             }
@@ -829,7 +829,7 @@ function RevealScreen({
 
                       {scorePlayer.avatar && (
                         <img
-                          src={`/assets/avatars/${scorePlayer.avatar}`}
+                          src={`${import.meta.env.BASE_URL}assets/avatars/${scorePlayer.avatar}`}
                           alt={
                             scorePlayer.name
                           }

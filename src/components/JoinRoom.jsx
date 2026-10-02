@@ -49,7 +49,7 @@ function JoinRoom({
           <div className="create-room-avatar">
             <img
               src={
-                "/assets/avatars/" +
+                `${import.meta.env.BASE_URL}assets/avatars/` +
                 selectedAvatar
               }
               alt="Your avatar"

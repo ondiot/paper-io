@@ -468,7 +468,7 @@ function Lobby({
 
                     <img
                       src={
-                        "/assets/avatars/" +
+                        `${import.meta.env.BASE_URL}assets/avatars/` +
                         lobbyPlayer.avatar
                       }
                       alt={

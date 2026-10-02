@@ -519,7 +519,7 @@ function WritingScreen({
 
                       <img
                         src={
-                          "/assets/avatars/" +
+                          `${import.meta.env.BASE_URL}assets/avatars/` +
                           writingPlayer.avatar
                         }
                         alt={
@@ -561,7 +561,7 @@ function WritingScreen({
           <div className="writing-player-avatar">
             <img
               src={
-                "/assets/avatars/" +
+                `${import.meta.env.BASE_URL}assets/avatars/` +
                 player.avatar
               }
               alt={player.name}

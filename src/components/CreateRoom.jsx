@@ -44,7 +44,7 @@ function CreateRoom({
         <div className="create-room-profile">
           <div className="create-room-avatar">
             <img
-              src={"/assets/avatars/" + selectedAvatar}
+              src={`${import.meta.env.BASE_URL}assets/avatars/` + selectedAvatar}
               alt="Your avatar"
             />
           </div>
@@ -206,3 +206,4 @@ function CreateRoom({
 }
 
 export default CreateRoom;
+

@@ -46,3 +46,4 @@ export const BUILT_IN_TOPICS = [
   "The most overrated holiday",
   "A place I'd love to visit",
 ];
+

@@ -14,7 +14,7 @@ export const IMAGE_ASSETS = [
     "poet.png",
     "dexter.png",
   ].map(
-    (file) => `/assets/avatars/${file}`
+    (file) => `${import.meta.env.BASE_URL}assets/avatars/${file}`
   ),
 
   // Add other images here as you add them.

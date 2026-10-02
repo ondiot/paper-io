@@ -595,7 +595,7 @@ function GuessingScreen({
 
                       <img
                         src={
-                          "/assets/avatars/" +
+                          `${import.meta.env.BASE_URL}assets/avatars/` +
                           gamePlayer.avatar
                         }
                         alt={
@@ -705,7 +705,7 @@ function GuessingScreen({
 
                               <img
                                 src={
-                                  "/assets/avatars/" +
+                                  `${import.meta.env.BASE_URL}assets/avatars/` +
                                   gamePlayer.avatar
                                 }
                                 alt={

@@ -11,7 +11,7 @@ function ModeScreen({
         <div className="mode-profile">
           <div className="mode-avatar">
             <img
-              src={`/assets/avatars/${selectedAvatar}`}
+              src={`${import.meta.env.BASE_URL}assets/avatars/${selectedAvatar}`}
               alt="Your avatar"
             />
           </div>
