@@ -1,9 +1,10 @@
 import {
   useCallback,
   useEffect,
-  useState
+  useState,
 } from "react";
 
+import LoadingScreen from "./components/LoadingScreen";
 import NameScreen from "./components/NameScreen";
 import ModeScreen from "./components/ModeScreen";
 import CreateRoom from "./components/CreateRoom";
@@ -16,88 +17,80 @@ import RevealScreen from "./components/RevealScreen";
 
 import { AVATARS } from "./game/avatars";
 
+import { preloadAllAssets } from "./game/preloadAssets";
+
 import {
   createRoom,
   joinRoom,
   getPlayerSession,
-  leaveRoom
+  leaveRoom,
 } from "./game/rooms";
 
 import { supabase } from "./lib/supabase";
 
 function App() {
   const [name, setName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] =
-    useState(AVATARS[0]);
 
-  const [screen, setScreen] =
-    useState("intro");
+  const [selectedAvatar, setSelectedAvatar] = useState(
+    AVATARS[0]
+  );
+
+  const [screen, setScreen] = useState("intro");
 
   const [room, setRoom] = useState(null);
+
   const [player, setPlayer] = useState(null);
 
-  const [creatingRoom, setCreatingRoom] =
-    useState(false);
+  const [creatingRoom, setCreatingRoom] = useState(false);
 
-  const [joiningRoom, setJoiningRoom] =
-    useState(false);
+  const [joiningRoom, setJoiningRoom] = useState(false);
 
-  const [restoringSession, setRestoringSession] =
-    useState(true);
+  const [restoringSession, setRestoringSession] = useState(true);
+
+  const [preloadingAssets, setPreloadingAssets] = useState(false);
+
+  const [preloadProgress, setPreloadProgress] = useState(0);
 
   const [error, setError] = useState("");
 
   /*
-   * =========================================================
-   * RESTORE PREVIOUS SESSION
-   * =========================================================
+   * Restore a previously saved player session.
+   *
+   * If the browser still has a valid player ID and room ID,
+   * attempt to reconnect the player to that room.
    */
-
   useEffect(() => {
     async function restoreSession() {
-      const savedPlayerId =
-        localStorage.getItem(
-          "paperio_player_id"
-        );
+      const savedPlayerId = localStorage.getItem(
+        "paperio_player_id"
+      );
 
-      const savedRoomId =
-        localStorage.getItem(
-          "paperio_room_id"
-        );
+      const savedRoomId = localStorage.getItem(
+        "paperio_room_id"
+      );
 
-      const savedName =
-        localStorage.getItem(
-          "paperio_name"
-        );
+      const savedName = localStorage.getItem(
+        "paperio_name"
+      );
 
-      const savedAvatar =
-        localStorage.getItem(
-          "paperio_avatar"
-        );
+      const savedAvatar = localStorage.getItem(
+        "paperio_avatar"
+      );
 
-      if (
-        !savedPlayerId ||
-        !savedRoomId
-      ) {
+      if (!savedPlayerId || !savedRoomId) {
         setRestoringSession(false);
         return;
       }
 
       try {
-        const session =
-          await getPlayerSession(
-            savedPlayerId,
-            savedRoomId
-          );
+        const session = await getPlayerSession(
+          savedPlayerId,
+          savedRoomId
+        );
 
         if (!session) {
-          localStorage.removeItem(
-            "paperio_player_id"
-          );
-
-          localStorage.removeItem(
-            "paperio_room_id"
-          );
+          localStorage.removeItem("paperio_player_id");
+          localStorage.removeItem("paperio_room_id");
 
           setRestoringSession(false);
           return;
@@ -109,25 +102,16 @@ function App() {
         if (savedName) {
           setName(savedName);
         } else {
-          setName(
-            session.player.name
-          );
+          setName(session.player.name);
         }
 
         if (savedAvatar) {
-          setSelectedAvatar(
-            savedAvatar
-          );
+          setSelectedAvatar(savedAvatar);
         } else {
-          setSelectedAvatar(
-            session.player.avatar
-          );
+          setSelectedAvatar(session.player.avatar);
         }
 
-        /*
-         * Restore correct screen
-         */
-
+        // Restore the correct screen based on the room status.
         switch (session.room.status) {
           case "writing":
             setScreen("writing");
@@ -149,7 +133,6 @@ function App() {
             setScreen("lobby");
             break;
         }
-
       } catch (error) {
         console.error(
           "Could not restore session:",
@@ -164,26 +147,18 @@ function App() {
   }, []);
 
   /*
-   * =========================================================
-   * SAVE NAME
-   * =========================================================
+   * Save the player's name locally so it can be restored
+   * when the page is opened again.
    */
-
   useEffect(() => {
     if (name) {
-      localStorage.setItem(
-        "paperio_name",
-        name
-      );
+      localStorage.setItem("paperio_name", name);
     }
   }, [name]);
 
   /*
-   * =========================================================
-   * SAVE AVATAR
-   * =========================================================
+   * Save the selected avatar locally.
    */
-
   useEffect(() => {
     if (selectedAvatar) {
       localStorage.setItem(
@@ -194,11 +169,9 @@ function App() {
   }, [selectedAvatar]);
 
   /*
-   * =========================================================
-   * KEEP SCREEN SYNCHRONIZED WITH ROOM STATUS
-   * =========================================================
+   * Keep the visible screen synchronized with the
+   * current room status.
    */
-
   useEffect(() => {
     if (!room?.status) {
       return;
@@ -231,63 +204,115 @@ function App() {
   }, [room?.status]);
 
   /*
-   * =========================================================
-   * REALTIME ROOM STATUS
-   * =========================================================
+   * Listen for realtime changes to the current room.
+   *
+   * This keeps the local room state synchronized when
+   * another player changes the room status.
    */
-
   useEffect(() => {
     if (!room?.id) {
       return;
     }
 
-    const channel =
-      supabase
-        .channel(
-          `room-status-${room.id}`
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "rooms",
-            filter: `id=eq.${room.id}`
-          },
-          (payload) => {
-            console.log(
-              "ROOM UPDATE:",
-              payload.new
-            );
+    const channel = supabase
+      .channel(`room-status-${room.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "rooms",
+          filter: `id=eq.${room.id}`,
+        },
+        (payload) => {
+          console.log(
+            "ROOM UPDATE:",
+            payload.new
+          );
 
-            setRoom(payload.new);
-          }
-        )
-        .subscribe();
+          setRoom(payload.new);
+        }
+      )
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(
-        channel
-      );
+      supabase.removeChannel(channel);
     };
   }, [room?.id]);
 
   /*
-   * =========================================================
-   * INTRO
-   * =========================================================
+   * Listen for realtime changes to the current player.
+   *
+   * This is especially useful for keeping the player's
+   * score and other player information synchronized.
    */
+  useEffect(() => {
+    if (!room?.id || !player?.id) {
+      return;
+    }
 
-  function handleIntroComplete() {
+    const channel = supabase
+      .channel(`player-status-${player.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "players",
+          filter: `id=eq.${player.id}`,
+        },
+        (payload) => {
+          console.log(
+            "PLAYER UPDATE:",
+            payload.new
+          );
+
+          setPlayer(payload.new);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [room?.id, player?.id]);
+
+  /*
+   * Preload all game assets after the intro finishes.
+   *
+   * preloadAllAssets() handles images, audio, fonts,
+   * and reports loading progress back to this component.
+   */
+  async function handleIntroComplete() {
+    setPreloadingAssets(true);
+    setPreloadProgress(0);
+
+    try {
+      await preloadAllAssets(({ percent }) => {
+        setPreloadProgress(percent);
+      });
+    } catch (error) {
+      console.error(
+        "Asset preloading failed:",
+        error
+      );
+    }
+
+    /*
+     * Keep the loading screen visible briefly even when
+     * everything is already cached by the browser.
+     */
+    await new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
+
+    setPreloadingAssets(false);
     setScreen("name");
   }
 
   /*
-   * =========================================================
-   * NAME CONTINUE
-   * =========================================================
+   * Continue from the name screen.
    */
-
   function handleContinue() {
     if (!name.trim()) {
       return;
@@ -298,33 +323,24 @@ function App() {
   }
 
   /*
-   * =========================================================
-   * CREATE ROOM SCREEN
-   * =========================================================
+   * Open the create-room screen.
    */
-
   function handleCreateRoom() {
     setError("");
     setScreen("create-room");
   }
 
   /*
-   * =========================================================
-   * JOIN ROOM SCREEN
-   * =========================================================
+   * Open the join-room screen.
    */
-
   function handleJoinRoom() {
     setError("");
     setScreen("join-room");
   }
 
   /*
-   * =========================================================
-   * CREATE ROOM
-   * =========================================================
+   * Create a new game room.
    */
-
   async function handleCreate(settings) {
     if (creatingRoom) {
       return;
@@ -334,17 +350,13 @@ function App() {
     setError("");
 
     try {
-      const result =
-        await createRoom({
-          name,
-          avatar: selectedAvatar,
-          roundTime:
-            settings.roundTime,
-          rounds:
-            settings.rounds,
-          topicMode:
-            settings.topicMode
-        });
+      const result = await createRoom({
+        name,
+        avatar: selectedAvatar,
+        roundTime: settings.roundTime,
+        rounds: settings.rounds,
+        topicMode: settings.topicMode,
+      });
 
       setRoom(result.room);
       setPlayer(result.player);
@@ -360,7 +372,6 @@ function App() {
       );
 
       setScreen("lobby");
-
     } catch (error) {
       console.error(
         "Create room failed:",
@@ -369,20 +380,16 @@ function App() {
 
       setError(
         error?.message ||
-        "Something went wrong while creating the room."
+          "Something went wrong while creating the room."
       );
-
     } finally {
       setCreatingRoom(false);
     }
   }
 
   /*
-   * =========================================================
-   * JOIN ROOM
-   * =========================================================
+   * Join an existing game room.
    */
-
   async function handleJoin(code) {
     if (joiningRoom) {
       return;
@@ -392,12 +399,11 @@ function App() {
     setError("");
 
     try {
-      const result =
-        await joinRoom({
-          code,
-          name,
-          avatar: selectedAvatar
-        });
+      const result = await joinRoom({
+        code,
+        name,
+        avatar: selectedAvatar,
+      });
 
       setRoom(result.room);
       setPlayer(result.player);
@@ -413,7 +419,6 @@ function App() {
       );
 
       setScreen("lobby");
-
     } catch (error) {
       console.error(
         "Join room failed:",
@@ -422,23 +427,26 @@ function App() {
 
       setError(
         error?.message ||
-        "Something went wrong while joining the room."
+          "Something went wrong while joining the room."
       );
-
     } finally {
       setJoiningRoom(false);
     }
   }
 
   /*
-   * =========================================================
-   * LEAVE ROOM
-   * =========================================================
+   * Leave the current room and clear the saved session.
    */
-
   async function handleLeaveRoom() {
     if (player?.id) {
-      await leaveRoom(player.id);
+      try {
+        await leaveRoom(player.id);
+      } catch (error) {
+        console.error(
+          "Leave room failed:",
+          error
+        );
+      }
     }
 
     localStorage.removeItem(
@@ -457,169 +465,133 @@ function App() {
   }
 
   /*
-   * =========================================================
-   * KICKED
-   * =========================================================
+   * Handle being kicked from the room.
    */
+  const handleKicked = useCallback(() => {
+    localStorage.removeItem(
+      "paperio_player_id"
+    );
 
-  const handleKicked =
-    useCallback(() => {
-      localStorage.removeItem(
-        "paperio_player_id"
-      );
+    localStorage.removeItem(
+      "paperio_room_id"
+    );
 
-      localStorage.removeItem(
-        "paperio_room_id"
-      );
+    setRoom(null);
+    setPlayer(null);
 
-      setRoom(null);
-      setPlayer(null);
+    setError(
+      "You were kicked from the room."
+    );
 
-      setError(
-        "You were kicked from the room."
-      );
+    setScreen("mode");
 
-      setScreen("mode");
-
-      setTimeout(() => {
-        setError("");
-      }, 4000);
-    }, []);
+    setTimeout(() => {
+      setError("");
+    }, 4000);
+  }, []);
 
   /*
-   * =========================================================
-   * RESTORING SESSION
-   * =========================================================
+   * Show a simple loading screen while attempting
+   * to restore a previous session.
    */
-
   if (restoringSession) {
     return (
-      <main className="app">
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#000",
-            color: "#fff",
-            fontSize: "14px"
-          }}
-        >
-          Loading...
-        </div>
-      </main>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#000",
+          color: "#fff",
+          fontSize: "14px",
+        }}
+      >
+        Loading...
+      </div>
     );
   }
 
   /*
-   * =========================================================
-   * MAIN APP
-   * =========================================================
+   * Main application.
    */
-
   return (
-    <main className="app">
-
-      {/* INTRO */}
-
+    <>
+      {/* Intro */}
       {screen === "intro" && (
         <VaporizeIntro
-          onComplete={
-            handleIntroComplete
-          }
+          onComplete={handleIntroComplete}
         />
       )}
 
-      {/* NAME */}
+      {/* Asset preloading */}
+      {preloadingAssets && (
+        <LoadingScreen
+          label="Preloading"
+          variant="Drive"
+          progress={preloadProgress}
+        />
+      )}
 
+      {/* Name */}
       {screen === "name" && (
         <NameScreen
           name={name}
           setName={setName}
-          selectedAvatar={
-            selectedAvatar
-          }
-          setSelectedAvatar={
-            setSelectedAvatar
-          }
-          onContinue={
-            handleContinue
-          }
+          selectedAvatar={selectedAvatar}
+          setSelectedAvatar={setSelectedAvatar}
+          onContinue={handleContinue}
         />
       )}
 
-      {/* MODE */}
-
+      {/* Mode selection */}
       {screen === "mode" && (
         <ModeScreen
           name={name}
-          selectedAvatar={
-            selectedAvatar
-          }
-          onCreateRoom={
-            handleCreateRoom
-          }
-          onJoinRoom={
-            handleJoinRoom
-          }
+          selectedAvatar={selectedAvatar}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
         />
       )}
 
-      {/* CREATE ROOM */}
-
+      {/* Create room */}
       {screen === "create-room" && (
         <CreateRoom
           name={name}
-          selectedAvatar={
-            selectedAvatar
-          }
+          selectedAvatar={selectedAvatar}
           onBack={() => {
             setError("");
             setScreen("mode");
           }}
-          onCreate={
-            handleCreate
-          }
+          onCreate={handleCreate}
         />
       )}
 
-      {/* JOIN ROOM */}
-
+      {/* Join room */}
       {screen === "join-room" && (
         <JoinRoom
           name={name}
-          selectedAvatar={
-            selectedAvatar
-          }
+          selectedAvatar={selectedAvatar}
           onBack={() => {
             setError("");
             setScreen("mode");
           }}
-          onJoin={
-            handleJoin
-          }
+          onJoin={handleJoin}
         />
       )}
 
-      {/* LOBBY */}
-
+      {/* Lobby */}
       {screen === "lobby" && (
         <Lobby
           room={room}
           player={player}
-          onLeave={
-            handleLeaveRoom
-          }
-          onKicked={
-            handleKicked
-          }
+          onLeave={handleLeaveRoom}
+          onKicked={handleKicked}
         />
       )}
 
-      {/* WRITING */}
-
+      {/* Writing */}
       {screen === "writing" && (
         <WritingScreen
           room={room}
@@ -627,8 +599,7 @@ function App() {
         />
       )}
 
-      {/* GUESSING */}
-
+      {/* Guessing */}
       {screen === "guessing" && (
         <GuessingScreen
           room={room}
@@ -636,8 +607,7 @@ function App() {
         />
       )}
 
-      {/* REVEAL */}
-
+      {/* Reveal */}
       {screen === "reveal" && (
         <RevealScreen
           room={room}
@@ -645,24 +615,19 @@ function App() {
         />
       )}
 
-      {/* ERROR / TOAST */}
-
+      {/* Error toast */}
       {error && (
         <div className="game-toast">
           <span className="game-toast-icon">
             !
           </span>
 
-          <span>
-            {error}
-          </span>
+          <span>{error}</span>
         </div>
       )}
 
-      {/* CREATE / JOIN LOADING */}
-
-      {(creatingRoom ||
-        joiningRoom) && (
+      {/* Create / Join loading overlay */}
+      {(creatingRoom || joiningRoom) && (
         <div
           style={{
             position: "fixed",
@@ -671,10 +636,9 @@ function App() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background:
-              "rgba(0, 0, 0, 0.65)",
+            background: "rgba(0, 0, 0, 0.65)",
             color: "#fff",
-            fontSize: "15px"
+            fontSize: "15px",
           }}
         >
           {creatingRoom
@@ -682,8 +646,7 @@ function App() {
             : "Joining room..."}
         </div>
       )}
-
-    </main>
+    </>
   );
 }
 

@@ -8,7 +8,8 @@ import { supabase } from "../lib/supabase";
 
 import {
   submitGuesses,
-  checkGuessingComplete
+  checkGuessingComplete,
+  startReveal
 } from "../game/rooms";
 
 function GuessingScreen({
@@ -477,16 +478,9 @@ function GuessingScreen({
         });
 
       if (complete) {
-        await supabase
-          .from("rooms")
-          .update({
-            status: "reveal"
-          })
-          .eq("id", room.id)
-          .eq(
-            "status",
-            "guessing"
-          );
+        // Score the round atomically BEFORE switching the room to Reveal.
+        // This guarantees the first Reveal already shows the new scores.
+        await startReveal(room.id);
       }
 
     } catch (error) {

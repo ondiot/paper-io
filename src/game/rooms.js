@@ -67,8 +67,7 @@ export async function createRoom({
       avatar,
       is_host: true,
       score: 0,
-      last_seen:
-        new Date().toISOString()
+      last_seen: new Date().toISOString()
     })
     .select()
     .single();
@@ -156,8 +155,7 @@ export async function joinRoom({
       avatar,
       is_host: false,
       score: 0,
-      last_seen:
-        new Date().toISOString()
+      last_seen: new Date().toISOString()
     })
     .select()
     .single();
@@ -237,8 +235,7 @@ export async function updateHeartbeat(
   } = await supabase
     .from("players")
     .update({
-      last_seen:
-        new Date().toISOString()
+      last_seen: new Date().toISOString()
     })
     .eq("id", playerId);
 
@@ -594,6 +591,11 @@ export async function checkGuessingComplete({
   const paperList =
     papers || [];
 
+  /*
+   * Every player must guess
+   * every paper except their own.
+   */
+
   const requiredGuesses =
     Math.max(
       0,
@@ -689,6 +691,18 @@ export async function startGuessing(
    CALCULATE ROUND SCORES
 ========================================================= */
 
+/*
+ * Kept as an exported helper for compatibility.
+ *
+ * IMPORTANT:
+ *
+ * Do NOT call this during the normal
+ * guessing → reveal transition.
+ *
+ * startReveal() now uses the atomic
+ * Supabase RPC below.
+ */
+
 export async function calculateRoundScores({
   roomId,
   round
@@ -735,10 +749,6 @@ export async function calculateRoundScores({
     throw assignmentsError;
   }
 
-  /*
-   * Map paper → actual author.
-   */
-
   const paperAuthors = {};
 
   for (
@@ -749,11 +759,6 @@ export async function calculateRoundScores({
       paper.id
     ] = paper.author_id;
   }
-
-  /*
-   * Calculate points earned
-   * this round.
-   */
 
   const points = {};
 
@@ -779,11 +784,6 @@ export async function calculateRoundScores({
     const guesser =
       assignment.assigned_to;
 
-    /*
-     * Correct = +1
-     * Wrong = +0
-     */
-
     if (
       actualAuthor &&
       guessedAuthor ===
@@ -794,11 +794,6 @@ export async function calculateRoundScores({
         1;
     }
   }
-
-  /*
-   * Add this round's points
-   * to the player's total score.
-   */
 
   for (
     const player of
@@ -837,72 +832,54 @@ export async function calculateRoundScores({
    START REVEAL
 ========================================================= */
 
+/*
+ * IMPORTANT:
+ *
+ * NEVER calculate the score separately here.
+ *
+ * The Supabase function:
+ *
+ *   score_round_and_start_reveal()
+ *
+ * does ALL of this atomically:
+ *
+ *   1. Locks the room.
+ *   2. Confirms it is still "guessing".
+ *   3. Checks every assignment.
+ *   4. Gives +1 for correct guesses.
+ *   5. Gives +0 for wrong guesses.
+ *   6. Updates total player scores.
+ *   7. Changes room status to "reveal".
+ *   8. Starts the 15-second reveal timer.
+ *
+ * Therefore Reveal can never appear before
+ * the scores have been updated.
+ */
+
 export async function startReveal(
   roomId
 ) {
-  /*
-   * First change guessing → reveal.
-   *
-   * The status condition is important:
-   * only ONE client can successfully make
-   * this transition.
-   */
-
-  const endsAt = new Date(
-    Date.now() + 15 * 1000
-  ).toISOString();
-
   const {
     data,
     error
-  } = await supabase
-    .from("rooms")
-    .update({
-      status: "reveal",
-      writing_ends_at: endsAt
-    })
-    .eq("id", roomId)
-    .eq("status", "guessing")
-    .select()
-    .maybeSingle();
+  } = await supabase.rpc(
+    "score_round_and_start_reveal",
+    {
+      p_room_id: roomId
+    }
+  );
 
   if (error) {
     throw error;
   }
 
-  /*
-   * The client that successfully changed
-   * guessing → reveal calculates the score.
-   */
-
-  if (data) {
-    await calculateRoundScores({
-      roomId,
-      round: data.round
-    });
-
-    return data;
+  if (!data?.room) {
+    throw new Error(
+      "Could not start the reveal."
+    );
   }
 
-  /*
-   * Another client already changed the
-   * room to reveal.
-   */
-
-  const {
-    data: currentRoom,
-    error: currentRoomError
-  } = await supabase
-    .from("rooms")
-    .select("*")
-    .eq("id", roomId)
-    .single();
-
-  if (currentRoomError) {
-    throw currentRoomError;
-  }
-
-  return currentRoom;
+  return data.room;
 }
 
 /* =========================================================
@@ -966,14 +943,16 @@ export async function startNextRound(
   /*
    * IMPORTANT:
    *
-   * Do NOT calculate scores here.
+   * Scores are NOT calculated here.
    *
-   * Scores were already calculated
-   * when guessing → reveal happened.
+   * They were already calculated
+   * atomically during:
+   *
+   * guessing → reveal
    */
 
   /*
-   * Final round.
+   * FINAL ROUND
    */
 
   if (
@@ -1002,7 +981,7 @@ export async function startNextRound(
   }
 
   /*
-   * Start next round.
+   * START NEXT ROUND
    */
 
   const nextRound =

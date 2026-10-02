@@ -2462,3 +2462,251 @@ input {
     font-size: 28px;
   }
 }
+
+/* ============================================================
+   PAPER.IO SCORE UI ADDITIONS
+   Paste this at the VERY BOTTOM of src/index.css
+   ============================================================ */
+
+.writing-player-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.writing-status-score {
+  margin-top: 4px;
+  color: #777;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.reveal-result {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.reveal-points {
+  min-width: 24px;
+  padding: 4px 7px;
+  border: 1px solid #292929;
+  border-radius: 7px;
+  background: #0b0b0b;
+  color: #fff;
+  text-align: center;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.reveal-player-score {
+  margin-left: 5px;
+  color: #777;
+  font-size: 9px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-round-countdown {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #292929;
+  border-radius: 15px;
+  background: #0b0b0b;
+  text-align: center;
+}
+
+.next-round-countdown-label {
+  display: block;
+  color: #666;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+}
+
+.next-round-countdown-number {
+  display: block;
+  margin-top: 7px;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-round-countdown-sub {
+  display: block;
+  margin-top: 6px;
+  color: #555;
+  font-size: 10px;
+}
+
+.next-round-starting {
+  margin-top: 7px;
+  color: #55d98b;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Fix malformed nested selectors from older CSS. */
+.writing-player-status.submitted .writing-status-avatar {
+  border-color: #55d98b;
+}
+
+.writing-player-status.you .writing-status-avatar {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.writing-player-status.submitted.you .writing-status-avatar {
+  border-color: #55d98b;
+}
+
+.guessing-player.finished .guessing-player-avatar {
+  border-color: #55d98b;
+}
+
+/* =========================================================
+   LOADING SCREEN
+   ========================================================= */
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #050505;
+  color: #f5f5f5;
+
+  z-index: 9999;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: fit-content;
+}
+
+.loading-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 4px);
+  gap: 1.5px;
+
+  width: 15px;
+  height: 15px;
+}
+
+.loading-pixel {
+  width: 4px;
+  height: 4px;
+
+  display: block;
+
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.loading-pixel-round {
+  border-radius: 50%;
+}
+
+.loading-label {
+  font-size: 13px;
+  font-weight: 500;
+
+  background: linear-gradient(
+    90deg,
+    #777 35%,
+    #fff 50%,
+    #777 65%
+  );
+
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  color: transparent;
+
+  animation: shimmer-text 1.4s linear infinite;
+}
+
+.loading-elapsed {
+  font-family: monospace;
+  font-size: 12px;
+
+  color: #666;
+
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================================
+   PIXEL ANIMATION
+   ========================================================= */
+
+@keyframes pixel-on {
+  0% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+
+  35% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+
+  65% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+}
+
+
+/* =========================================================
+   TEXT SHIMMER
+   ========================================================= */
+
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-pixel,
+  .loading-label {
+    animation: none !important;
+  }
+
+  .loading-pixel {
+    opacity: 0.12 !important;
+  }
+}
