@@ -370,9 +370,6 @@ function NameScreen({
 
         {/* Animated text stays OUTSIDE the box */}
         <div className="paper-name-title">
-          <h1 ref={titleRef}>
-            PAPER.IO
-          </h1>
         </div>
 
 
