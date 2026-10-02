@@ -1,15 +1,35 @@
-import { useEffect } from "react";
-import { supabase } from "./lib/supabase";
+import { useState } from "react";
+import NameScreen from "./components/NameScreen";
 
 function App() {
-  useEffect(() => {
-    console.log("React + Supabase connected:", !!supabase);
-  }, []);
+  const [name, setName] = useState("");
+  const [screen, setScreen] = useState("name");
+
+  function handleContinue() {
+    if (!name.trim()) return;
+
+    setScreen("mode");
+  }
 
   return (
-    <main>
-      <h1>PAPER.IO</h1>
-      <p>React migration is working.</p>
+    <main className="app">
+      {screen === "name" && (
+        <NameScreen
+          name={name}
+          setName={setName}
+          onContinue={handleContinue}
+        />
+      )}
+
+      {screen === "mode" && (
+        <div>
+          <h1>Welcome, {name}!</h1>
+
+          <p>
+            Mode selection will come next.
+          </p>
+        </div>
+      )}
     </main>
   );
 }
