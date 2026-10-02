@@ -1,26 +1,30 @@
 import { supabase } from "../lib/supabase";
 
-function generateRoomCode() {
-  const characters =
+/* =========================================================
+   ROOM CODE
+========================================================= */
+
+function generateRoomCode(length = 6) {
+  const chars =
     "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
   let code = "";
 
-  for (let i = 0; i < 6; i++) {
-    code += characters.charAt(
-      Math.floor(
-        Math.random() * characters.length
-      )
-    );
+  for (let i = 0; i < length; i++) {
+    code +=
+      chars[
+        Math.floor(
+          Math.random() * chars.length
+        )
+      ];
   }
 
   return code;
 }
 
-
-// ========================================
-// CREATE ROOM
-// ========================================
+/* =========================================================
+   CREATE ROOM
+========================================================= */
 
 export async function createRoom({
   name,
@@ -29,37 +33,27 @@ export async function createRoom({
   rounds,
   topicMode
 }) {
-  let room = null;
+  const code = generateRoomCode();
 
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const code = generateRoomCode();
+  const {
+    data: room,
+    error: roomError
+  } = await supabase
+    .from("rooms")
+    .insert({
+      code,
+      status: "lobby",
+      round: 1,
+      round_seconds: roundTime,
+      rounds,
+      topic_mode: topicMode,
+      writing_ends_at: null
+    })
+    .select()
+    .single();
 
-    const {
-      data,
-      error
-    } = await supabase
-      .from("rooms")
-      .insert({
-        code,
-        status: "lobby",
-        round: 1,
-        round_seconds: roundTime,
-        rounds,
-        topic_mode: topicMode
-      })
-      .select()
-      .single();
-
-    if (!error) {
-      room = data;
-      break;
-    }
-  }
-
-  if (!room) {
-    throw new Error(
-      "Could not create a unique room."
-    );
+  if (roomError) {
+    throw roomError;
   }
 
   const {
@@ -69,11 +63,12 @@ export async function createRoom({
     .from("players")
     .insert({
       room_id: room.id,
-      name: name.trim(),
+      name,
       avatar,
       is_host: true,
       score: 0,
-      last_seen: new Date().toISOString()
+      last_seen:
+        new Date().toISOString()
     })
     .select()
     .single();
@@ -93,19 +88,17 @@ export async function createRoom({
   };
 }
 
-
-// ========================================
-// JOIN ROOM
-// ========================================
+/* =========================================================
+   JOIN ROOM
+========================================================= */
 
 export async function joinRoom({
   code,
   name,
   avatar
 }) {
-  const cleanCode = code
-    .trim()
-    .toUpperCase();
+  const cleanCode =
+    code.trim().toUpperCase();
 
   const {
     data: room,
@@ -121,12 +114,34 @@ export async function joinRoom({
   }
 
   if (!room) {
-    throw new Error("Room not found.");
+    throw new Error(
+      "Room not found."
+    );
   }
 
   if (room.status !== "lobby") {
     throw new Error(
       "This game has already started."
+    );
+  }
+
+  const {
+    data: existingPlayers,
+    error: playersError
+  } = await supabase
+    .from("players")
+    .select("id")
+    .eq("room_id", room.id);
+
+  if (playersError) {
+    throw playersError;
+  }
+
+  if (
+    (existingPlayers || []).length >= 8
+  ) {
+    throw new Error(
+      "This room is full."
     );
   }
 
@@ -137,11 +152,12 @@ export async function joinRoom({
     .from("players")
     .insert({
       room_id: room.id,
-      name: name.trim(),
+      name,
       avatar,
       is_host: false,
       score: 0,
-      last_seen: new Date().toISOString()
+      last_seen:
+        new Date().toISOString()
     })
     .select()
     .single();
@@ -156,10 +172,9 @@ export async function joinRoom({
   };
 }
 
-
-// ========================================
-// GET ROOM + PLAYER SESSION
-// ========================================
+/* =========================================================
+   RESTORE PLAYER SESSION
+========================================================= */
 
 export async function getPlayerSession(
   playerId,
@@ -201,19 +216,22 @@ export async function getPlayerSession(
   }
 
   return {
-    room,
-    player
+    player,
+    room
   };
 }
 
-
-// ========================================
-// HEARTBEAT
-// ========================================
+/* =========================================================
+   HEARTBEAT
+========================================================= */
 
 export async function updateHeartbeat(
   playerId
 ) {
+  if (!playerId) {
+    return;
+  }
+
   const {
     error
   } = await supabase
@@ -229,22 +247,19 @@ export async function updateHeartbeat(
       "Heartbeat failed:",
       error
     );
-
-    return false;
   }
-
-  return true;
 }
 
-
-// ========================================
-// LEAVE ROOM
-// ========================================
+/* =========================================================
+   LEAVE ROOM
+========================================================= */
 
 export async function leaveRoom(
   playerId
 ) {
-  if (!playerId) return;
+  if (!playerId) {
+    return;
+  }
 
   const {
     error
@@ -254,17 +269,13 @@ export async function leaveRoom(
     .eq("id", playerId);
 
   if (error) {
-    console.error(
-      "Leave room failed:",
-      error
-    );
+    throw error;
   }
 }
 
-
-// ========================================
-// KICK PLAYER
-// ========================================
+/* =========================================================
+   KICK PLAYER
+========================================================= */
 
 export async function kickPlayer({
   targetPlayerId,
@@ -290,29 +301,30 @@ export async function kickPlayer({
 
   if (!data) {
     throw new Error(
-      "You do not have permission to kick this player."
+      "Could not kick this player."
     );
   }
 
   return true;
 }
 
-// START GAME
+/* =========================================================
+   START GAME
+========================================================= */
+
 export async function startGame(
   roomId,
   hostPlayerId
 ) {
-  // Check that the player is actually
-  // the host of this room.
-
   const {
     data: host,
     error: hostError
   } = await supabase
     .from("players")
-    .select("id, room_id, is_host")
+    .select("*")
     .eq("id", hostPlayerId)
     .eq("room_id", roomId)
+    .eq("is_host", true)
     .maybeSingle();
 
   if (hostError) {
@@ -321,18 +333,9 @@ export async function startGame(
 
   if (!host) {
     throw new Error(
-      "Player not found."
-    );
-  }
-
-  if (!host.is_host) {
-    throw new Error(
       "Only the host can start the game."
     );
   }
-
-
-  // Get players in the room.
 
   const {
     data: players,
@@ -346,104 +349,58 @@ export async function startGame(
     throw playersError;
   }
 
-
-  // Require at least 2 players.
-
   if (
     !players ||
     players.length < 2
   ) {
     throw new Error(
-      "At least 2 players are required to start."
+      "At least 2 players are required."
     );
   }
 
-
-  // Get the room first.
-
   const {
-    data: currentRoom,
-    error: currentRoomError
+    data: room,
+    error: roomError
   } = await supabase
     .from("rooms")
     .select("*")
     .eq("id", roomId)
-    .maybeSingle();
+    .single();
 
-  if (currentRoomError) {
-    throw currentRoomError;
+  if (roomError) {
+    throw roomError;
   }
 
-  if (!currentRoom) {
-    throw new Error(
-      "Room not found."
-    );
-  }
-
-
-  // Make sure the room is still in
-  // the lobby.
-
-  if (
-    currentRoom.status !==
-    "lobby"
-  ) {
-    throw new Error(
-      "This game has already started."
-    );
-  }
-
-
-  // Calculate writing end time
-  // using the room's actual setting.
-
-  const writingEndsAt =
-    new Date(
-      Date.now() +
-      currentRoom.round_seconds *
-        1000
-    ).toISOString();
-
-
-  // Update the room.
+  const endsAt = new Date(
+    Date.now() +
+      room.round_seconds * 1000
+  ).toISOString();
 
   const {
-    data: updatedRooms,
+    data: updatedRoom,
     error: updateError
   } = await supabase
     .from("rooms")
     .update({
       status: "writing",
       round: 1,
-      writing_ends_at:
-        writingEndsAt
+      writing_ends_at: endsAt
     })
     .eq("id", roomId)
-    .eq("status", "lobby")
-    .select("*");
+    .select()
+    .single();
 
   if (updateError) {
     throw updateError;
   }
 
-
-  // Make sure the update actually
-  // changed a room.
-
-  if (
-    !updatedRooms ||
-    updatedRooms.length === 0
-  ) {
-    throw new Error(
-      "Could not start the game. The room may have already started."
-    );
-  }
-
-
-  return updatedRooms[0];
+  return updatedRoom;
 }
 
-// SUBMIT PAPER
+/* =========================================================
+   SUBMIT PAPER
+========================================================= */
+
 export async function submitPaper({
   roomId,
   playerId,
@@ -451,10 +408,13 @@ export async function submitPaper({
   content,
   autoFilled = false
 }) {
-  const cleanContent = content.trim();
+  const cleanContent =
+    content?.trim() || "";
 
   if (!cleanContent) {
-    throw new Error("Your writing cannot be empty.");
+    throw new Error(
+      "Paper cannot be empty."
+    );
   }
 
   const {
@@ -469,7 +429,8 @@ export async function submitPaper({
         author_id: playerId,
         content: cleanContent,
         auto_filled: autoFilled,
-        submitted_at: new Date().toISOString()
+        submitted_at:
+          new Date().toISOString()
       },
       {
         onConflict:
@@ -486,9 +447,14 @@ export async function submitPaper({
   return data;
 }
 
+/* =========================================================
+   CHECK WRITING COMPLETE
+========================================================= */
 
-// CHECK WHETHER EVERYONE SUBMITTED
-export async function checkRoundComplete(roomId, round) {
+export async function checkRoundComplete(
+  roomId,
+  round
+) {
   const {
     data: players,
     error: playersError
@@ -514,29 +480,38 @@ export async function checkRoundComplete(roomId, round) {
     throw papersError;
   }
 
-  const submittedIds = new Set(
-    (papers || []).map(
-      (paper) => paper.author_id
-    )
-  );
+  const submittedIds =
+    new Set(
+      (papers || []).map(
+        (paper) =>
+          paper.author_id
+      )
+    );
 
   return (
-    players &&
-    players.length > 0 &&
-    players.every((player) =>
-      submittedIds.has(player.id)
-    )
+    players || []
+  ).every(
+    (player) =>
+      submittedIds.has(
+        player.id
+      )
   );
 }
 
-// SUBMIT ALL GUESSES
+/* =========================================================
+   SUBMIT GUESSES
+========================================================= */
+
 export async function submitGuesses({
   roomId,
   round,
   playerId,
   guesses
 }) {
-  const entries = Object.entries(guesses);
+  const entries =
+    Object.entries(
+      guesses || {}
+    );
 
   if (entries.length === 0) {
     throw new Error(
@@ -544,26 +519,33 @@ export async function submitGuesses({
     );
   }
 
-  const rows = entries.map(
-    ([paperId, guessedPlayerId]) => ({
-      room_id: roomId,
-      round,
-      paper_id: paperId,
-      assigned_to: playerId,
-      guessed_player_id:
+  const rows =
+    entries.map(
+      ([
+        paperId,
         guessedPlayerId
-    })
-  );
+      ]) => ({
+        room_id: roomId,
+        round,
+        paper_id: paperId,
+        assigned_to: playerId,
+        guessed_player_id:
+          guessedPlayerId
+      })
+    );
 
   const {
     data,
     error
   } = await supabase
     .from("assignments")
-    .upsert(rows, {
-      onConflict:
-        "room_id,round,assigned_to"
-    })
+    .upsert(
+      rows,
+      {
+        onConflict:
+          "room_id,round,assigned_to,paper_id"
+      }
+    )
     .select();
 
   if (error) {
@@ -573,8 +555,10 @@ export async function submitGuesses({
   return data;
 }
 
+/* =========================================================
+   CHECK GUESSING COMPLETE
+========================================================= */
 
-// CHECK IF EVERY PLAYER FINISHED GUESSING
 export async function checkGuessingComplete({
   roomId,
   round
@@ -596,7 +580,7 @@ export async function checkGuessingComplete({
     error: papersError
   } = await supabase
     .from("papers")
-    .select("id, author_id")
+    .select("id")
     .eq("room_id", roomId)
     .eq("round", round);
 
@@ -604,27 +588,33 @@ export async function checkGuessingComplete({
     throw papersError;
   }
 
-  const guessablePapers =
-    (papers || []).filter(
-      (paper) => {
-        // A player shouldn't have to guess
-        // their own paper.
-        return true;
-      }
-    );
+  const playerList =
+    players || [];
+
+  const paperList =
+    papers || [];
 
   const requiredGuesses =
     Math.max(
       0,
-      guessablePapers.length - 1
+      paperList.length - 1
     );
+
+  if (
+    playerList.length === 0 ||
+    paperList.length === 0
+  ) {
+    return false;
+  }
 
   const {
     data: assignments,
     error: assignmentsError
   } = await supabase
     .from("assignments")
-    .select("assigned_to, paper_id")
+    .select(
+      "assigned_to,paper_id"
+    )
     .eq("room_id", roomId)
     .eq("round", round);
 
@@ -638,21 +628,409 @@ export async function checkGuessingComplete({
     const assignment of
     assignments || []
   ) {
-    if (!counts[assignment.assigned_to]) {
-      counts[assignment.assigned_to] = 0;
+    if (
+      !counts[
+        assignment.assigned_to
+      ]
+    ) {
+      counts[
+        assignment.assigned_to
+      ] = new Set();
     }
 
     counts[
       assignment.assigned_to
-    ] += 1;
+    ].add(
+      assignment.paper_id
+    );
   }
 
-  const everyoneFinished =
-    (players || []).every(
-      (gamePlayer) =>
-        (counts[gamePlayer.id] || 0) >=
-        requiredGuesses
-    );
+  return playerList.every(
+    (player) => {
+      const guessed =
+        counts[player.id]
+          ?.size || 0;
 
-  return everyoneFinished;
+      return (
+        guessed >=
+        requiredGuesses
+      );
+    }
+  );
+}
+
+/* =========================================================
+   START GUESSING
+========================================================= */
+
+export async function startGuessing(
+  roomId
+) {
+  const {
+    data,
+    error
+  } = await supabase
+    .from("rooms")
+    .update({
+      status: "guessing"
+    })
+    .eq("id", roomId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+/* =========================================================
+   CALCULATE ROUND SCORES
+========================================================= */
+
+export async function calculateRoundScores({
+  roomId,
+  round
+}) {
+  const {
+    data: players,
+    error: playersError
+  } = await supabase
+    .from("players")
+    .select("id, score")
+    .eq("room_id", roomId);
+
+  if (playersError) {
+    throw playersError;
+  }
+
+  const {
+    data: papers,
+    error: papersError
+  } = await supabase
+    .from("papers")
+    .select(
+      "id, author_id"
+    )
+    .eq("room_id", roomId)
+    .eq("round", round);
+
+  if (papersError) {
+    throw papersError;
+  }
+
+  const {
+    data: assignments,
+    error: assignmentsError
+  } = await supabase
+    .from("assignments")
+    .select(
+      "id, assigned_to, paper_id, guessed_player_id"
+    )
+    .eq("room_id", roomId)
+    .eq("round", round);
+
+  if (assignmentsError) {
+    throw assignmentsError;
+  }
+
+  /*
+   * Map paper → actual author.
+   */
+
+  const paperAuthors = {};
+
+  for (
+    const paper of
+    papers || []
+  ) {
+    paperAuthors[
+      paper.id
+    ] = paper.author_id;
+  }
+
+  /*
+   * Calculate points earned
+   * this round.
+   */
+
+  const points = {};
+
+  for (
+    const player of
+    players || []
+  ) {
+    points[player.id] = 0;
+  }
+
+  for (
+    const assignment of
+    assignments || []
+  ) {
+    const actualAuthor =
+      paperAuthors[
+        assignment.paper_id
+      ];
+
+    const guessedAuthor =
+      assignment.guessed_player_id;
+
+    const guesser =
+      assignment.assigned_to;
+
+    /*
+     * Correct = +1
+     * Wrong = +0
+     */
+
+    if (
+      actualAuthor &&
+      guessedAuthor ===
+        actualAuthor
+    ) {
+      points[guesser] =
+        (points[guesser] || 0) +
+        1;
+    }
+  }
+
+  /*
+   * Add this round's points
+   * to the player's total score.
+   */
+
+  for (
+    const player of
+    players || []
+  ) {
+    const earned =
+      points[player.id] || 0;
+
+    if (earned === 0) {
+      continue;
+    }
+
+    const newScore =
+      (player.score || 0) +
+      earned;
+
+    const {
+      error: updateError
+    } = await supabase
+      .from("players")
+      .update({
+        score: newScore
+      })
+      .eq("id", player.id)
+      .eq("room_id", roomId);
+
+    if (updateError) {
+      throw updateError;
+    }
+  }
+
+  return points;
+}
+
+/* =========================================================
+   START REVEAL
+========================================================= */
+
+export async function startReveal(
+  roomId
+) {
+  /*
+   * First change guessing → reveal.
+   *
+   * The status condition is important:
+   * only ONE client can successfully make
+   * this transition.
+   */
+
+  const endsAt = new Date(
+    Date.now() + 15 * 1000
+  ).toISOString();
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("rooms")
+    .update({
+      status: "reveal",
+      writing_ends_at: endsAt
+    })
+    .eq("id", roomId)
+    .eq("status", "guessing")
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  /*
+   * The client that successfully changed
+   * guessing → reveal calculates the score.
+   */
+
+  if (data) {
+    await calculateRoundScores({
+      roomId,
+      round: data.round
+    });
+
+    return data;
+  }
+
+  /*
+   * Another client already changed the
+   * room to reveal.
+   */
+
+  const {
+    data: currentRoom,
+    error: currentRoomError
+  } = await supabase
+    .from("rooms")
+    .select("*")
+    .eq("id", roomId)
+    .single();
+
+  if (currentRoomError) {
+    throw currentRoomError;
+  }
+
+  return currentRoom;
+}
+
+/* =========================================================
+   START NEXT ROUND
+========================================================= */
+
+export async function startNextRound(
+  roomId,
+  hostPlayerId
+) {
+  /*
+   * Verify host.
+   */
+
+  const {
+    data: host,
+    error: hostError
+  } = await supabase
+    .from("players")
+    .select(
+      "id, is_host"
+    )
+    .eq("id", hostPlayerId)
+    .eq("room_id", roomId)
+    .eq("is_host", true)
+    .maybeSingle();
+
+  if (hostError) {
+    throw hostError;
+  }
+
+  if (!host) {
+    throw new Error(
+      "Only the host can start the next round."
+    );
+  }
+
+  /*
+   * Get current room.
+   */
+
+  const {
+    data: room,
+    error: roomError
+  } = await supabase
+    .from("rooms")
+    .select("*")
+    .eq("id", roomId)
+    .single();
+
+  if (roomError) {
+    throw roomError;
+  }
+
+  const currentRound =
+    room.round;
+
+  const totalRounds =
+    room.rounds || 3;
+
+  /*
+   * IMPORTANT:
+   *
+   * Do NOT calculate scores here.
+   *
+   * Scores were already calculated
+   * when guessing → reveal happened.
+   */
+
+  /*
+   * Final round.
+   */
+
+  if (
+    currentRound >=
+    totalRounds
+  ) {
+    const {
+      data,
+      error
+    } = await supabase
+      .from("rooms")
+      .update({
+        status: "ended",
+        writing_ends_at: null
+      })
+      .eq("id", roomId)
+      .eq("status", "reveal")
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  /*
+   * Start next round.
+   */
+
+  const nextRound =
+    currentRound + 1;
+
+  const endsAt = new Date(
+    Date.now() +
+      room.round_seconds * 1000
+  ).toISOString();
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("rooms")
+    .update({
+      round: nextRound,
+      status: "writing",
+      writing_ends_at: endsAt
+    })
+    .eq("id", roomId)
+    .eq("status", "reveal")
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }

@@ -12,6 +12,7 @@ import Lobby from "./components/Lobby";
 import WritingScreen from "./components/WritingScreen";
 import GuessingScreen from "./components/GuessingScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
+import RevealScreen from "./components/RevealScreen";
 
 import { AVATARS } from "./game/avatars";
 
@@ -46,9 +47,10 @@ function App() {
 
   const [error, setError] = useState("");
 
-
   /*
+   * =========================================================
    * RESTORE PREVIOUS SESSION
+   * =========================================================
    */
 
   useEffect(() => {
@@ -123,31 +125,29 @@ function App() {
         }
 
         /*
-         * RESTORE CORRECT GAME SCREEN
+         * Restore correct screen
          */
 
-        if (
-          session.room.status ===
-          "writing"
-        ) {
-          setScreen("writing");
-        } else if (
-          session.room.status ===
-          "guessing"
-        ) {
-          setScreen("guessing");
-        } else if (
-          session.room.status ===
-          "reveal"
-        ) {
-          setScreen("reveal");
-        } else if (
-          session.room.status ===
-          "ended"
-        ) {
-          setScreen("ended");
-        } else {
-          setScreen("lobby");
+        switch (session.room.status) {
+          case "writing":
+            setScreen("writing");
+            break;
+
+          case "guessing":
+            setScreen("guessing");
+            break;
+
+          case "reveal":
+            setScreen("reveal");
+            break;
+
+          case "ended":
+            setScreen("ended");
+            break;
+
+          default:
+            setScreen("lobby");
+            break;
         }
 
       } catch (error) {
@@ -163,9 +163,10 @@ function App() {
     restoreSession();
   }, []);
 
-
   /*
+   * =========================================================
    * SAVE NAME
+   * =========================================================
    */
 
   useEffect(() => {
@@ -177,9 +178,10 @@ function App() {
     }
   }, [name]);
 
-
   /*
+   * =========================================================
    * SAVE AVATAR
+   * =========================================================
    */
 
   useEffect(() => {
@@ -191,9 +193,47 @@ function App() {
     }
   }, [selectedAvatar]);
 
+  /*
+   * =========================================================
+   * KEEP SCREEN SYNCHRONIZED WITH ROOM STATUS
+   * =========================================================
+   */
+
+  useEffect(() => {
+    if (!room?.status) {
+      return;
+    }
+
+    switch (room.status) {
+      case "writing":
+        setScreen("writing");
+        break;
+
+      case "guessing":
+        setScreen("guessing");
+        break;
+
+      case "reveal":
+        setScreen("reveal");
+        break;
+
+      case "ended":
+        setScreen("ended");
+        break;
+
+      case "lobby":
+        setScreen("lobby");
+        break;
+
+      default:
+        break;
+    }
+  }, [room?.status]);
 
   /*
+   * =========================================================
    * REALTIME ROOM STATUS
+   * =========================================================
    */
 
   useEffect(() => {
@@ -204,7 +244,7 @@ function App() {
     const channel =
       supabase
         .channel(
-          `room-status-${room.id}-${player?.id || "unknown"}`
+          `room-status-${room.id}`
         )
         .on(
           "postgres_changes",
@@ -215,54 +255,12 @@ function App() {
             filter: `id=eq.${room.id}`
           },
           (payload) => {
-            const updatedRoom =
-              payload.new;
+            console.log(
+              "ROOM UPDATE:",
+              payload.new
+            );
 
-            setRoom(updatedRoom);
-
-            /*
-             * WRITING
-             */
-
-            if (
-              updatedRoom.status ===
-              "writing"
-            ) {
-              setScreen("writing");
-            }
-
-            /*
-             * GUESSING
-             */
-
-            if (
-              updatedRoom.status ===
-              "guessing"
-            ) {
-              setScreen("guessing");
-            }
-
-            /*
-             * REVEAL
-             */
-
-            if (
-              updatedRoom.status ===
-              "reveal"
-            ) {
-              setScreen("reveal");
-            }
-
-            /*
-             * GAME ENDED
-             */
-
-            if (
-              updatedRoom.status ===
-              "ended"
-            ) {
-              setScreen("ended");
-            }
+            setRoom(payload.new);
           }
         )
         .subscribe();
@@ -272,23 +270,22 @@ function App() {
         channel
       );
     };
-  }, [
-    room?.id,
-    player?.id
-  ]);
-
+  }, [room?.id]);
 
   /*
+   * =========================================================
    * INTRO
+   * =========================================================
    */
 
   function handleIntroComplete() {
     setScreen("name");
   }
 
-
   /*
+   * =========================================================
    * NAME CONTINUE
+   * =========================================================
    */
 
   function handleContinue() {
@@ -300,9 +297,10 @@ function App() {
     setScreen("mode");
   }
 
-
   /*
+   * =========================================================
    * CREATE ROOM SCREEN
+   * =========================================================
    */
 
   function handleCreateRoom() {
@@ -310,9 +308,10 @@ function App() {
     setScreen("create-room");
   }
 
-
   /*
+   * =========================================================
    * JOIN ROOM SCREEN
+   * =========================================================
    */
 
   function handleJoinRoom() {
@@ -320,14 +319,13 @@ function App() {
     setScreen("join-room");
   }
 
-
   /*
+   * =========================================================
    * CREATE ROOM
+   * =========================================================
    */
 
-  async function handleCreate(
-    settings
-  ) {
+  async function handleCreate(settings) {
     if (creatingRoom) {
       return;
     }
@@ -379,14 +377,13 @@ function App() {
     }
   }
 
-
   /*
+   * =========================================================
    * JOIN ROOM
+   * =========================================================
    */
 
-  async function handleJoin(
-    code
-  ) {
+  async function handleJoin(code) {
     if (joiningRoom) {
       return;
     }
@@ -433,16 +430,15 @@ function App() {
     }
   }
 
-
   /*
+   * =========================================================
    * LEAVE ROOM
+   * =========================================================
    */
 
   async function handleLeaveRoom() {
     if (player?.id) {
-      await leaveRoom(
-        player.id
-      );
+      await leaveRoom(player.id);
     }
 
     localStorage.removeItem(
@@ -460,9 +456,10 @@ function App() {
     setScreen("mode");
   }
 
-
   /*
+   * =========================================================
    * KICKED
+   * =========================================================
    */
 
   const handleKicked =
@@ -489,15 +486,15 @@ function App() {
       }, 4000);
     }, []);
 
-
   /*
-   * RESTORING SESSION SCREEN
+   * =========================================================
+   * RESTORING SESSION
+   * =========================================================
    */
 
   if (restoringSession) {
     return (
       <main className="app">
-
         <div
           style={{
             position: "fixed",
@@ -512,14 +509,14 @@ function App() {
         >
           Loading...
         </div>
-
       </main>
     );
   }
 
-
   /*
+   * =========================================================
    * MAIN APP
+   * =========================================================
    */
 
   return (
@@ -534,7 +531,6 @@ function App() {
           }
         />
       )}
-
 
       {/* NAME */}
 
@@ -554,7 +550,6 @@ function App() {
         />
       )}
 
-
       {/* MODE */}
 
       {screen === "mode" && (
@@ -571,7 +566,6 @@ function App() {
           }
         />
       )}
-
 
       {/* CREATE ROOM */}
 
@@ -591,7 +585,6 @@ function App() {
         />
       )}
 
-
       {/* JOIN ROOM */}
 
       {screen === "join-room" && (
@@ -610,7 +603,6 @@ function App() {
         />
       )}
 
-
       {/* LOBBY */}
 
       {screen === "lobby" && (
@@ -626,7 +618,6 @@ function App() {
         />
       )}
 
-
       {/* WRITING */}
 
       {screen === "writing" && (
@@ -635,7 +626,6 @@ function App() {
           player={player}
         />
       )}
-
 
       {/* GUESSING */}
 
@@ -646,12 +636,19 @@ function App() {
         />
       )}
 
+      {/* REVEAL */}
+
+      {screen === "reveal" && (
+        <RevealScreen
+          room={room}
+          player={player}
+        />
+      )}
 
       {/* ERROR / TOAST */}
 
       {error && (
         <div className="game-toast">
-
           <span className="game-toast-icon">
             !
           </span>
@@ -659,10 +656,8 @@ function App() {
           <span>
             {error}
           </span>
-
         </div>
       )}
-
 
       {/* CREATE / JOIN LOADING */}
 
