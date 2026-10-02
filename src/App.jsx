@@ -4,6 +4,8 @@ import {
   useState,
 } from "react";
 
+import { createPortal } from "react-dom";
+
 import LoadingScreen from "./components/LoadingScreen";
 import NameScreen from "./components/NameScreen";
 import ModeScreen from "./components/ModeScreen";
@@ -29,7 +31,10 @@ import { supabase } from "./lib/supabase";
 
 function App() {
   const [name, setName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
+  const [selectedAvatar, setSelectedAvatar] = useState(
+    AVATARS[0]
+  );
+
   const [screen, setScreen] = useState("intro");
   const [room, setRoom] = useState(null);
   const [player, setPlayer] = useState(null);
@@ -398,15 +403,16 @@ function App() {
     }, 4000);
   }, []);
 
+  /*
+   * Global Leave button.
+   *
+   * It is shown whenever the user has
+   * an active room and player.
+   *
+   * It does NOT depend on the current screen.
+   */
   const showLeaveButton =
-    Boolean(room?.id && player?.id) &&
-    [
-      "lobby",
-      "writing",
-      "guessing",
-      "reveal",
-      "ended",
-    ].includes(screen);
+    Boolean(room?.id && player?.id);
 
   if (restoringSession) {
     return (
@@ -522,57 +528,67 @@ function App() {
           <span className="game-toast-icon">
             !
           </span>
+
           <span>{error}</span>
         </div>
       )}
 
-      {showLeaveButton && (
-        <div
-          className="global-leave-container"
-          style={{
-            position: "fixed",
-            left: "20px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 2147483647,
-            pointerEvents: "auto",
-          }}
-        >
-          {!confirmingLeave ? (
-            <button
-              type="button"
-              className="global-leave-button"
-              onClick={() =>
-                setConfirmingLeave(true)
-              }
-            >
-              Leave
-            </button>
-          ) : (
-            <div className="global-leave-confirm">
-              <span>Leave game?</span>
-
+      {/*
+       * GLOBAL LEAVE BUTTON
+       *
+       * createPortal puts this directly into
+       * document.body, outside WritingScreen,
+       * GuessingScreen, RevealScreen, etc.
+       */}
+      {showLeaveButton &&
+        createPortal(
+          <div
+            className="global-leave-container"
+            style={{
+              position: "fixed",
+              left: "20px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 2147483647,
+              pointerEvents: "auto",
+            }}
+          >
+            {!confirmingLeave ? (
               <button
                 type="button"
-                className="global-leave-confirm-button"
-                onClick={handleLeaveRoom}
-              >
-                Yes
-              </button>
-
-              <button
-                type="button"
-                className="global-leave-cancel-button"
+                className="global-leave-button"
                 onClick={() =>
-                  setConfirmingLeave(false)
+                  setConfirmingLeave(true)
                 }
               >
-                No
+                Leave
               </button>
-            </div>
-          )}
-        </div>
-      )}
+            ) : (
+              <div className="global-leave-confirm">
+                <span>Leave game?</span>
+
+                <button
+                  type="button"
+                  className="global-leave-confirm-button"
+                  onClick={handleLeaveRoom}
+                >
+                  Yes
+                </button>
+
+                <button
+                  type="button"
+                  className="global-leave-cancel-button"
+                  onClick={() =>
+                    setConfirmingLeave(false)
+                  }
+                >
+                  No
+                </button>
+              </div>
+            )}
+          </div>,
+          document.body
+        )}
 
       {(creatingRoom || joiningRoom) && (
         <div
