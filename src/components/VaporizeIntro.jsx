@@ -12,11 +12,21 @@ function VaporizeIntro({ onComplete }) {
 
     let animationFrame;
     let particles = [];
-    let startTime = performance.now();
 
-    const duration = 2600;
+    const FADE_IN = 300;
+    const HOLD = 1000;
+    const VAPORIZE = 2400;
 
-    function resize() {
+    const startTime = performance.now();
+
+    function getFontSize() {
+      return Math.min(
+        100,
+        Math.max(55, window.innerWidth * 0.085)
+      );
+    }
+
+    function setupCanvas() {
       const dpr = window.devicePixelRatio || 1;
 
       canvas.width = window.innerWidth * dpr;
@@ -33,94 +43,163 @@ function VaporizeIntro({ onComplete }) {
     function createParticles() {
       particles = [];
 
-      const fontSize = Math.min(
-        110,
-        Math.max(55, window.innerWidth * 0.09)
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const fontSize = getFontSize();
+
+      const buffer = document.createElement("canvas");
+
+      buffer.width = width;
+      buffer.height = height;
+
+      const bufferCtx = buffer.getContext("2d");
+
+      if (!bufferCtx) return;
+
+      bufferCtx.font =
+        `800 ${fontSize}px Inter, Arial, sans-serif`;
+
+      bufferCtx.textAlign = "center";
+      bufferCtx.textBaseline = "middle";
+      bufferCtx.fillStyle = "#fff";
+
+      bufferCtx.fillText(
+        "PAPER.IO",
+        width / 2,
+        height / 2
       );
 
-      ctx.font = `800 ${fontSize}px Inter, Arial, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+      const textWidth =
+        bufferCtx.measureText("PAPER.IO").width;
 
-      const text = "PAPER.IO";
-
-      const width = ctx.measureText(text).width;
-
-      const offscreen = document.createElement("canvas");
-      offscreen.width = window.innerWidth;
-      offscreen.height = window.innerHeight;
-
-      const offCtx = offscreen.getContext("2d");
-
-      offCtx.font = `800 ${fontSize}px Inter, Arial, sans-serif`;
-      offCtx.textAlign = "center";
-      offCtx.textBaseline = "middle";
-      offCtx.fillStyle = "#fff";
-
-      offCtx.fillText(
-        text,
-        window.innerWidth / 2,
-        window.innerHeight / 2
-      );
-
-      const image = offCtx.getImageData(
+      const image = bufferCtx.getImageData(
         0,
         0,
-        offscreen.width,
-        offscreen.height
+        width,
+        height
       );
 
-      const step = window.innerWidth < 600 ? 3 : 4;
+      const step = width < 600 ? 3 : 3;
 
-      for (
-        let y = window.innerHeight / 2 - fontSize;
-        y < window.innerHeight / 2 + fontSize;
-        y += step
-      ) {
-        for (
-          let x = window.innerWidth / 2 - width / 2;
-          x < window.innerWidth / 2 + width / 2;
-          x += step
-        ) {
+      const left =
+        width / 2 - textWidth / 2;
+
+      const right =
+        width / 2 + textWidth / 2;
+
+      const top =
+        height / 2 - fontSize * 0.65;
+
+      const bottom =
+        height / 2 + fontSize * 0.65;
+
+      for (let y = top; y < bottom; y += step) {
+        for (let x = left; x < right; x += step) {
           const px = Math.floor(x);
           const py = Math.floor(y);
 
           if (
             px < 0 ||
             py < 0 ||
-            px >= offscreen.width ||
-            py >= offscreen.height
+            px >= width ||
+            py >= height
           ) {
             continue;
           }
 
           const index =
-            (py * offscreen.width + px) * 4;
+            (py * width + px) * 4;
 
-          const alpha = image.data[index + 3];
-
-          if (alpha > 100) {
+          if (image.data[index + 3] > 120) {
             particles.push({
               x,
               y,
 
-              originX: x,
-              originY: y,
+              originalX: x,
+              originalY: y,
 
               vx: 0,
               vy: 0,
 
-              size: Math.random() * 1.6 + 0.5,
+              size:
+                Math.random() * 1.6 + 0.5,
 
-              delay: Math.random() * 500
+              life: 0,
+
+              activated: false,
+
+              angle:
+                Math.random() *
+                Math.PI *
+                2,
+
+              speed:
+                Math.random() * 1.5 + 0.6,
+
+              rotation:
+                Math.random() *
+                Math.PI *
+                2
             });
           }
         }
       }
     }
 
+    function drawSolidText(alpha = 1) {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const fontSize = getFontSize();
+
+      ctx.save();
+
+      ctx.globalAlpha = alpha;
+
+      ctx.font =
+        `800 ${fontSize}px Inter, Arial, sans-serif`;
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.fillStyle = "#fff";
+
+      ctx.fillText(
+        "PAPER.IO",
+        width / 2,
+        height / 2
+      );
+
+      ctx.restore();
+    }
+
+    function activateParticle(particle) {
+      particle.activated = true;
+
+      particle.x = particle.originalX;
+      particle.y = particle.originalY;
+
+      particle.angle =
+        Math.random() *
+        Math.PI *
+        2;
+
+      particle.speed =
+        Math.random() * 2.2 + 0.5;
+
+      particle.vx =
+        Math.cos(particle.angle) *
+        particle.speed;
+
+      particle.vy =
+        Math.sin(particle.angle) *
+        particle.speed;
+
+      particle.life = 1;
+    }
+
     function animate(now) {
-      const elapsed = now - startTime;
+      const elapsed =
+        now - startTime;
 
       ctx.clearRect(
         0,
@@ -129,97 +208,207 @@ function VaporizeIntro({ onComplete }) {
         window.innerHeight
       );
 
-      const progress = Math.min(
-        elapsed / duration,
-        1
-      );
+      // =========================
+      // APPEAR
+      // =========================
 
-      particles.forEach((particle) => {
-        const particleProgress = Math.max(
-          0,
+      if (elapsed < FADE_IN) {
+        drawSolidText(
+          elapsed / FADE_IN
+        );
+      }
+
+      // =========================
+      // HOLD
+      // =========================
+
+      else if (
+        elapsed <
+        FADE_IN + HOLD
+      ) {
+        drawSolidText(1);
+      }
+
+      // =========================
+      // VAPORIZE
+      // =========================
+
+      else if (
+        elapsed <
+        FADE_IN +
+          HOLD +
+          VAPORIZE
+      ) {
+        const vaporTime =
+          elapsed -
+          FADE_IN -
+          HOLD;
+
+        const progress =
           Math.min(
             1,
-            (elapsed - particle.delay) / 1600
-          )
+            vaporTime / VAPORIZE
+          );
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const fontSize = getFontSize();
+
+        ctx.font =
+          `800 ${fontSize}px Inter, Arial, sans-serif`;
+
+        const textWidth =
+          ctx.measureText("PAPER.IO").width;
+
+        const left =
+          width / 2 -
+          textWidth / 2;
+
+        const right =
+          width / 2 +
+          textWidth / 2;
+
+        /*
+         * Vapor front.
+         *
+         * It starts just before
+         * the first letter and moves
+         * continuously to the right.
+         */
+        const front =
+          left -
+          5 +
+          (textWidth + 10) *
+            progress;
+
+        // =========================
+        // SOLID REMAINING TEXT
+        // =========================
+
+        /*
+         * IMPORTANT:
+         *
+         * Only draw the portion
+         * AFTER the vapor front.
+         *
+         * Everything behind the front
+         * is now gone.
+         */
+        ctx.save();
+
+        ctx.beginPath();
+
+        ctx.rect(
+          front,
+          0,
+          width - front,
+          height
         );
 
-        if (particleProgress <= 0) {
+        ctx.clip();
+
+        drawSolidText(1);
+
+        ctx.restore();
+
+        // =========================
+        // PARTICLES
+        // =========================
+
+        particles.forEach((particle) => {
+          /*
+           * The particle does NOT exist
+           * visually until the vapor front
+           * actually reaches it.
+           */
+          if (
+            !particle.activated &&
+            particle.originalX <= front
+          ) {
+            activateParticle(particle);
+          }
+
+          if (!particle.activated) {
+            return;
+          }
+
+          // Particle movement
+          particle.vx *= 0.985;
+          particle.vy *= 0.985;
+
+          particle.vy += 0.018;
+
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+
+          particle.life -= 0.008;
+
+          if (particle.life <= 0) {
+            return;
+          }
+
+          /*
+           * Slight random opacity
+           * makes the vapor feel natural.
+           */
+          const alpha =
+            particle.life *
+            (0.7 +
+              Math.random() * 0.3);
+
+          ctx.save();
+
+          ctx.globalAlpha = alpha;
+
           ctx.fillStyle = "#fff";
 
           ctx.fillRect(
-            particle.originX,
-            particle.originY,
+            particle.x,
+            particle.y,
             particle.size,
             particle.size
           );
 
-          return;
-        }
-
-        if (particleProgress < 0.35) {
-          particle.x = particle.originX;
-          particle.y = particle.originY;
-        } else {
-          if (!particle.vx && !particle.vy) {
-            const angle =
-              Math.random() * Math.PI * 2;
-
-            const speed =
-              Math.random() * 1.8 + 0.4;
-
-            particle.vx =
-              Math.cos(angle) * speed;
-
-            particle.vy =
-              Math.sin(angle) * speed;
-          }
-
-          particle.x +=
-            particle.vx * 2.2;
-
-          particle.y +=
-            particle.vy * 1.3;
-
-          particle.vy += 0.008;
-        }
-
-        const fade =
-          1 - particleProgress;
-
-        ctx.fillStyle = `rgba(255,255,255,${fade})`;
-
-        ctx.fillRect(
-          particle.x,
-          particle.y,
-          particle.size,
-          particle.size
-        );
-      });
-
-      if (progress < 1) {
-        animationFrame =
-          requestAnimationFrame(animate);
-      } else {
-        onComplete();
+          ctx.restore();
+        });
       }
+
+      // =========================
+      // DONE
+      // =========================
+
+      else {
+        cancelAnimationFrame(
+          animationFrame
+        );
+
+        onComplete();
+
+        return;
+      }
+
+      animationFrame =
+        requestAnimationFrame(animate);
     }
 
-    resize();
+    setupCanvas();
 
     window.addEventListener(
       "resize",
-      resize
+      setupCanvas
     );
 
     animationFrame =
       requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      cancelAnimationFrame(
+        animationFrame
+      );
 
       window.removeEventListener(
         "resize",
-        resize
+        setupCanvas
       );
     };
   }, [onComplete]);
@@ -232,9 +421,6 @@ function VaporizeIntro({ onComplete }) {
         width: "100vw",
         height: "100vh",
         background: "#000",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         overflow: "hidden",
         zIndex: 9999
       }}
@@ -242,9 +428,9 @@ function VaporizeIntro({ onComplete }) {
       <canvas
         ref={canvasRef}
         style={{
-          display: "block",
           width: "100%",
-          height: "100%"
+          height: "100%",
+          display: "block"
         }}
       />
     </div>
