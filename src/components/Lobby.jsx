@@ -15,7 +15,6 @@ import {
 function Lobby({
   room,
   player,
-  onLeave,
   onKicked
 }) {
 
@@ -389,15 +388,6 @@ function Lobby({
             </p>
 
           </div>
-
-
-          <button
-            type="button"
-            className="lobby-leave-button"
-            onClick={onLeave}
-          >
-            Leave
-          </button>
 
         </div>
 
