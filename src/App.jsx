@@ -1,14 +1,28 @@
 import { useState } from "react";
+
 import NameScreen from "./components/NameScreen";
+import ModeScreen from "./components/ModeScreen";
+import VaporizeIntro from "./components/VaporizeIntro";
+
 import { AVATARS } from "./game/avatars";
 
 function App() {
   const [name, setName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] =
-    useState(AVATARS[0]);
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
 
-  const [screen, setScreen] =
-    useState("name");
+  const [screen, setScreen] = useState("intro");
+
+  // =========================
+  // INTRO
+  // =========================
+
+  function handleIntroComplete() {
+    setScreen("name");
+  }
+
+  // =========================
+  // NAME
+  // =========================
 
   function handleContinue() {
     if (!name.trim()) return;
@@ -16,9 +30,33 @@ function App() {
     setScreen("mode");
   }
 
+  // =========================
+  // MODE
+  // =========================
+
+  function handleCreateRoom() {
+    console.log("Create Room clicked");
+  }
+
+  function handleJoinRoom() {
+    console.log("Join Room clicked");
+  }
+
+  // =========================
+  // RENDER
+  // =========================
+
   return (
     <main className="app">
 
+      {/* INTRO */}
+      {screen === "intro" && (
+        <VaporizeIntro
+          onComplete={handleIntroComplete}
+        />
+      )}
+
+      {/* NAME SCREEN */}
       {screen === "name" && (
         <NameScreen
           name={name}
@@ -29,30 +67,14 @@ function App() {
         />
       )}
 
+      {/* MODE SCREEN */}
       {screen === "mode" && (
-        <div className="mode-screen">
-          <div className="mode-screen-card">
-
-            <h1>
-              Welcome, {name}!
-            </h1>
-
-            <p>
-              Your avatar:
-            </p>
-
-            <img
-              src={`/assets/avatars/${selectedAvatar}`}
-              alt="Avatar"
-              width="100"
-            />
-
-            <p>
-              Mode selection will come next.
-            </p>
-
-          </div>
-        </div>
+        <ModeScreen
+          name={name}
+          selectedAvatar={selectedAvatar}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+        />
       )}
 
     </main>
