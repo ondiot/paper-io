@@ -49,6 +49,9 @@ function App() {
   const [error, setError] = useState("");
   const [confirmingLeave, setConfirmingLeave] = useState(false);
 
+  /*
+   * Restore saved session.
+   */
   useEffect(() => {
     async function restoreSession() {
       const savedPlayerId = localStorage.getItem(
@@ -79,8 +82,13 @@ function App() {
         );
 
         if (!session) {
-          localStorage.removeItem("paperio_player_id");
-          localStorage.removeItem("paperio_room_id");
+          localStorage.removeItem(
+            "paperio_player_id"
+          );
+
+          localStorage.removeItem(
+            "paperio_room_id"
+          );
 
           setRestoringSession(false);
           return;
@@ -133,12 +141,21 @@ function App() {
     restoreSession();
   }, []);
 
+  /*
+   * Save name.
+   */
   useEffect(() => {
     if (name) {
-      localStorage.setItem("paperio_name", name);
+      localStorage.setItem(
+        "paperio_name",
+        name
+      );
     }
   }, [name]);
 
+  /*
+   * Save avatar.
+   */
   useEffect(() => {
     if (selectedAvatar) {
       localStorage.setItem(
@@ -148,6 +165,9 @@ function App() {
     }
   }, [selectedAvatar]);
 
+  /*
+   * Keep screen synchronized with room status.
+   */
   useEffect(() => {
     if (!room?.status) {
       return;
@@ -179,6 +199,9 @@ function App() {
     }
   }, [room?.status]);
 
+  /*
+   * Listen for room updates.
+   */
   useEffect(() => {
     if (!room?.id) {
       return;
@@ -205,6 +228,9 @@ function App() {
     };
   }, [room?.id]);
 
+  /*
+   * Listen for current player updates.
+   */
   useEffect(() => {
     if (!room?.id || !player?.id) {
       return;
@@ -231,6 +257,9 @@ function App() {
     };
   }, [room?.id, player?.id]);
 
+  /*
+   * Preload assets.
+   */
   async function handleIntroComplete() {
     setPreloadingAssets(true);
     setPreloadProgress(0);
@@ -254,6 +283,9 @@ function App() {
     setScreen("name");
   }
 
+  /*
+   * Continue from name screen.
+   */
   function handleContinue() {
     if (!name.trim()) {
       return;
@@ -263,16 +295,25 @@ function App() {
     setScreen("mode");
   }
 
+  /*
+   * Open create room.
+   */
   function handleCreateRoom() {
     setError("");
     setScreen("create-room");
   }
 
+  /*
+   * Open join room.
+   */
   function handleJoinRoom() {
     setError("");
     setScreen("join-room");
   }
 
+  /*
+   * Create room.
+   */
   async function handleCreate(settings) {
     if (creatingRoom) {
       return;
@@ -319,6 +360,9 @@ function App() {
     }
   }
 
+  /*
+   * Join room.
+   */
   async function handleJoin(code) {
     if (joiningRoom) {
       return;
@@ -363,6 +407,9 @@ function App() {
     }
   }
 
+  /*
+   * Leave current room.
+   */
   async function handleLeaveRoom() {
     setConfirmingLeave(false);
 
@@ -379,8 +426,13 @@ function App() {
       }
     }
 
-    localStorage.removeItem("paperio_player_id");
-    localStorage.removeItem("paperio_room_id");
+    localStorage.removeItem(
+      "paperio_player_id"
+    );
+
+    localStorage.removeItem(
+      "paperio_room_id"
+    );
 
     setRoom(null);
     setPlayer(null);
@@ -388,14 +440,25 @@ function App() {
     setScreen("mode");
   }
 
+  /*
+   * Handle kicked player.
+   */
   const handleKicked = useCallback(() => {
-    localStorage.removeItem("paperio_player_id");
-    localStorage.removeItem("paperio_room_id");
+    localStorage.removeItem(
+      "paperio_player_id"
+    );
+
+    localStorage.removeItem(
+      "paperio_room_id"
+    );
 
     setRoom(null);
     setPlayer(null);
 
-    setError("You were kicked from the room.");
+    setError(
+      "You were kicked from the room."
+    );
+
     setScreen("mode");
 
     setTimeout(() => {
@@ -404,16 +467,17 @@ function App() {
   }, []);
 
   /*
-   * Global Leave button.
+   * The Leave button exists whenever
+   * the player is inside a room.
    *
-   * It is shown whenever the user has
-   * an active room and player.
-   *
-   * It does NOT depend on the current screen.
+   * It does not depend on screen.
    */
   const showLeaveButton =
     Boolean(room?.id && player?.id);
 
+  /*
+   * Restore-session loading screen.
+   */
   if (restoringSession) {
     return (
       <div
@@ -536,23 +600,12 @@ function App() {
       {/*
        * GLOBAL LEAVE BUTTON
        *
-       * createPortal puts this directly into
-       * document.body, outside WritingScreen,
-       * GuessingScreen, RevealScreen, etc.
+       * This is rendered directly into document.body,
+       * so game screens cannot cover it.
        */}
       {showLeaveButton &&
         createPortal(
-          <div
-            className="global-leave-container"
-            style={{
-              position: "fixed",
-              left: "20px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 2147483647,
-              pointerEvents: "auto",
-            }}
-          >
+          <div className="global-leave-container">
             {!confirmingLeave ? (
               <button
                 type="button"
