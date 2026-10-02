@@ -8,43 +8,70 @@ import {
 import AvatarPicker from "./AvatarPicker";
 
 
+/* =========================================
+   TEXT SCRAMBLE
+========================================= */
+
 class TextScramble {
   constructor(element) {
     this.element = element;
-    this.chars = "!<>-_\\/[]{}—=+*^?#";
+
+    this.chars =
+      "!<>-_\\/[]{}—=+*^?#";
+
     this.queue = [];
+
     this.frame = 0;
+
     this.frameRequest = 0;
+
     this.resolve = () => {};
 
-    this.update = this.update.bind(this);
+    this.update =
+      this.update.bind(this);
   }
 
+
   setText(newText) {
-    const oldText = this.element.innerText;
+    const oldText =
+      this.element.innerText;
 
-    const length = Math.max(
-      oldText.length,
-      newText.length
-    );
+    const length =
+      Math.max(
+        oldText.length,
+        newText.length
+      );
 
-    const promise = new Promise((resolve) => {
-      this.resolve = resolve;
-    });
+    const promise =
+      new Promise((resolve) => {
+        this.resolve = resolve;
+      });
 
     this.queue = [];
 
-    for (let i = 0; i < length; i++) {
-      const from = oldText[i] || "";
-      const to = newText[i] || "";
 
-      const start = Math.floor(
-        Math.random() * 35
-      );
+    for (
+      let i = 0;
+      i < length;
+      i++
+    ) {
+      const from =
+        oldText[i] || "";
+
+      const to =
+        newText[i] || "";
+
+      const start =
+        Math.floor(
+          Math.random() * 40
+        );
 
       const end =
         start +
-        Math.floor(Math.random() * 35);
+        Math.floor(
+          Math.random() * 40
+        );
+
 
       this.queue.push({
         from,
@@ -54,7 +81,11 @@ class TextScramble {
       });
     }
 
-    cancelAnimationFrame(this.frameRequest);
+
+    cancelAnimationFrame(
+      this.frameRequest
+    );
+
 
     this.frame = 0;
 
@@ -63,26 +94,42 @@ class TextScramble {
     return promise;
   }
 
+
   update() {
     let output = "";
+
     let complete = 0;
 
-    for (let i = 0; i < this.queue.length; i++) {
-      const item = this.queue[i];
 
+    for (
+      let i = 0;
+      i < this.queue.length;
+      i++
+    ) {
       let {
         from,
         to,
         start,
         end,
         char
-      } = item;
+      } = this.queue[i];
 
-      if (this.frame >= end) {
+
+      if (
+        this.frame >= end
+      ) {
         complete++;
+
         output += to;
-      } else if (this.frame >= start) {
-        if (!char || Math.random() < 0.3) {
+
+      } else if (
+        this.frame >= start
+      ) {
+
+        if (
+          !char ||
+          Math.random() < 0.28
+        ) {
           char =
             this.chars[
               Math.floor(
@@ -91,29 +138,46 @@ class TextScramble {
               )
             ];
 
-          item.char = char;
+          this.queue[i].char =
+            char;
         }
 
+
         output +=
-          `<span class="paper-name-dud">${char}</span>`;
+          `<span class="paper-scramble-dud">${char}</span>`;
+
       } else {
         output += from;
       }
     }
 
-    this.element.innerHTML = output;
 
-    if (complete === this.queue.length) {
+    this.element.innerHTML =
+      output;
+
+
+    if (
+      complete ===
+      this.queue.length
+    ) {
       this.resolve();
+
     } else {
+
       this.frameRequest =
-        requestAnimationFrame(this.update);
+        requestAnimationFrame(
+          this.update
+        );
 
       this.frame++;
     }
   }
 }
 
+
+/* =========================================
+   NAME SCREEN
+========================================= */
 
 function NameScreen({
   name,
@@ -122,164 +186,297 @@ function NameScreen({
   setSelectedAvatar,
   onContinue
 }) {
-  const titleRef = useRef(null);
-  const scramblerRef = useRef(null);
 
-  const [scramblerReady, setScramblerReady] =
+  const titleRef =
+    useRef(null);
+
+  const scramblerRef =
+    useRef(null);
+
+  const [mounted, setMounted] =
     useState(false);
+
 
   const [characters, setCharacters] =
     useState([]);
 
-  const [activeCharacters, setActiveCharacters] =
+
+  const [activeIndices, setActiveIndices] =
     useState(new Set());
 
 
-  const createCharacters = useCallback(() => {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=[]{}<>?";
+  /* =========================================
+     MATRIX CHARACTERS
+  ========================================= */
 
-    const result = [];
+  const createCharacters =
+    useCallback(() => {
 
-    for (let i = 0; i < 240; i++) {
-      result.push({
-        char:
-          chars[
-            Math.floor(
-              Math.random() * chars.length
-            )
-          ],
+      const allChars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
 
-        x: Math.random() * 100,
+      const charCount = 300;
 
-        y: Math.random() * 100,
+      const newCharacters = [];
 
-        speed:
-          0.04 +
-          Math.random() * 0.14
-      });
-    }
 
-    return result;
-  }, []);
+      for (
+        let i = 0;
+        i < charCount;
+        i++
+      ) {
+
+        newCharacters.push({
+
+          char:
+            allChars[
+              Math.floor(
+                Math.random() *
+                allChars.length
+              )
+            ],
+
+          x:
+            Math.random() * 100,
+
+          y:
+            Math.random() * 100,
+
+          speed:
+            0.1 +
+            Math.random() * 0.3
+
+        });
+      }
+
+
+      return newCharacters;
+
+    }, []);
 
 
   useEffect(() => {
-    setCharacters(createCharacters());
+
+    setCharacters(
+      createCharacters()
+    );
+
   }, [createCharacters]);
 
 
-  useEffect(() => {
-    let animationFrame;
-
-    function animate() {
-      setCharacters((previous) =>
-        previous.map((character) => {
-          let y =
-            character.y +
-            character.speed;
-
-          let x = character.x;
-          let char = character.char;
-
-          if (y > 105) {
-            y = -5;
-
-            x = Math.random() * 100;
-
-            const chars =
-              "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=[]{}<>?";
-
-            char =
-              chars[
-                Math.floor(
-                  Math.random() * chars.length
-                )
-              ];
-          }
-
-          return {
-            ...character,
-            x,
-            y,
-            char
-          };
-        })
-      );
-
-      animationFrame =
-        requestAnimationFrame(animate);
-    }
-
-    animationFrame =
-      requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(animationFrame);
-    };
-  }, []);
-
+  /* =========================================
+     FLICKERING CHARACTERS
+  ========================================= */
 
   useEffect(() => {
+
     if (!characters.length) {
       return;
     }
 
-    const interval = setInterval(() => {
-      const active = new Set();
 
-      for (let i = 0; i < 6; i++) {
-        active.add(
+    const updateActiveIndices =
+      () => {
+
+        const newActiveIndices =
+          new Set();
+
+
+        const numActive =
           Math.floor(
-            Math.random() *
-            characters.length
-          )
-        );
-      }
+            Math.random() * 4
+          ) + 3;
 
-      setActiveCharacters(active);
-    }, 80);
+
+        for (
+          let i = 0;
+          i < numActive;
+          i++
+        ) {
+
+          newActiveIndices.add(
+            Math.floor(
+              Math.random() *
+              characters.length
+            )
+          );
+
+        }
+
+
+        setActiveIndices(
+          newActiveIndices
+        );
+      };
+
+
+    const flickerInterval =
+      setInterval(
+        updateActiveIndices,
+        50
+      );
+
 
     return () => {
-      clearInterval(interval);
+      clearInterval(
+        flickerInterval
+      );
     };
+
   }, [characters.length]);
 
 
+  /* =========================================
+     MATRIX MOVEMENT
+  ========================================= */
+
   useEffect(() => {
+
+    let animationFrameId;
+
+
+    const updatePositions =
+      () => {
+
+        setCharacters(
+          previousCharacters =>
+
+            previousCharacters.map(
+              character => {
+
+                let y =
+                  character.y +
+                  character.speed;
+
+
+                let x =
+                  character.x;
+
+
+                let char =
+                  character.char;
+
+
+                if (
+                  y >= 100
+                ) {
+
+                  y = -5;
+
+                  x =
+                    Math.random() * 100;
+
+
+                  const allChars =
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+
+                  char =
+                    allChars[
+                      Math.floor(
+                        Math.random() *
+                        allChars.length
+                      )
+                    ];
+                }
+
+
+                return {
+                  ...character,
+
+                  y,
+
+                  x,
+
+                  char
+                };
+
+              }
+            )
+        );
+
+
+        animationFrameId =
+          requestAnimationFrame(
+            updatePositions
+          );
+      };
+
+
+    animationFrameId =
+      requestAnimationFrame(
+        updatePositions
+      );
+
+
+    return () => {
+
+      cancelAnimationFrame(
+        animationFrameId
+      );
+
+    };
+
+  }, []);
+
+
+  /* =========================================
+     INITIALIZE SCRAMBLER
+  ========================================= */
+
+  useEffect(() => {
+
     if (
       titleRef.current &&
       !scramblerRef.current
     ) {
+
       scramblerRef.current =
         new TextScramble(
           titleRef.current
         );
 
-      setScramblerReady(true);
+
+      setMounted(true);
     }
+
   }, []);
 
 
+  /* =========================================
+     SCRAMBLE PHRASES
+  ========================================= */
+
   useEffect(() => {
+
     if (
-      !scramblerReady ||
+      !mounted ||
       !scramblerRef.current
     ) {
       return;
     }
 
+
     const phrases = [
+
       "PAPER.IO",
+
       "A FUN-FILLED GAME",
+
       "CAN WE GUESS THE PAPER?"
+
     ];
 
-    let index = 0;
+
+    let counter = 0;
+
     let stopped = false;
+
     let timeout;
 
-    function next() {
+
+    const next = () => {
+
       if (
         stopped ||
         !scramblerRef.current
@@ -287,60 +484,101 @@ function NameScreen({
         return;
       }
 
+
       scramblerRef.current
-        .setText(phrases[index])
+        .setText(
+          phrases[counter]
+        )
         .then(() => {
+
           if (stopped) {
             return;
           }
 
-          timeout = setTimeout(() => {
-            index =
-              (index + 1) %
-              phrases.length;
 
-            next();
-          }, 1800);
+          timeout =
+            setTimeout(
+              () => {
+
+                counter =
+                  (counter + 1) %
+                  phrases.length;
+
+                next();
+
+              },
+              2000
+            );
+
         });
-    }
+
+    };
+
 
     next();
 
+
     return () => {
+
       stopped = true;
 
       clearTimeout(timeout);
 
-      if (scramblerRef.current) {
+
+      if (
+        scramblerRef.current
+      ) {
+
         cancelAnimationFrame(
           scramblerRef.current
             .frameRequest
         );
-      }
-    };
-  }, [scramblerReady]);
 
+      }
+
+    };
+
+  }, [mounted]);
+
+
+  /* =========================================
+     UI
+  ========================================= */
 
   return (
+
     <div className="paper-name-page">
+
+
+      {/* MATRIX BACKGROUND */}
 
       <div className="paper-name-background" />
 
+
       <div className="paper-name-rain">
+
         {characters.map(
           (character, index) => {
+
             const active =
-              activeCharacters.has(index);
+              activeIndices.has(
+                index
+              );
+
 
             return (
+
               <span
                 key={index}
+
                 className={
                   active
-                    ? "paper-rain-char paper-rain-char-active"
+                    ? "paper-rain-char paper-rain-active"
                     : "paper-rain-char"
                 }
+
                 style={{
+
                   left:
                     `${character.x}%`,
 
@@ -350,35 +588,63 @@ function NameScreen({
                   transform:
                     `translate(-50%, -50%) ${
                       active
-                        ? "scale(1.35)"
+                        ? "scale(1.25)"
                         : "scale(1)"
-                    }`
+                    }`,
+
+                  textShadow:
+                    active
+                      ? "0 0 8px rgba(0,255,0,0.9), 0 0 18px rgba(0,255,0,0.5)"
+                      : "none"
+
                 }}
               >
+
                 {character.char}
+
               </span>
+
             );
+
           }
         )}
+
       </div>
 
+
+      {/* DARK OVERLAY */}
 
       <div className="paper-name-vignette" />
 
 
+      {/* MAIN CONTENT */}
+
       <main className="paper-name-content">
 
-        {/* Animated text stays OUTSIDE the box */}
-        <div className="paper-name-title">
+
+        {/* SCRAMBLED CENTER TEXT */}
+
+        <div className="paper-scramble-container">
+
+          <h1
+            ref={titleRef}
+            className="paper-scramble-title"
+          >
+            RAINING LETTERS
+          </h1>
+
         </div>
 
 
-        {/* Name box */}
+        {/* NAME BOX */}
+
         <div className="paper-name-card">
+
 
           <h2>
             Enter your name
           </h2>
+
 
           <p>
             Choose your avatar and join the game.
@@ -399,7 +665,9 @@ function NameScreen({
             type="text"
             value={name}
             onChange={(event) =>
-              setName(event.target.value)
+              setName(
+                event.target.value
+              )
             }
             placeholder="Your name"
             maxLength={20}
@@ -414,22 +682,26 @@ function NameScreen({
             Continue
           </button>
 
+
         </div>
+
 
       </main>
 
 
       <style>{`
 
-        /* =========================
-           PAGE
-        ========================= */
+        /* =====================================
+           FULL SCREEN
+        ===================================== */
 
         .paper-name-page {
           position: fixed;
+
           inset: 0;
 
           width: 100vw;
+
           height: 100vh;
 
           overflow: hidden;
@@ -440,8 +712,13 @@ function NameScreen({
         }
 
 
+        /* =====================================
+           BACKGROUND
+        ===================================== */
+
         .paper-name-background {
           position: absolute;
+
           inset: 0;
 
           background: #000;
@@ -450,12 +727,13 @@ function NameScreen({
         }
 
 
-        /* =========================
-           FALLING CHARACTERS
-        ========================= */
+        /* =====================================
+           MATRIX RAIN
+        ===================================== */
 
         .paper-name-rain {
           position: absolute;
+
           inset: 0;
 
           overflow: hidden;
@@ -469,13 +747,17 @@ function NameScreen({
         .paper-rain-char {
           position: absolute;
 
-          color: #34383d;
+          color:
+            rgba(80, 120, 90, 0.42);
 
           font-family:
             "Courier New",
             monospace;
 
-          font-size: 22px;
+          font-size:
+            1.8rem;
+
+          font-weight: 500;
 
           line-height: 1;
 
@@ -483,37 +765,42 @@ function NameScreen({
 
           user-select: none;
 
+          pointer-events: none;
+
           transition:
-            color 0.08s ease,
-            opacity 0.08s ease,
-            transform 0.08s ease;
+            color 0.1s ease,
+            transform 0.1s ease,
+            opacity 0.1s ease;
 
           will-change:
-            top,
-            transform;
+            transform,
+            top;
         }
 
 
-        .paper-rain-char-active {
-          color: #00ff66;
+        .paper-rain-active {
+          color: #00ff00;
 
           opacity: 1;
 
-          font-weight: 700;
+          font-weight: 800;
+
+          z-index: 10;
 
           text-shadow:
-            0 0 6px #00ff66,
-            0 0 15px
-            rgba(0, 255, 102, 0.65);
+            0 0 8px #00ff00,
+            0 0 18px
+            rgba(0,255,0,0.6);
         }
 
 
-        /* =========================
-           DARK VIGNETTE
-        ========================= */
+        /* =====================================
+           VIGNETTE
+        ===================================== */
 
         .paper-name-vignette {
           position: absolute;
+
           inset: 0;
 
           z-index: 2;
@@ -523,24 +810,33 @@ function NameScreen({
           background:
             radial-gradient(
               ellipse at center,
-              rgba(0, 0, 0, 0.02) 0%,
-              rgba(0, 0, 0, 0.28) 55%,
-              rgba(0, 0, 0, 0.82) 100%
+
+              rgba(0,0,0,0.05)
+              0%,
+
+              rgba(0,0,0,0.28)
+              50%,
+
+              rgba(0,0,0,0.82)
+              100%
             );
         }
 
 
-        /* =========================
-           MAIN CONTENT
-        ========================= */
+        /* =====================================
+           CONTENT
+        ===================================== */
 
         .paper-name-content {
           position: relative;
 
-          z-index: 10;
+          z-index: 20;
 
           width: 100%;
+
           height: 100%;
+
+          box-sizing: border-box;
 
           display: flex;
 
@@ -550,31 +846,35 @@ function NameScreen({
 
           justify-content: center;
 
-          padding:
-            100px 20px 40px;
+          gap: 34px;
 
-          gap: 32px;
+          padding:
+            60px 20px 40px;
         }
 
 
-        /* =========================
-           SCRAMBLE TITLE
-        ========================= */
+        /* =====================================
+           SCRAMBLED TITLE
+        ===================================== */
 
-        .paper-name-title {
-          position: relative;
-
+        .paper-scramble-container {
           width: 100%;
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: center;
 
           text-align: center;
 
-          flex-shrink: 0;
+          z-index: 30;
 
-          z-index: 20;
+          pointer-events: none;
         }
 
 
-        .paper-name-title h1 {
+        .paper-scramble-title {
           margin: 0;
 
           color: #fff;
@@ -587,40 +887,50 @@ function NameScreen({
             clamp(
               32px,
               5vw,
-              68px
+              64px
             );
 
           font-weight: 700;
 
           letter-spacing:
-            0.12em;
+            0.08em;
 
-          line-height: 1.1;
+          line-height: 1.2;
+
+          text-align: center;
+
+          white-space: nowrap;
 
           text-shadow:
             0 0 10px
-            rgba(255, 255, 255, 0.3),
+            rgba(255,255,255,0.65),
 
-            0 0 30px
-            rgba(255, 255, 255, 0.1);
+            0 0 25px
+            rgba(0,255,102,0.2);
         }
 
 
-        .paper-name-dud {
-          color: #00ff66 !important;
+        .paper-scramble-dud {
+          color: #00ff00;
 
           opacity: 0.8;
+
+          text-shadow:
+            0 0 8px #00ff00,
+
+            0 0 15px
+            rgba(0,255,0,0.6);
         }
 
 
-        /* =========================
+        /* =====================================
            NAME CARD
-        ========================= */
+        ===================================== */
 
         .paper-name-card {
           position: relative;
 
-          z-index: 15;
+          z-index: 25;
 
           width:
             min(
@@ -630,29 +940,26 @@ function NameScreen({
 
           padding: 30px;
 
+          box-sizing: border-box;
+
           border-radius: 18px;
 
-          /*
-            Transparent glass effect.
-            The animated characters/text
-            behind the card remain visible.
-          */
           background:
-            rgba(10, 10, 10, 0.52);
+            rgba(10,10,10,0.48);
 
           border:
             1px solid
-            rgba(255, 255, 255, 0.12);
+            rgba(255,255,255,0.12);
 
           box-shadow:
             0 20px 70px
-            rgba(0, 0, 0, 0.45);
+            rgba(0,0,0,0.45);
 
           backdrop-filter:
-            blur(7px);
+            blur(6px);
 
           -webkit-backdrop-filter:
-            blur(7px);
+            blur(6px);
 
           text-align: center;
 
@@ -675,15 +982,15 @@ function NameScreen({
             0 0 20px;
 
           color:
-            rgba(255, 255, 255, 0.55);
+            rgba(255,255,255,0.55);
 
           font-size: 13px;
         }
 
 
-        /* =========================
+        /* =====================================
            INPUT
-        ========================= */
+        ===================================== */
 
         .paper-name-card input {
           width: 100%;
@@ -701,12 +1008,12 @@ function NameScreen({
 
           border:
             1px solid
-            rgba(255, 255, 255, 0.15);
+            rgba(255,255,255,0.15);
 
           outline: none;
 
           background:
-            rgba(255, 255, 255, 0.06);
+            rgba(255,255,255,0.06);
 
           color: #fff;
 
@@ -716,23 +1023,23 @@ function NameScreen({
 
         .paper-name-card input::placeholder {
           color:
-            rgba(255, 255, 255, 0.35);
+            rgba(255,255,255,0.35);
         }
 
 
         .paper-name-card input:focus {
           border-color:
-            rgba(0, 255, 102, 0.6);
+            rgba(0,255,102,0.6);
 
           box-shadow:
             0 0 0 2px
-            rgba(0, 255, 102, 0.08);
+            rgba(0,255,102,0.08);
         }
 
 
-        /* =========================
-           CONTINUE BUTTON
-        ========================= */
+        /* =====================================
+           BUTTON
+        ===================================== */
 
         .paper-name-card button {
           width: 100%;
@@ -780,46 +1087,24 @@ function NameScreen({
         }
 
 
-        /* =========================
-           SHORT SCREENS
-        ========================= */
-
-        @media (max-height: 750px) {
-
-          .paper-name-content {
-            padding-top: 70px;
-
-            gap: 18px;
-          }
-
-
-          .paper-name-title h1 {
-            font-size: 32px;
-          }
-
-
-          .paper-name-card {
-            padding: 22px;
-          }
-        }
-
-
-        /* =========================
+        /* =====================================
            MOBILE
-        ========================= */
+        ===================================== */
 
         @media (max-width: 600px) {
 
           .paper-name-content {
-            padding:
-              70px 15px 25px;
+            gap: 24px;
 
-            gap: 20px;
+            padding:
+              40px 15px 25px;
           }
 
 
-          .paper-name-title h1 {
-            font-size: 28px;
+          .paper-scramble-title {
+            font-size: 26px;
+
+            white-space: normal;
           }
 
 
@@ -828,15 +1113,39 @@ function NameScreen({
               calc(100vw - 30px);
 
             padding: 22px;
-
-            background:
-              rgba(10, 10, 10, 0.48);
           }
 
 
           .paper-rain-char {
-            font-size: 16px;
+            font-size: 1.3rem;
           }
+
+        }
+
+
+        /* =====================================
+           SHORT SCREENS
+        ===================================== */
+
+        @media (max-height: 700px) {
+
+          .paper-name-content {
+            gap: 18px;
+
+            padding:
+              30px 20px 20px;
+          }
+
+
+          .paper-scramble-title {
+            font-size: 30px;
+          }
+
+
+          .paper-name-card {
+            padding: 20px;
+          }
+
         }
 
       `}</style>
