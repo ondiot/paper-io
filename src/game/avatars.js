@@ -1,4 +1,4 @@
-const AVATAR_BASE = "assets/avatars/";
+const AVATAR_BASE = `${import.meta.env.BASE_URL}assets/avatars/`;
 
 export const AVATARS = [
   "saymyname.png",
@@ -13,7 +13,6 @@ export const AVATARS = [
   "wojack.png",
   "poet.png",
   "dexter.png"
-
 ];
 
 export function avatarMarkup(avatar, className = "avatar-svg") {
@@ -45,6 +44,5 @@ export function avatarMarkup(avatar, className = "avatar-svg") {
     }
   }
 
-  // Backward-compatible fallback for rooms created before image avatars.
   return `<span class="${className} avatar-fallback">${avatar || "?"}</span>`;
 }
