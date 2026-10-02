@@ -12,10 +12,7 @@ class TextScramble {
 
   constructor(element) {
     this.element = element;
-
-    this.chars =
-      "!<>-_\\/[]{}—=+*^?#";
-
+    this.chars = "!<>-_\\/[]{}—=+*^?#";
     this.queue = [];
     this.frame = 0;
     this.frameRequest = 0;
@@ -44,8 +41,11 @@ class TextScramble {
 
     this.queue = [];
 
-
-    for (let i = 0; i < length; i++) {
+    for (
+      let i = 0;
+      i < length;
+      i++
+    ) {
 
       const from =
         oldText[i] || "";
@@ -72,7 +72,6 @@ class TextScramble {
       });
     }
 
-
     cancelAnimationFrame(
       this.frameRequest
     );
@@ -89,7 +88,6 @@ class TextScramble {
 
     let output = "";
     let complete = 0;
-
 
     for (
       let i = 0;
@@ -109,7 +107,9 @@ class TextScramble {
       } = item;
 
 
-      if (this.frame >= end) {
+      if (
+        this.frame >= end
+      ) {
 
         complete++;
 
@@ -134,7 +134,6 @@ class TextScramble {
 
           item.char = char;
         }
-
 
         output +=
           `<span class="paper-name-dud">${char}</span>`;
@@ -195,9 +194,7 @@ function NameScreen({
 
 
   /*
-   * ----------------------------------------
-   * CREATE CHARACTERS
-   * ----------------------------------------
+   * CREATE RAINING CHARACTERS
    */
 
   const createCharacters =
@@ -208,7 +205,11 @@ function NameScreen({
 
       const result = [];
 
-      for (let i = 0; i < 240; i++) {
+      for (
+        let i = 0;
+        i < 240;
+        i++
+      ) {
 
         result.push({
 
@@ -238,9 +239,7 @@ function NameScreen({
 
 
   /*
-   * ----------------------------------------
-   * INITIAL CHARACTERS
-   * ----------------------------------------
+   * INITIALIZE RAIN
    */
 
   useEffect(() => {
@@ -253,9 +252,7 @@ function NameScreen({
 
 
   /*
-   * ----------------------------------------
    * RAIN ANIMATION
-   * ----------------------------------------
    */
 
   useEffect(() => {
@@ -308,6 +305,7 @@ function NameScreen({
               y,
               char
             };
+
           })
       );
 
@@ -326,20 +324,16 @@ function NameScreen({
 
 
     return () => {
-
       cancelAnimationFrame(
         animationFrame
       );
-
     };
 
   }, []);
 
 
   /*
-   * ----------------------------------------
-   * RANDOM FLICKER
-   * ----------------------------------------
+   * FLICKER
    */
 
   useEffect(() => {
@@ -354,6 +348,7 @@ function NameScreen({
 
         const active =
           new Set();
+
 
         for (
           let i = 0;
@@ -385,36 +380,29 @@ function NameScreen({
 
 
   /*
-   * ----------------------------------------
-   * SCRAMBLE TITLE
-   * ----------------------------------------
+   * SCRAMBLE SETUP
    */
 
   useEffect(() => {
 
     if (
-      !titleRef.current ||
-      scramblerRef.current
+      titleRef.current &&
+      !scramblerRef.current
     ) {
-      return;
+
+      scramblerRef.current =
+        new TextScramble(
+          titleRef.current
+        );
+
+      setScramblerReady(true);
     }
-
-
-    scramblerRef.current =
-      new TextScramble(
-        titleRef.current
-      );
-
-
-    setScramblerReady(true);
 
   }, []);
 
 
   /*
-   * ----------------------------------------
-   * TITLE LOOP
-   * ----------------------------------------
+   * SCRAMBLE LOOP
    */
 
   useEffect(() => {
@@ -506,16 +494,12 @@ function NameScreen({
     <div className="paper-name-page">
 
 
-      {/* ==================================
-          BLACK BACKGROUND
-          ================================== */}
+      {/* BACKGROUND */}
 
       <div className="paper-name-background" />
 
 
-      {/* ==================================
-          RAINING CHARACTERS
-          ================================== */}
+      {/* RAIN */}
 
       <div className="paper-name-rain">
 
@@ -563,81 +547,78 @@ function NameScreen({
       </div>
 
 
-      {/* ==================================
-          DARK CENTER VIGNETTE
-          ================================== */}
+      {/* VIGNETTE */}
 
       <div className="paper-name-vignette" />
 
 
-      {/* ==================================
-          ANIMATED TITLE
-          ================================== */}
+      {/* CONTENT */}
 
-      <div className="paper-name-title">
-
-        <h1 ref={titleRef}>
-          PAPER.IO
-        </h1>
-
-      </div>
+      <main className="paper-name-content">
 
 
-      {/* ==================================
-          NAME CARD
-          ================================== */}
+        {/* ANIMATED TITLE */}
 
-      <div className="paper-name-card">
+        <div className="paper-name-title">
 
-        <h2>
-          Enter your name
-        </h2>
+          <h1 ref={titleRef}>
+            PAPER.IO
+          </h1>
 
-        <p>
-          Choose your avatar and join the game.
-        </p>
+        </div>
 
 
-        <AvatarPicker
-          selectedAvatar={selectedAvatar}
-          setSelectedAvatar={setSelectedAvatar}
-        />
+        {/* NAME CARD */}
+
+        <div className="paper-name-card">
+
+          <h2>
+            Enter your name
+          </h2>
 
 
-        <input
-          type="text"
-          value={name}
-          onChange={(event) =>
-            setName(
-              event.target.value
-            )
-          }
-          placeholder="Your name"
-          maxLength={20}
-        />
+          <p>
+            Choose your avatar and join the game.
+          </p>
 
 
-        <button
-          type="button"
-          onClick={onContinue}
-          disabled={!name.trim()}
-        >
-          Continue
-        </button>
+          <AvatarPicker
+            selectedAvatar={
+              selectedAvatar
+            }
+            setSelectedAvatar={
+              setSelectedAvatar
+            }
+          />
 
-      </div>
+
+          <input
+            type="text"
+            value={name}
+            onChange={(event) =>
+              setName(
+                event.target.value
+              )
+            }
+            placeholder="Your name"
+            maxLength={20}
+          />
 
 
-      {/* ==================================
-          STYLES
-          ================================== */}
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={!name.trim()}
+          >
+            Continue
+          </button>
+
+        </div>
+
+      </main>
+
 
       <style>{`
-
-        * {
-          box-sizing: border-box;
-        }
-
 
         .paper-name-page {
           position: fixed;
@@ -650,32 +631,23 @@ function NameScreen({
 
           background: #000;
 
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
           isolation: isolate;
         }
 
 
         .paper-name-background {
           position: absolute;
-
           inset: 0;
 
           background: #000;
 
-          z-index: -10;
+          z-index: 0;
         }
 
 
         .paper-name-rain {
           position: absolute;
-
           inset: 0;
-
-          width: 100%;
-          height: 100%;
 
           overflow: hidden;
 
@@ -688,8 +660,6 @@ function NameScreen({
         .paper-rain-char {
           position: absolute;
 
-          display: block;
-
           color: #34383d;
 
           font-family:
@@ -698,15 +668,11 @@ function NameScreen({
 
           font-size: 22px;
 
-          font-weight: 400;
-
           line-height: 1;
 
           opacity: 0.4;
 
           user-select: none;
-
-          white-space: nowrap;
 
           transition:
             color 0.08s ease,
@@ -728,14 +694,12 @@ function NameScreen({
 
           text-shadow:
             0 0 6px #00ff66,
-            0 0 15px rgba(0,255,102,0.65),
-            0 0 30px rgba(0,255,102,0.25);
+            0 0 15px rgba(0,255,102,0.65);
         }
 
 
         .paper-name-vignette {
           position: absolute;
-
           inset: 0;
 
           z-index: 2;
@@ -746,35 +710,58 @@ function NameScreen({
             radial-gradient(
               ellipse at center,
               rgba(0,0,0,0.05) 0%,
-              rgba(0,0,0,0.45) 55%,
+              rgba(0,0,0,0.4) 55%,
               rgba(0,0,0,0.9) 100%
             );
         }
 
 
+        /* ===============================
+           MAIN LAYOUT
+           =============================== */
+
+        .paper-name-content {
+          position: relative;
+
+          z-index: 10;
+
+          width: 100%;
+          height: 100%;
+
+          display: flex;
+
+          flex-direction: column;
+
+          align-items: center;
+
+          justify-content: center;
+
+          padding:
+            100px 20px 40px;
+
+          gap: 32px;
+        }
+
+
+        /* ===============================
+           ANIMATED TITLE
+           =============================== */
+
         .paper-name-title {
-          position: absolute;
-
-          top: 10%;
-
-          left: 0;
+          position: relative;
 
           width: 100%;
 
-          z-index: 5;
-
           text-align: center;
 
-          pointer-events: none;
-
-          padding: 0 20px;
+          flex-shrink: 0;
         }
 
 
         .paper-name-title h1 {
           margin: 0;
 
-          color: white;
+          color: #fff;
 
           font-family:
             "Courier New",
@@ -784,7 +771,7 @@ function NameScreen({
             clamp(
               32px,
               5vw,
-              72px
+              68px
             );
 
           font-weight: 700;
@@ -792,11 +779,14 @@ function NameScreen({
           letter-spacing:
             0.12em;
 
-          line-height: 1.2;
+          line-height: 1.1;
 
           text-shadow:
-            0 0 10px rgba(255,255,255,0.25),
-            0 0 30px rgba(255,255,255,0.1);
+            0 0 10px
+            rgba(255,255,255,0.3),
+
+            0 0 30px
+            rgba(255,255,255,0.1);
         }
 
 
@@ -807,22 +797,25 @@ function NameScreen({
         }
 
 
+        /* ===============================
+           NAME CARD
+           =============================== */
+
         .paper-name-card {
           position: relative;
 
-          z-index: 10;
+          width:
+            min(
+              420px,
+              calc(100vw - 40px)
+            );
 
-          width: min(
-            420px,
-            calc(100vw - 40px)
-          );
-
-          padding: 32px;
+          padding: 30px;
 
           border-radius: 18px;
 
           background:
-            rgba(10,10,10,0.88);
+            rgba(10,10,10,0.9);
 
           border:
             1px solid
@@ -830,7 +823,7 @@ function NameScreen({
 
           box-shadow:
             0 20px 70px
-            rgba(0,0,0,0.65);
+            rgba(0,0,0,0.7);
 
           backdrop-filter:
             blur(18px);
@@ -839,6 +832,8 @@ function NameScreen({
             blur(18px);
 
           text-align: center;
+
+          flex-shrink: 0;
         }
 
 
@@ -846,7 +841,7 @@ function NameScreen({
           margin:
             0 0 8px;
 
-          color: white;
+          color: #fff;
 
           font-size: 24px;
         }
@@ -854,7 +849,7 @@ function NameScreen({
 
         .paper-name-card p {
           margin:
-            0 0 22px;
+            0 0 20px;
 
           color:
             rgba(255,255,255,0.55);
@@ -884,7 +879,7 @@ function NameScreen({
           background:
             rgba(255,255,255,0.06);
 
-          color: white;
+          color: #fff;
 
           font-size: 14px;
         }
@@ -917,9 +912,9 @@ function NameScreen({
 
           border-radius: 10px;
 
-          background: white;
+          background: #fff;
 
-          color: black;
+          color: #000;
 
           font-size: 14px;
 
@@ -952,10 +947,41 @@ function NameScreen({
         }
 
 
+        /* ===============================
+           SMALL SCREENS
+           =============================== */
+
+        @media (max-height: 750px) {
+
+          .paper-name-content {
+            padding-top: 70px;
+
+            gap: 18px;
+          }
+
+
+          .paper-name-title h1 {
+            font-size: 32px;
+          }
+
+
+          .paper-name-card {
+            padding: 22px;
+
+            transform:
+              scale(0.92);
+          }
+
+        }
+
+
         @media (max-width: 600px) {
 
-          .paper-name-title {
-            top: 7%;
+          .paper-name-content {
+            padding:
+              70px 15px 25px;
+
+            gap: 20px;
           }
 
 
@@ -965,7 +991,10 @@ function NameScreen({
 
 
           .paper-name-card {
-            padding: 24px;
+            width:
+              calc(100vw - 30px);
+
+            padding: 22px;
           }
 
 
