@@ -7,7 +7,8 @@ import { supabase } from "../lib/supabase";
 
 import {
   updateHeartbeat,
-  kickPlayer
+  kickPlayer,
+  startGame
 } from "../game/rooms";
 
 
@@ -17,11 +18,15 @@ function Lobby({
   onLeave,
   onKicked
 }) {
+
   const [players, setPlayers] =
     useState([]);
 
   const [kickingPlayer, setKickingPlayer] =
     useState(null);
+
+  const [startingGame, setStartingGame] =
+    useState(false);
 
 
   // ========================================
@@ -29,12 +34,14 @@ function Lobby({
   // ========================================
 
   useEffect(() => {
+
     if (!room?.id) return;
 
     let active = true;
 
 
     async function loadPlayers() {
+
       const {
         data,
         error
@@ -46,7 +53,9 @@ function Lobby({
           ascending: true
         });
 
+
       if (error) {
+
         console.error(
           "Could not load players:",
           error
@@ -55,8 +64,12 @@ function Lobby({
         return;
       }
 
+
       if (active) {
-        setPlayers(data || []);
+
+        setPlayers(
+          data || []
+        );
       }
     }
 
@@ -64,15 +77,13 @@ function Lobby({
     loadPlayers();
 
 
-    // ======================================
-    // REALTIME
-    // ======================================
-
     const channel =
       supabase
         .channel(
           `lobby-${room.id}-${player.id}`
         )
+
+        // PLAYER JOINED
         .on(
           "postgres_changes",
           {
@@ -94,9 +105,11 @@ function Lobby({
                       payload.new.id
                   );
 
+
                 if (exists) {
                   return current;
                 }
+
 
                 return [
                   ...current,
@@ -106,6 +119,8 @@ function Lobby({
             );
           }
         )
+
+        // PLAYER UPDATED
         .on(
           "postgres_changes",
           {
@@ -129,6 +144,8 @@ function Lobby({
             );
           }
         )
+
+        // PLAYER LEFT / KICKED
         .on(
           "postgres_changes",
           {
@@ -141,6 +158,7 @@ function Lobby({
             const deletedId =
               payload.old.id;
 
+
             setPlayers(
               (current) =>
                 current.filter(
@@ -151,22 +169,21 @@ function Lobby({
             );
 
 
-            // =================================
-            // THIS PLAYER WAS REMOVED
-            // =================================
-
             if (
               deletedId ===
               player.id
             ) {
+
               onKicked();
             }
           }
         )
+
         .subscribe();
 
 
     return () => {
+
       active = false;
 
       supabase.removeChannel(
@@ -186,10 +203,10 @@ function Lobby({
   // ========================================
 
   useEffect(() => {
+
     if (!player?.id) return;
 
 
-    // Immediately update
     updateHeartbeat(
       player.id
     );
@@ -197,31 +214,40 @@ function Lobby({
 
     const heartbeat =
       setInterval(() => {
+
         updateHeartbeat(
           player.id
         );
+
       }, 10000);
 
 
     return () => {
+
       clearInterval(
         heartbeat
       );
     };
 
-  }, [player?.id]);
+  }, [
+    player?.id
+  ]);
 
 
   // ========================================
-  // COPY CODE
+  // COPY ROOM CODE
   // ========================================
 
   async function copyRoomCode() {
+
     try {
+
       await navigator.clipboard.writeText(
         room.code
       );
+
     } catch (error) {
+
       console.error(
         "Could not copy room code:",
         error
@@ -231,16 +257,18 @@ function Lobby({
 
 
   // ========================================
-  // KICK
+  // KICK PLAYER
   // ========================================
 
   async function handleKick(
     targetPlayer
   ) {
+
     if (
       kickingPlayer ||
       !player?.is_host ||
-      targetPlayer.id === player.id
+      targetPlayer.id ===
+        player.id
     ) {
       return;
     }
@@ -252,6 +280,7 @@ function Lobby({
 
 
     try {
+
       await kickPlayer({
         targetPlayerId:
           targetPlayer.id,
@@ -261,12 +290,14 @@ function Lobby({
       });
 
     } catch (error) {
+
       console.error(
         "Kick failed:",
         error
       );
 
     } finally {
+
       setKickingPlayer(
         null
       );
@@ -274,21 +305,81 @@ function Lobby({
   }
 
 
+  // ========================================
+  // START GAME
+  // ========================================
+
+  async function handleStartGame() {
+
+    if (
+      startingGame ||
+      !player?.is_host ||
+      !room?.id
+    ) {
+      return;
+    }
+
+
+    setStartingGame(
+      true
+    );
+
+
+    try {
+
+      await startGame(
+        room.id,
+        player.id
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Start game failed:",
+        error
+      );
+
+
+      alert(
+        error?.message ||
+        "Could not start the game."
+      );
+
+    } finally {
+
+      setStartingGame(
+        false
+      );
+    }
+  }
+
+
+  // ========================================
+  // SAFETY
+  // ========================================
+
   if (!room || !player) {
     return null;
   }
 
 
+  // ========================================
+  // UI
+  // ========================================
+
   return (
+
     <section className="lobby-screen">
 
       <div className="lobby-card">
+
 
         {/* HEADER */}
 
         <div className="lobby-header">
 
           <div>
+
             <h1>
               Game Lobby
             </h1>
@@ -296,7 +387,9 @@ function Lobby({
             <p>
               Waiting for players to join.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -317,9 +410,11 @@ function Lobby({
             ROOM CODE
           </span>
 
+
           <strong>
             {room.code}
           </strong>
+
 
           <button
             type="button"
@@ -343,11 +438,15 @@ function Lobby({
               Players
             </h2>
 
+
             <span>
+
               {players.length}{" "}
+
               {players.length === 1
                 ? "player"
                 : "players"}
+
             </span>
 
           </div>
@@ -365,8 +464,6 @@ function Lobby({
                   }
                 >
 
-                  {/* AVATAR */}
-
                   <div className="lobby-player-avatar">
 
                     <img
@@ -382,22 +479,24 @@ function Lobby({
                   </div>
 
 
-                  {/* INFO */}
-
                   <div className="lobby-player-info">
 
                     <strong>
 
                       {lobbyPlayer.name}
 
+
                       {lobbyPlayer.id ===
                         player.id && (
+
                         <span className="you-label">
                           YOU
                         </span>
+
                       )}
 
                     </strong>
+
 
                     <span>
 
@@ -410,8 +509,6 @@ function Lobby({
                   </div>
 
 
-                  {/* STATUS */}
-
                   <div className="lobby-player-status">
 
                     {lobbyPlayer.is_host
@@ -421,32 +518,32 @@ function Lobby({
                   </div>
 
 
-                  {/* KICK */}
-
                   {player.is_host &&
                     lobbyPlayer.id !==
                       player.id && (
 
-                      <button
-                        type="button"
-                        className="lobby-kick-button"
-                        onClick={() =>
-                          handleKick(
-                            lobbyPlayer
-                          )
-                        }
-                        disabled={
-                          kickingPlayer ===
-                          lobbyPlayer.id
-                        }
-                      >
-                        {kickingPlayer ===
+                    <button
+                      type="button"
+                      className="lobby-kick-button"
+                      onClick={() =>
+                        handleKick(
+                          lobbyPlayer
+                        )
+                      }
+                      disabled={
+                        kickingPlayer ===
                         lobbyPlayer.id
-                          ? "..."
-                          : "Kick"}
-                      </button>
+                      }
+                    >
 
-                    )}
+                      {kickingPlayer ===
+                      lobbyPlayer.id
+                        ? "..."
+                        : "Kick"}
+
+                    </button>
+
+                  )}
 
                 </div>
 
@@ -465,26 +562,48 @@ function Lobby({
           <div className="lobby-waiting-dot" />
 
           <span>
-            Waiting for other players...
+
+            {players.length < 2
+              ? "Waiting for other players..."
+              : "Everyone is ready."}
+
           </span>
 
         </div>
 
 
-        {/* START */}
+        {/* START GAME */}
 
-        <button
-          type="button"
-          className="lobby-start-button"
-          disabled
-        >
-          Start Game
-        </button>
+        {player.is_host && (
+
+          <button
+            type="button"
+            className="lobby-start-button"
+            onClick={
+              handleStartGame
+            }
+            disabled={
+              startingGame ||
+              players.length < 2
+            }
+          >
+
+            {startingGame
+              ? "Starting..."
+              : players.length < 2
+                ? "Waiting for players..."
+                : "Start Game"}
+
+          </button>
+
+        )}
 
       </div>
 
     </section>
+
   );
 }
+
 
 export default Lobby;

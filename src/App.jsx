@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState
 } from "react";
@@ -8,6 +9,7 @@ import ModeScreen from "./components/ModeScreen";
 import CreateRoom from "./components/CreateRoom";
 import JoinRoom from "./components/JoinRoom";
 import Lobby from "./components/Lobby";
+import WritingScreen from "./components/WritingScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
 
 import { AVATARS } from "./game/avatars";
@@ -19,11 +21,13 @@ import {
   leaveRoom
 } from "./game/rooms";
 
+import { supabase } from "./lib/supabase";
+
 
 function App() {
 
   // ========================================
-  // PLAYER INFO
+  // PLAYER
   // ========================================
 
   const [name, setName] =
@@ -44,7 +48,7 @@ function App() {
 
 
   // ========================================
-  // ROOM
+  // ROOM / PLAYER
   // ========================================
 
   const [room, setRoom] =
@@ -69,7 +73,7 @@ function App() {
 
 
   // ========================================
-  // ERROR / TOAST
+  // TOAST
   // ========================================
 
   const [error, setError] =
@@ -105,12 +109,11 @@ function App() {
         );
 
 
-      // No saved session
-
       if (
         !savedPlayerId ||
         !savedRoomId
       ) {
+
         setRestoringSession(
           false
         );
@@ -127,10 +130,6 @@ function App() {
             savedRoomId
           );
 
-
-        // Player no longer exists.
-        // This can happen after a kick
-        // or timeout cleanup.
 
         if (!session) {
 
@@ -187,9 +186,23 @@ function App() {
         }
 
 
-        setScreen(
-          "lobby"
-        );
+        // Restore the correct screen.
+
+        if (
+          session.room.status ===
+          "writing"
+        ) {
+
+          setScreen(
+            "writing"
+          );
+
+        } else {
+
+          setScreen(
+            "lobby"
+          );
+        }
 
       } catch (error) {
 
@@ -244,6 +257,109 @@ function App() {
     }
 
   }, [selectedAvatar]);
+
+
+  // ========================================
+  // REALTIME ROOM UPDATES
+  // ========================================
+
+  useEffect(() => {
+
+    if (!room?.id) {
+      return;
+    }
+
+
+    const channel =
+      supabase
+        .channel(
+          `room-status-${room.id}-${player?.id || "unknown"}`
+        )
+
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "rooms",
+            filter:
+              `id=eq.${room.id}`
+          },
+          (payload) => {
+
+            const updatedRoom =
+              payload.new;
+
+
+            setRoom(
+              updatedRoom
+            );
+
+
+            // LOBBY → WRITING
+
+            if (
+              updatedRoom.status ===
+              "writing"
+            ) {
+
+              setScreen(
+                "writing"
+              );
+            }
+
+
+            // Future phases
+
+            if (
+              updatedRoom.status ===
+              "guessing"
+            ) {
+
+              setScreen(
+                "guessing"
+              );
+            }
+
+
+            if (
+              updatedRoom.status ===
+              "reveal"
+            ) {
+
+              setScreen(
+                "reveal"
+              );
+            }
+
+
+            if (
+              updatedRoom.status ===
+              "ended"
+            ) {
+
+              setScreen(
+                "ended"
+              );
+            }
+
+          }
+        )
+
+        .subscribe();
+
+
+    return () => {
+
+      supabase.removeChannel(
+        channel
+      );
+    };
+
+  }, [
+    room?.id,
+    player?.id
+  ]);
 
 
   // ========================================
@@ -327,13 +443,10 @@ function App() {
           name,
           avatar:
             selectedAvatar,
-
           roundTime:
             settings.roundTime,
-
           rounds:
             settings.rounds,
-
           topicMode:
             settings.topicMode
         });
@@ -347,8 +460,6 @@ function App() {
         result.player
       );
 
-
-      // Save session
 
       localStorage.setItem(
         "paperio_player_id",
@@ -426,8 +537,6 @@ function App() {
       );
 
 
-      // Save session
-
       localStorage.setItem(
         "paperio_player_id",
         result.player.id
@@ -503,50 +612,44 @@ function App() {
   // KICKED
   // ========================================
 
-  function handleKicked() {
+  const handleKicked =
+    useCallback(() => {
 
-    // Remove old session
+      localStorage.removeItem(
+        "paperio_player_id"
+      );
 
-    localStorage.removeItem(
-      "paperio_player_id"
-    );
-
-    localStorage.removeItem(
-      "paperio_room_id"
-    );
-
-
-    setRoom(null);
-
-    setPlayer(null);
+      localStorage.removeItem(
+        "paperio_room_id"
+      );
 
 
-    // Show toast
+      setRoom(null);
 
-    setError(
-      "You were kicked from the room."
-    );
+      setPlayer(null);
 
 
-    // Return to mode screen
-
-    setScreen(
-      "mode"
-    );
+      setError(
+        "You were kicked from the room."
+      );
 
 
-    // Automatically hide toast
+      setScreen(
+        "mode"
+      );
 
-    setTimeout(() => {
 
-      setError("");
+      setTimeout(() => {
 
-    }, 4000);
-  }
+        setError("");
+
+      }, 4000);
+
+    }, []);
 
 
   // ========================================
-  // RESTORING SESSION
+  // RESTORING
   // ========================================
 
   if (restoringSession) {
@@ -582,12 +685,11 @@ function App() {
   // ========================================
 
   return (
+
     <main className="app">
 
 
-      {/* =====================================
-          INTRO
-      ====================================== */}
+      {/* INTRO */}
 
       {screen === "intro" && (
 
@@ -600,9 +702,7 @@ function App() {
       )}
 
 
-      {/* =====================================
-          NAME SCREEN
-      ====================================== */}
+      {/* NAME */}
 
       {screen === "name" && (
 
@@ -629,9 +729,7 @@ function App() {
       )}
 
 
-      {/* =====================================
-          MODE SCREEN
-      ====================================== */}
+      {/* MODE */}
 
       {screen === "mode" && (
 
@@ -654,9 +752,7 @@ function App() {
       )}
 
 
-      {/* =====================================
-          CREATE ROOM
-      ====================================== */}
+      {/* CREATE ROOM */}
 
       {screen === "create-room" && (
 
@@ -685,9 +781,7 @@ function App() {
       )}
 
 
-      {/* =====================================
-          JOIN ROOM
-      ====================================== */}
+      {/* JOIN ROOM */}
 
       {screen === "join-room" && (
 
@@ -711,14 +805,13 @@ function App() {
           onJoin={
             handleJoin
           }
+
         />
 
       )}
 
 
-      {/* =====================================
-          LOBBY
-      ====================================== */}
+      {/* LOBBY */}
 
       {screen === "lobby" && (
 
@@ -739,9 +832,19 @@ function App() {
       )}
 
 
-      {/* =====================================
-          TOAST
-      ====================================== */}
+      {/* WRITING */}
+
+      {screen === "writing" && (
+
+        <WritingScreen
+          room={room}
+          player={player}
+        />
+
+      )}
+
+
+      {/* TOAST */}
 
       {error && (
 
@@ -760,9 +863,7 @@ function App() {
       )}
 
 
-      {/* =====================================
-          LOADING
-      ====================================== */}
+      {/* LOADING */}
 
       {(creatingRoom ||
         joiningRoom) && (
