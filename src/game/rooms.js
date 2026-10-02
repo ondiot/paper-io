@@ -528,3 +528,131 @@ export async function checkRoundComplete(roomId, round) {
     )
   );
 }
+
+// SUBMIT ALL GUESSES
+export async function submitGuesses({
+  roomId,
+  round,
+  playerId,
+  guesses
+}) {
+  const entries = Object.entries(guesses);
+
+  if (entries.length === 0) {
+    throw new Error(
+      "You have not made any guesses."
+    );
+  }
+
+  const rows = entries.map(
+    ([paperId, guessedPlayerId]) => ({
+      room_id: roomId,
+      round,
+      paper_id: paperId,
+      assigned_to: playerId,
+      guessed_player_id:
+        guessedPlayerId
+    })
+  );
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("assignments")
+    .upsert(rows, {
+      onConflict:
+        "room_id,round,assigned_to"
+    })
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+
+// CHECK IF EVERY PLAYER FINISHED GUESSING
+export async function checkGuessingComplete({
+  roomId,
+  round
+}) {
+  const {
+    data: players,
+    error: playersError
+  } = await supabase
+    .from("players")
+    .select("id")
+    .eq("room_id", roomId);
+
+  if (playersError) {
+    throw playersError;
+  }
+
+  const {
+    data: papers,
+    error: papersError
+  } = await supabase
+    .from("papers")
+    .select("id, author_id")
+    .eq("room_id", roomId)
+    .eq("round", round);
+
+  if (papersError) {
+    throw papersError;
+  }
+
+  const guessablePapers =
+    (papers || []).filter(
+      (paper) => {
+        // A player shouldn't have to guess
+        // their own paper.
+        return true;
+      }
+    );
+
+  const requiredGuesses =
+    Math.max(
+      0,
+      guessablePapers.length - 1
+    );
+
+  const {
+    data: assignments,
+    error: assignmentsError
+  } = await supabase
+    .from("assignments")
+    .select("assigned_to, paper_id")
+    .eq("room_id", roomId)
+    .eq("round", round);
+
+  if (assignmentsError) {
+    throw assignmentsError;
+  }
+
+  const counts = {};
+
+  for (
+    const assignment of
+    assignments || []
+  ) {
+    if (!counts[assignment.assigned_to]) {
+      counts[assignment.assigned_to] = 0;
+    }
+
+    counts[
+      assignment.assigned_to
+    ] += 1;
+  }
+
+  const everyoneFinished =
+    (players || []).every(
+      (gamePlayer) =>
+        (counts[gamePlayer.id] || 0) >=
+        requiredGuesses
+    );
+
+  return everyoneFinished;
+}

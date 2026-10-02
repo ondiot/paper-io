@@ -10,6 +10,7 @@ import CreateRoom from "./components/CreateRoom";
 import JoinRoom from "./components/JoinRoom";
 import Lobby from "./components/Lobby";
 import WritingScreen from "./components/WritingScreen";
+import GuessingScreen from "./components/GuessingScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
 
 import { AVATARS } from "./game/avatars";
@@ -23,44 +24,16 @@ import {
 
 import { supabase } from "./lib/supabase";
 
-
 function App() {
-
-  // ========================================
-  // PLAYER
-  // ========================================
-
-  const [name, setName] =
-    useState("");
-
+  const [name, setName] = useState("");
   const [selectedAvatar, setSelectedAvatar] =
-    useState(
-      AVATARS[0]
-    );
-
-
-  // ========================================
-  // SCREEN
-  // ========================================
+    useState(AVATARS[0]);
 
   const [screen, setScreen] =
     useState("intro");
 
-
-  // ========================================
-  // ROOM / PLAYER
-  // ========================================
-
-  const [room, setRoom] =
-    useState(null);
-
-  const [player, setPlayer] =
-    useState(null);
-
-
-  // ========================================
-  // LOADING
-  // ========================================
+  const [room, setRoom] = useState(null);
+  const [player, setPlayer] = useState(null);
 
   const [creatingRoom, setCreatingRoom] =
     useState(false);
@@ -71,23 +44,15 @@ function App() {
   const [restoringSession, setRestoringSession] =
     useState(true);
 
-
-  // ========================================
-  // TOAST
-  // ========================================
-
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
 
-  // ========================================
-  // RESTORE SESSION
-  // ========================================
+  /*
+   * RESTORE PREVIOUS SESSION
+   */
 
   useEffect(() => {
-
     async function restoreSession() {
-
       const savedPlayerId =
         localStorage.getItem(
           "paperio_player_id"
@@ -108,31 +73,22 @@ function App() {
           "paperio_avatar"
         );
 
-
       if (
         !savedPlayerId ||
         !savedRoomId
       ) {
-
-        setRestoringSession(
-          false
-        );
-
+        setRestoringSession(false);
         return;
       }
 
-
       try {
-
         const session =
           await getPlayerSession(
             savedPlayerId,
             savedRoomId
           );
 
-
         if (!session) {
-
           localStorage.removeItem(
             "paperio_player_id"
           );
@@ -141,308 +97,249 @@ function App() {
             "paperio_room_id"
           );
 
-          setRestoringSession(
-            false
-          );
-
+          setRestoringSession(false);
           return;
         }
 
-
-        setRoom(
-          session.room
-        );
-
-        setPlayer(
-          session.player
-        );
-
+        setRoom(session.room);
+        setPlayer(session.player);
 
         if (savedName) {
-
-          setName(
-            savedName
-          );
-
+          setName(savedName);
         } else {
-
           setName(
             session.player.name
           );
         }
 
-
         if (savedAvatar) {
-
           setSelectedAvatar(
             savedAvatar
           );
-
         } else {
-
           setSelectedAvatar(
             session.player.avatar
           );
         }
 
-
-        // Restore the correct screen.
+        /*
+         * RESTORE CORRECT GAME SCREEN
+         */
 
         if (
           session.room.status ===
           "writing"
         ) {
-
-          setScreen(
-            "writing"
-          );
-
+          setScreen("writing");
+        } else if (
+          session.room.status ===
+          "guessing"
+        ) {
+          setScreen("guessing");
+        } else if (
+          session.room.status ===
+          "reveal"
+        ) {
+          setScreen("reveal");
+        } else if (
+          session.room.status ===
+          "ended"
+        ) {
+          setScreen("ended");
         } else {
-
-          setScreen(
-            "lobby"
-          );
+          setScreen("lobby");
         }
 
       } catch (error) {
-
         console.error(
           "Could not restore session:",
           error
         );
-
       } finally {
-
-        setRestoringSession(
-          false
-        );
+        setRestoringSession(false);
       }
     }
 
-
     restoreSession();
-
   }, []);
 
 
-  // ========================================
-  // SAVE NAME
-  // ========================================
+  /*
+   * SAVE NAME
+   */
 
   useEffect(() => {
-
     if (name) {
-
       localStorage.setItem(
         "paperio_name",
         name
       );
     }
-
   }, [name]);
 
 
-  // ========================================
-  // SAVE AVATAR
-  // ========================================
+  /*
+   * SAVE AVATAR
+   */
 
   useEffect(() => {
-
     if (selectedAvatar) {
-
       localStorage.setItem(
         "paperio_avatar",
         selectedAvatar
       );
     }
-
   }, [selectedAvatar]);
 
 
-  // ========================================
-  // REALTIME ROOM UPDATES
-  // ========================================
+  /*
+   * REALTIME ROOM STATUS
+   */
 
   useEffect(() => {
-
     if (!room?.id) {
       return;
     }
-
 
     const channel =
       supabase
         .channel(
           `room-status-${room.id}-${player?.id || "unknown"}`
         )
-
         .on(
           "postgres_changes",
           {
             event: "UPDATE",
             schema: "public",
             table: "rooms",
-            filter:
-              `id=eq.${room.id}`
+            filter: `id=eq.${room.id}`
           },
           (payload) => {
-
             const updatedRoom =
               payload.new;
 
+            setRoom(updatedRoom);
 
-            setRoom(
-              updatedRoom
-            );
-
-
-            // LOBBY → WRITING
+            /*
+             * WRITING
+             */
 
             if (
               updatedRoom.status ===
               "writing"
             ) {
-
-              setScreen(
-                "writing"
-              );
+              setScreen("writing");
             }
 
-
-            // Future phases
+            /*
+             * GUESSING
+             */
 
             if (
               updatedRoom.status ===
               "guessing"
             ) {
-
-              setScreen(
-                "guessing"
-              );
+              setScreen("guessing");
             }
 
+            /*
+             * REVEAL
+             */
 
             if (
               updatedRoom.status ===
               "reveal"
             ) {
-
-              setScreen(
-                "reveal"
-              );
+              setScreen("reveal");
             }
 
+            /*
+             * GAME ENDED
+             */
 
             if (
               updatedRoom.status ===
               "ended"
             ) {
-
-              setScreen(
-                "ended"
-              );
+              setScreen("ended");
             }
-
           }
         )
-
         .subscribe();
 
-
     return () => {
-
       supabase.removeChannel(
         channel
       );
     };
-
   }, [
     room?.id,
     player?.id
   ]);
 
 
-  // ========================================
-  // INTRO
-  // ========================================
+  /*
+   * INTRO
+   */
 
   function handleIntroComplete() {
-
-    setScreen(
-      "name"
-    );
+    setScreen("name");
   }
 
 
-  // ========================================
-  // NAME
-  // ========================================
+  /*
+   * NAME CONTINUE
+   */
 
   function handleContinue() {
-
     if (!name.trim()) {
       return;
     }
 
     setError("");
-
-    setScreen(
-      "mode"
-    );
+    setScreen("mode");
   }
 
 
-  // ========================================
-  // MODE
-  // ========================================
+  /*
+   * CREATE ROOM SCREEN
+   */
 
   function handleCreateRoom() {
-
     setError("");
-
-    setScreen(
-      "create-room"
-    );
+    setScreen("create-room");
   }
 
+
+  /*
+   * JOIN ROOM SCREEN
+   */
 
   function handleJoinRoom() {
-
     setError("");
-
-    setScreen(
-      "join-room"
-    );
+    setScreen("join-room");
   }
 
 
-  // ========================================
-  // CREATE ROOM
-  // ========================================
+  /*
+   * CREATE ROOM
+   */
 
   async function handleCreate(
     settings
   ) {
-
     if (creatingRoom) {
       return;
     }
 
-
-    setCreatingRoom(
-      true
-    );
-
+    setCreatingRoom(true);
     setError("");
 
-
     try {
-
       const result =
         await createRoom({
           name,
-          avatar:
-            selectedAvatar,
+          avatar: selectedAvatar,
           roundTime:
             settings.roundTime,
           rounds:
@@ -451,15 +348,8 @@ function App() {
             settings.topicMode
         });
 
-
-      setRoom(
-        result.room
-      );
-
-      setPlayer(
-        result.player
-      );
-
+      setRoom(result.room);
+      setPlayer(result.player);
 
       localStorage.setItem(
         "paperio_player_id",
@@ -471,13 +361,9 @@ function App() {
         result.room.id
       );
 
-
-      setScreen(
-        "lobby"
-      );
+      setScreen("lobby");
 
     } catch (error) {
-
       console.error(
         "Create room failed:",
         error
@@ -489,53 +375,35 @@ function App() {
       );
 
     } finally {
-
-      setCreatingRoom(
-        false
-      );
+      setCreatingRoom(false);
     }
   }
 
 
-  // ========================================
-  // JOIN ROOM
-  // ========================================
+  /*
+   * JOIN ROOM
+   */
 
   async function handleJoin(
     code
   ) {
-
     if (joiningRoom) {
       return;
     }
 
-
-    setJoiningRoom(
-      true
-    );
-
+    setJoiningRoom(true);
     setError("");
 
-
     try {
-
       const result =
         await joinRoom({
           code,
           name,
-          avatar:
-            selectedAvatar
+          avatar: selectedAvatar
         });
 
-
-      setRoom(
-        result.room
-      );
-
-      setPlayer(
-        result.player
-      );
-
+      setRoom(result.room);
+      setPlayer(result.player);
 
       localStorage.setItem(
         "paperio_player_id",
@@ -547,13 +415,9 @@ function App() {
         result.room.id
       );
 
-
-      setScreen(
-        "lobby"
-      );
+      setScreen("lobby");
 
     } catch (error) {
-
       console.error(
         "Join room failed:",
         error
@@ -565,27 +429,21 @@ function App() {
       );
 
     } finally {
-
-      setJoiningRoom(
-        false
-      );
+      setJoiningRoom(false);
     }
   }
 
 
-  // ========================================
-  // LEAVE ROOM
-  // ========================================
+  /*
+   * LEAVE ROOM
+   */
 
   async function handleLeaveRoom() {
-
     if (player?.id) {
-
       await leaveRoom(
         player.id
       );
     }
-
 
     localStorage.removeItem(
       "paperio_player_id"
@@ -595,26 +453,20 @@ function App() {
       "paperio_room_id"
     );
 
-
     setRoom(null);
-
     setPlayer(null);
-
     setError("");
 
-    setScreen(
-      "mode"
-    );
+    setScreen("mode");
   }
 
 
-  // ========================================
-  // KICKED
-  // ========================================
+  /*
+   * KICKED
+   */
 
   const handleKicked =
     useCallback(() => {
-
       localStorage.removeItem(
         "paperio_player_id"
       );
@@ -623,37 +475,26 @@ function App() {
         "paperio_room_id"
       );
 
-
       setRoom(null);
-
       setPlayer(null);
-
 
       setError(
         "You were kicked from the room."
       );
 
-
-      setScreen(
-        "mode"
-      );
-
+      setScreen("mode");
 
       setTimeout(() => {
-
         setError("");
-
       }, 4000);
-
     }, []);
 
 
-  // ========================================
-  // RESTORING
-  // ========================================
+  /*
+   * RESTORING SESSION SCREEN
+   */
 
   if (restoringSession) {
-
     return (
       <main className="app">
 
@@ -661,14 +502,11 @@ function App() {
           style={{
             position: "fixed",
             inset: 0,
-
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-
             background: "#000",
             color: "#fff",
-
             fontSize: "14px"
           }}
         >
@@ -680,174 +518,138 @@ function App() {
   }
 
 
-  // ========================================
-  // RENDER
-  // ========================================
+  /*
+   * MAIN APP
+   */
 
   return (
-
     <main className="app">
-
 
       {/* INTRO */}
 
       {screen === "intro" && (
-
         <VaporizeIntro
           onComplete={
             handleIntroComplete
           }
         />
-
       )}
 
 
       {/* NAME */}
 
       {screen === "name" && (
-
         <NameScreen
           name={name}
-
-          setName={
-            setName
-          }
-
+          setName={setName}
           selectedAvatar={
             selectedAvatar
           }
-
           setSelectedAvatar={
             setSelectedAvatar
           }
-
           onContinue={
             handleContinue
           }
         />
-
       )}
 
 
       {/* MODE */}
 
       {screen === "mode" && (
-
         <ModeScreen
           name={name}
-
           selectedAvatar={
             selectedAvatar
           }
-
           onCreateRoom={
             handleCreateRoom
           }
-
           onJoinRoom={
             handleJoinRoom
           }
         />
-
       )}
 
 
       {/* CREATE ROOM */}
 
       {screen === "create-room" && (
-
         <CreateRoom
           name={name}
-
           selectedAvatar={
             selectedAvatar
           }
-
           onBack={() => {
-
             setError("");
-
-            setScreen(
-              "mode"
-            );
-
+            setScreen("mode");
           }}
-
           onCreate={
             handleCreate
           }
         />
-
       )}
 
 
       {/* JOIN ROOM */}
 
       {screen === "join-room" && (
-
         <JoinRoom
           name={name}
-
           selectedAvatar={
             selectedAvatar
           }
-
           onBack={() => {
-
             setError("");
-
-            setScreen(
-              "mode"
-            );
-
+            setScreen("mode");
           }}
-
           onJoin={
             handleJoin
           }
-
         />
-
       )}
 
 
       {/* LOBBY */}
 
       {screen === "lobby" && (
-
         <Lobby
           room={room}
-
           player={player}
-
           onLeave={
             handleLeaveRoom
           }
-
           onKicked={
             handleKicked
           }
         />
-
       )}
 
 
       {/* WRITING */}
 
       {screen === "writing" && (
-
         <WritingScreen
           room={room}
           player={player}
         />
-
       )}
 
 
-      {/* TOAST */}
+      {/* GUESSING */}
+
+      {screen === "guessing" && (
+        <GuessingScreen
+          room={room}
+          player={player}
+        />
+      )}
+
+
+      {/* ERROR / TOAST */}
 
       {error && (
-
         <div className="game-toast">
 
           <span className="game-toast-icon">
@@ -859,32 +661,24 @@ function App() {
           </span>
 
         </div>
-
       )}
 
 
-      {/* LOADING */}
+      {/* CREATE / JOIN LOADING */}
 
       {(creatingRoom ||
         joiningRoom) && (
-
         <div
           style={{
             position: "fixed",
             inset: 0,
-
             zIndex: 9998,
-
             display: "flex",
             alignItems: "center",
-            justifyContent:
-              "center",
-
+            justifyContent: "center",
             background:
               "rgba(0, 0, 0, 0.65)",
-
             color: "#fff",
-
             fontSize: "15px"
           }}
         >
@@ -892,12 +686,10 @@ function App() {
             ? "Creating room..."
             : "Joining room..."}
         </div>
-
       )}
 
     </main>
   );
 }
-
 
 export default App;
