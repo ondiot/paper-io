@@ -41,9 +41,5 @@ export function avatarMarkup(avatar, className = "avatar-svg") {
     `;
   }
 
-  return `
-    <span class="${className} avatar-fallback">
-      ${avatar || "?"}
-    </span>
-  `;
+  return `<span class="${className} avatar-fallback">${avatar || "?"}</span>`;
 }
