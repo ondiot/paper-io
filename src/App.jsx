@@ -29,35 +29,21 @@ import { supabase } from "./lib/supabase";
 
 function App() {
   const [name, setName] = useState("");
-
-  const [selectedAvatar, setSelectedAvatar] = useState(
-    AVATARS[0]
-  );
-
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
   const [screen, setScreen] = useState("intro");
-
   const [room, setRoom] = useState(null);
-
   const [player, setPlayer] = useState(null);
 
   const [creatingRoom, setCreatingRoom] = useState(false);
-
   const [joiningRoom, setJoiningRoom] = useState(false);
-
   const [restoringSession, setRestoringSession] = useState(true);
 
   const [preloadingAssets, setPreloadingAssets] = useState(false);
-
   const [preloadProgress, setPreloadProgress] = useState(0);
 
   const [error, setError] = useState("");
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
 
-  const [confirmingLeave, setConfirmingLeave] =
-    useState(false);
-
-  /*
-   * Restore previously saved player session.
-   */
   useEffect(() => {
     async function restoreSession() {
       const savedPlayerId = localStorage.getItem(
@@ -88,13 +74,8 @@ function App() {
         );
 
         if (!session) {
-          localStorage.removeItem(
-            "paperio_player_id"
-          );
-
-          localStorage.removeItem(
-            "paperio_room_id"
-          );
+          localStorage.removeItem("paperio_player_id");
+          localStorage.removeItem("paperio_room_id");
 
           setRestoringSession(false);
           return;
@@ -103,17 +84,15 @@ function App() {
         setRoom(session.room);
         setPlayer(session.player);
 
-        if (savedName) {
-          setName(savedName);
-        } else {
-          setName(session.player.name);
-        }
+        setName(
+          savedName || session.player.name || ""
+        );
 
-        if (savedAvatar) {
-          setSelectedAvatar(savedAvatar);
-        } else {
-          setSelectedAvatar(session.player.avatar);
-        }
+        setSelectedAvatar(
+          savedAvatar ||
+            session.player.avatar ||
+            AVATARS[0]
+        );
 
         switch (session.room.status) {
           case "writing":
@@ -149,21 +128,12 @@ function App() {
     restoreSession();
   }, []);
 
-  /*
-   * Save player's name.
-   */
   useEffect(() => {
     if (name) {
-      localStorage.setItem(
-        "paperio_name",
-        name
-      );
+      localStorage.setItem("paperio_name", name);
     }
   }, [name]);
 
-  /*
-   * Save selected avatar.
-   */
   useEffect(() => {
     if (selectedAvatar) {
       localStorage.setItem(
@@ -173,9 +143,6 @@ function App() {
     }
   }, [selectedAvatar]);
 
-  /*
-   * Keep screen synchronized with room status.
-   */
   useEffect(() => {
     if (!room?.status) {
       return;
@@ -207,9 +174,6 @@ function App() {
     }
   }, [room?.status]);
 
-  /*
-   * Listen for room changes.
-   */
   useEffect(() => {
     if (!room?.id) {
       return;
@@ -226,11 +190,6 @@ function App() {
           filter: `id=eq.${room.id}`,
         },
         (payload) => {
-          console.log(
-            "ROOM UPDATE:",
-            payload.new
-          );
-
           setRoom(payload.new);
         }
       )
@@ -241,9 +200,6 @@ function App() {
     };
   }, [room?.id]);
 
-  /*
-   * Listen for player changes.
-   */
   useEffect(() => {
     if (!room?.id || !player?.id) {
       return;
@@ -260,11 +216,6 @@ function App() {
           filter: `id=eq.${player.id}`,
         },
         (payload) => {
-          console.log(
-            "PLAYER UPDATE:",
-            payload.new
-          );
-
           setPlayer(payload.new);
         }
       )
@@ -275,9 +226,6 @@ function App() {
     };
   }, [room?.id, player?.id]);
 
-  /*
-   * Preload assets.
-   */
   async function handleIntroComplete() {
     setPreloadingAssets(true);
     setPreloadProgress(0);
@@ -301,9 +249,6 @@ function App() {
     setScreen("name");
   }
 
-  /*
-   * Continue from name screen.
-   */
   function handleContinue() {
     if (!name.trim()) {
       return;
@@ -313,25 +258,16 @@ function App() {
     setScreen("mode");
   }
 
-  /*
-   * Open create room.
-   */
   function handleCreateRoom() {
     setError("");
     setScreen("create-room");
   }
 
-  /*
-   * Open join room.
-   */
   function handleJoinRoom() {
     setError("");
     setScreen("join-room");
   }
 
-  /*
-   * Create room.
-   */
   async function handleCreate(settings) {
     if (creatingRoom) {
       return;
@@ -378,9 +314,6 @@ function App() {
     }
   }
 
-  /*
-   * Join room.
-   */
   async function handleJoin(code) {
     if (joiningRoom) {
       return;
@@ -425,15 +358,14 @@ function App() {
     }
   }
 
-  /*
-   * Leave current room.
-   */
   async function handleLeaveRoom() {
     setConfirmingLeave(false);
 
-    if (player?.id) {
+    const currentPlayerId = player?.id;
+
+    if (currentPlayerId) {
       try {
-        await leaveRoom(player.id);
+        await leaveRoom(currentPlayerId);
       } catch (error) {
         console.error(
           "Leave room failed:",
@@ -442,40 +374,23 @@ function App() {
       }
     }
 
-    localStorage.removeItem(
-      "paperio_player_id"
-    );
-
-    localStorage.removeItem(
-      "paperio_room_id"
-    );
+    localStorage.removeItem("paperio_player_id");
+    localStorage.removeItem("paperio_room_id");
 
     setRoom(null);
     setPlayer(null);
     setError("");
-
     setScreen("mode");
   }
 
-  /*
-   * Handle kicked player.
-   */
   const handleKicked = useCallback(() => {
-    localStorage.removeItem(
-      "paperio_player_id"
-    );
-
-    localStorage.removeItem(
-      "paperio_room_id"
-    );
+    localStorage.removeItem("paperio_player_id");
+    localStorage.removeItem("paperio_room_id");
 
     setRoom(null);
     setPlayer(null);
 
-    setError(
-      "You were kicked from the room."
-    );
-
+    setError("You were kicked from the room.");
     setScreen("mode");
 
     setTimeout(() => {
@@ -483,12 +398,8 @@ function App() {
     }, 4000);
   }, []);
 
-  /*
-   * Show leave button only while inside a room.
-   */
   const showLeaveButton =
-    room &&
-    player &&
+    Boolean(room?.id && player?.id) &&
     [
       "lobby",
       "writing",
@@ -497,9 +408,6 @@ function App() {
       "ended",
     ].includes(screen);
 
-  /*
-   * Loading while restoring session.
-   */
   if (restoringSession) {
     return (
       <div
@@ -521,8 +429,115 @@ function App() {
 
   return (
     <>
+      {screen === "intro" && (
+        <VaporizeIntro
+          onComplete={handleIntroComplete}
+        />
+      )}
+
+      {preloadingAssets && (
+        <LoadingScreen
+          label="Preloading"
+          variant="Drive"
+          progress={preloadProgress}
+        />
+      )}
+
+      {screen === "name" && (
+        <NameScreen
+          name={name}
+          setName={setName}
+          selectedAvatar={selectedAvatar}
+          setSelectedAvatar={setSelectedAvatar}
+          onContinue={handleContinue}
+        />
+      )}
+
+      {screen === "mode" && (
+        <ModeScreen
+          name={name}
+          selectedAvatar={selectedAvatar}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+        />
+      )}
+
+      {screen === "create-room" && (
+        <CreateRoom
+          name={name}
+          selectedAvatar={selectedAvatar}
+          onBack={() => {
+            setError("");
+            setScreen("mode");
+          }}
+          onCreate={handleCreate}
+        />
+      )}
+
+      {screen === "join-room" && (
+        <JoinRoom
+          name={name}
+          selectedAvatar={selectedAvatar}
+          onBack={() => {
+            setError("");
+            setScreen("mode");
+          }}
+          onJoin={handleJoin}
+        />
+      )}
+
+      {screen === "lobby" && (
+        <Lobby
+          room={room}
+          player={player}
+          onKicked={handleKicked}
+        />
+      )}
+
+      {screen === "writing" && (
+        <WritingScreen
+          room={room}
+          player={player}
+        />
+      )}
+
+      {screen === "guessing" && (
+        <GuessingScreen
+          room={room}
+          player={player}
+        />
+      )}
+
+      {screen === "reveal" && (
+        <RevealScreen
+          room={room}
+          player={player}
+        />
+      )}
+
+      {screen === "ended" && <div />}
+
+      {error && (
+        <div className="game-toast">
+          <span className="game-toast-icon">
+            !
+          </span>
+          <span>{error}</span>
+        </div>
+      )}
+
       {showLeaveButton && (
-        <div className="global-leave-container">
+        <div
+          className="global-leave-container"
+          style={{
+            position: "fixed",
+            left: "20px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 2147483647,
+            pointerEvents: "auto",
+          }}
+        >
           {!confirmingLeave ? (
             <button
               type="button"
@@ -559,120 +574,6 @@ function App() {
         </div>
       )}
 
-      {/* Intro */}
-      {screen === "intro" && (
-        <VaporizeIntro
-          onComplete={handleIntroComplete}
-        />
-      )}
-
-      {/* Asset preloading */}
-      {preloadingAssets && (
-        <LoadingScreen
-          label="Preloading"
-          variant="Drive"
-          progress={preloadProgress}
-        />
-      )}
-
-      {/* Name */}
-      {screen === "name" && (
-        <NameScreen
-          name={name}
-          setName={setName}
-          selectedAvatar={selectedAvatar}
-          setSelectedAvatar={setSelectedAvatar}
-          onContinue={handleContinue}
-        />
-      )}
-
-      {/* Mode */}
-      {screen === "mode" && (
-        <ModeScreen
-          name={name}
-          selectedAvatar={selectedAvatar}
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-        />
-      )}
-
-      {/* Create room */}
-      {screen === "create-room" && (
-        <CreateRoom
-          name={name}
-          selectedAvatar={selectedAvatar}
-          onBack={() => {
-            setError("");
-            setScreen("mode");
-          }}
-          onCreate={handleCreate}
-        />
-      )}
-
-      {/* Join room */}
-      {screen === "join-room" && (
-        <JoinRoom
-          name={name}
-          selectedAvatar={selectedAvatar}
-          onBack={() => {
-            setError("");
-            setScreen("mode");
-          }}
-          onJoin={handleJoin}
-        />
-      )}
-
-      {/* Lobby */}
-      {screen === "lobby" && (
-        <Lobby
-          room={room}
-          player={player}
-          onLeave={handleLeaveRoom}
-          onKicked={handleKicked}
-        />
-      )}
-
-      {/* Writing */}
-      {screen === "writing" && (
-        <WritingScreen
-          room={room}
-          player={player}
-        />
-      )}
-
-      {/* Guessing */}
-      {screen === "guessing" && (
-        <GuessingScreen
-          room={room}
-          player={player}
-        />
-      )}
-
-      {/* Reveal */}
-      {screen === "reveal" && (
-        <RevealScreen
-          room={room}
-          player={player}
-        />
-      )}
-
-      {/* Ended */}
-      {screen === "ended" && (
-        <div />
-      )}
-
-      {/* Error toast */}
-      {error && (
-        <div className="game-toast">
-          <span className="game-toast-icon">
-            !
-          </span>
-
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Create / Join loading */}
       {(creatingRoom || joiningRoom) && (
         <div
           style={{

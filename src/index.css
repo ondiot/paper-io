@@ -2860,3 +2860,62 @@ input {
     padding: 7px;
   }
 }
+
+.global-leave-button {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 11px 16px;
+  background: rgba(15, 15, 15, 0.92);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.global-leave-button:hover {
+  background: rgba(35, 35, 35, 0.96);
+  transform: scale(1.05);
+}
+
+.global-leave-button:active {
+  transform: scale(0.96);
+}
+
+.global-leave-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(15, 15, 15, 0.96);
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.global-leave-confirm-button,
+.global-leave-cancel-button {
+  border: 0;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.global-leave-confirm-button {
+  background: #fff;
+  color: #000;
+}
+
+.global-leave-cancel-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
