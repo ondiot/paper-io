@@ -16,7 +16,6 @@ import VaporizeIntro from "./components/VaporizeIntro";
 import RevealScreen from "./components/RevealScreen";
 
 import { AVATARS } from "./game/avatars";
-
 import { preloadAllAssets } from "./game/preloadAssets";
 
 import {
@@ -53,11 +52,11 @@ function App() {
 
   const [error, setError] = useState("");
 
+  const [confirmingLeave, setConfirmingLeave] =
+    useState(false);
+
   /*
-   * Restore a previously saved player session.
-   *
-   * If the browser still has a valid player ID and room ID,
-   * attempt to reconnect the player to that room.
+   * Restore previously saved player session.
    */
   useEffect(() => {
     async function restoreSession() {
@@ -89,8 +88,13 @@ function App() {
         );
 
         if (!session) {
-          localStorage.removeItem("paperio_player_id");
-          localStorage.removeItem("paperio_room_id");
+          localStorage.removeItem(
+            "paperio_player_id"
+          );
+
+          localStorage.removeItem(
+            "paperio_room_id"
+          );
 
           setRestoringSession(false);
           return;
@@ -111,7 +115,6 @@ function App() {
           setSelectedAvatar(session.player.avatar);
         }
 
-        // Restore the correct screen based on the room status.
         switch (session.room.status) {
           case "writing":
             setScreen("writing");
@@ -147,17 +150,19 @@ function App() {
   }, []);
 
   /*
-   * Save the player's name locally so it can be restored
-   * when the page is opened again.
+   * Save player's name.
    */
   useEffect(() => {
     if (name) {
-      localStorage.setItem("paperio_name", name);
+      localStorage.setItem(
+        "paperio_name",
+        name
+      );
     }
   }, [name]);
 
   /*
-   * Save the selected avatar locally.
+   * Save selected avatar.
    */
   useEffect(() => {
     if (selectedAvatar) {
@@ -169,8 +174,7 @@ function App() {
   }, [selectedAvatar]);
 
   /*
-   * Keep the visible screen synchronized with the
-   * current room status.
+   * Keep screen synchronized with room status.
    */
   useEffect(() => {
     if (!room?.status) {
@@ -204,10 +208,7 @@ function App() {
   }, [room?.status]);
 
   /*
-   * Listen for realtime changes to the current room.
-   *
-   * This keeps the local room state synchronized when
-   * another player changes the room status.
+   * Listen for room changes.
    */
   useEffect(() => {
     if (!room?.id) {
@@ -241,10 +242,7 @@ function App() {
   }, [room?.id]);
 
   /*
-   * Listen for realtime changes to the current player.
-   *
-   * This is especially useful for keeping the player's
-   * score and other player information synchronized.
+   * Listen for player changes.
    */
   useEffect(() => {
     if (!room?.id || !player?.id) {
@@ -278,10 +276,7 @@ function App() {
   }, [room?.id, player?.id]);
 
   /*
-   * Preload all game assets after the intro finishes.
-   *
-   * preloadAllAssets() handles images, audio, fonts,
-   * and reports loading progress back to this component.
+   * Preload assets.
    */
   async function handleIntroComplete() {
     setPreloadingAssets(true);
@@ -298,10 +293,6 @@ function App() {
       );
     }
 
-    /*
-     * Keep the loading screen visible briefly even when
-     * everything is already cached by the browser.
-     */
     await new Promise((resolve) => {
       setTimeout(resolve, 500);
     });
@@ -311,7 +302,7 @@ function App() {
   }
 
   /*
-   * Continue from the name screen.
+   * Continue from name screen.
    */
   function handleContinue() {
     if (!name.trim()) {
@@ -323,7 +314,7 @@ function App() {
   }
 
   /*
-   * Open the create-room screen.
+   * Open create room.
    */
   function handleCreateRoom() {
     setError("");
@@ -331,7 +322,7 @@ function App() {
   }
 
   /*
-   * Open the join-room screen.
+   * Open join room.
    */
   function handleJoinRoom() {
     setError("");
@@ -339,7 +330,7 @@ function App() {
   }
 
   /*
-   * Create a new game room.
+   * Create room.
    */
   async function handleCreate(settings) {
     if (creatingRoom) {
@@ -388,7 +379,7 @@ function App() {
   }
 
   /*
-   * Join an existing game room.
+   * Join room.
    */
   async function handleJoin(code) {
     if (joiningRoom) {
@@ -435,9 +426,11 @@ function App() {
   }
 
   /*
-   * Leave the current room and clear the saved session.
+   * Leave current room.
    */
   async function handleLeaveRoom() {
+    setConfirmingLeave(false);
+
     if (player?.id) {
       try {
         await leaveRoom(player.id);
@@ -465,7 +458,7 @@ function App() {
   }
 
   /*
-   * Handle being kicked from the room.
+   * Handle kicked player.
    */
   const handleKicked = useCallback(() => {
     localStorage.removeItem(
@@ -491,8 +484,21 @@ function App() {
   }, []);
 
   /*
-   * Show a simple loading screen while attempting
-   * to restore a previous session.
+   * Show leave button only while inside a room.
+   */
+  const showLeaveButton =
+    room &&
+    player &&
+    [
+      "lobby",
+      "writing",
+      "guessing",
+      "reveal",
+      "ended",
+    ].includes(screen);
+
+  /*
+   * Loading while restoring session.
    */
   if (restoringSession) {
     return (
@@ -513,11 +519,46 @@ function App() {
     );
   }
 
-  /*
-   * Main application.
-   */
   return (
     <>
+      {showLeaveButton && (
+        <div className="global-leave-container">
+          {!confirmingLeave ? (
+            <button
+              type="button"
+              className="global-leave-button"
+              onClick={() =>
+                setConfirmingLeave(true)
+              }
+            >
+              Leave
+            </button>
+          ) : (
+            <div className="global-leave-confirm">
+              <span>Leave game?</span>
+
+              <button
+                type="button"
+                className="global-leave-confirm-button"
+                onClick={handleLeaveRoom}
+              >
+                Yes
+              </button>
+
+              <button
+                type="button"
+                className="global-leave-cancel-button"
+                onClick={() =>
+                  setConfirmingLeave(false)
+                }
+              >
+                No
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Intro */}
       {screen === "intro" && (
         <VaporizeIntro
@@ -545,7 +586,7 @@ function App() {
         />
       )}
 
-      {/* Mode selection */}
+      {/* Mode */}
       {screen === "mode" && (
         <ModeScreen
           name={name}
@@ -615,6 +656,11 @@ function App() {
         />
       )}
 
+      {/* Ended */}
+      {screen === "ended" && (
+        <div />
+      )}
+
       {/* Error toast */}
       {error && (
         <div className="game-toast">
@@ -626,7 +672,7 @@ function App() {
         </div>
       )}
 
-      {/* Create / Join loading overlay */}
+      {/* Create / Join loading */}
       {(creatingRoom || joiningRoom) && (
         <div
           style={{
@@ -636,7 +682,8 @@ function App() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(0, 0, 0, 0.65)",
+            background:
+              "rgba(0, 0, 0, 0.65)",
             color: "#fff",
             fontSize: "15px",
           }}
@@ -651,4 +698,3 @@ function App() {
 }
 
 export default App;
-
