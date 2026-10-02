@@ -1,16 +1,26 @@
+import AvatarPicker from "./AvatarPicker";
+
 function NameScreen({
   name,
   setName,
+  selectedAvatar,
+  setSelectedAvatar,
   onContinue
 }) {
   return (
     <section className="name-screen">
       <div className="name-card">
+
         <h1>PAPER.IO</h1>
 
         <p>
           Enter your name to continue
         </p>
+
+        <AvatarPicker
+          selectedAvatar={selectedAvatar}
+          setSelectedAvatar={setSelectedAvatar}
+        />
 
         <input
           type="text"
@@ -28,6 +38,7 @@ function NameScreen({
         >
           Continue
         </button>
+
       </div>
     </section>
   );

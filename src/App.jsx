@@ -1,9 +1,14 @@
 import { useState } from "react";
 import NameScreen from "./components/NameScreen";
+import { AVATARS } from "./game/avatars";
 
 function App() {
   const [name, setName] = useState("");
-  const [screen, setScreen] = useState("name");
+  const [selectedAvatar, setSelectedAvatar] =
+    useState(AVATARS[0]);
+
+  const [screen, setScreen] =
+    useState("name");
 
   function handleContinue() {
     if (!name.trim()) return;
@@ -13,23 +18,43 @@ function App() {
 
   return (
     <main className="app">
+
       {screen === "name" && (
         <NameScreen
           name={name}
           setName={setName}
+          selectedAvatar={selectedAvatar}
+          setSelectedAvatar={setSelectedAvatar}
           onContinue={handleContinue}
         />
       )}
 
       {screen === "mode" && (
-        <div>
-          <h1>Welcome, {name}!</h1>
+        <div className="mode-screen">
+          <div className="mode-screen-card">
 
-          <p>
-            Mode selection will come next.
-          </p>
+            <h1>
+              Welcome, {name}!
+            </h1>
+
+            <p>
+              Your avatar:
+            </p>
+
+            <img
+              src={`/assets/avatars/${selectedAvatar}`}
+              alt="Avatar"
+              width="100"
+            />
+
+            <p>
+              Mode selection will come next.
+            </p>
+
+          </div>
         </div>
       )}
+
     </main>
   );
 }
