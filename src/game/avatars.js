@@ -15,34 +15,35 @@ export const AVATARS = [
   "dexter.png"
 ];
 
-export function avatarMarkup(avatar, className = "avatar-svg") {
-  if (typeof avatar === "string") {
-    const safeName = avatar.split("/").pop();
-    const extension = safeName.split(".").pop().toLowerCase();
+export function getAvatarUrl(avatar) {
+  if (!avatar) return "";
 
-    const supportedFormats = [
-      "svg",
-      "jpg",
-      "jpeg",
-      "png",
-      "gif",
-      "webp"
-    ];
+  const safeName = avatar.split("/").pop();
 
-    if (
-      supportedFormats.includes(extension) &&
-      AVATARS.includes(safeName)
-    ) {
-      return `
-        <img
-          class="${className}"
-          src="${AVATAR_BASE}${safeName}"
-          alt=""
-          draggable="false"
-        >
-      `;
-    }
+  if (!AVATARS.includes(safeName)) {
+    return "";
   }
 
-  return `<span class="${className} avatar-fallback">${avatar || "?"}</span>`;
+  return `${AVATAR_BASE}${safeName}`;
+}
+
+export function avatarMarkup(avatar, className = "avatar-svg") {
+  const url = getAvatarUrl(avatar);
+
+  if (url) {
+    return `
+      <img
+        class="${className}"
+        src="${url}"
+        alt=""
+        draggable="false"
+      />
+    `;
+  }
+
+  return `
+    <span class="${className} avatar-fallback">
+      ${avatar || "?"}
+    </span>
+  `;
 }
