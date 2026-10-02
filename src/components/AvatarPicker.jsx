@@ -11,12 +11,11 @@ function AvatarPicker({
   });
 
   function previous() {
-    const next =
-      (index - 1 + AVATARS.length) %
-      AVATARS.length;
+    const nextIndex =
+      (index - 1 + AVATARS.length) % AVATARS.length;
 
-    setIndex(next);
-    setSelectedAvatar(AVATARS[next]);
+    setIndex(nextIndex);
+    setSelectedAvatar(AVATARS[nextIndex]);
   }
 
   function next() {
@@ -28,6 +27,8 @@ function AvatarPicker({
   }
 
   const avatar = AVATARS[index];
+
+  const avatarUrl = `${import.meta.env.BASE_URL}assets/avatars/${avatar}`;
 
   return (
     <div className="avatar-picker">
@@ -41,8 +42,9 @@ function AvatarPicker({
 
       <div className="avatar-preview">
         <img
-          src={`/assets/avatars/${avatar}`}
+          src={avatarUrl}
           alt="Selected avatar"
+          draggable="false"
         />
       </div>
 
