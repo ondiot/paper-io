@@ -3214,7 +3214,7 @@ input {
 
 .paper-title-layer { position: absolute; top: 22%; left: 0; width: 100%; display: flex; justify-content: center; z-index: 10; pointer-events: none; }
 .paper-title { min-height: 80px; padding: 0 15px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font-family: "Courier New", monospace; font-size: clamp(28px,5vw,66px); font-weight: 700; letter-spacing: .07em; text-shadow: 0 0 10px rgba(255,255,255,.55), 0 0 30px rgba(0,255,100,.2); }
-.paper-name-card { position: absolute; top: calc(17% + 34px); left: 50%; transform: translate(-50%, 0); width: min(420px,calc(100vw - 30px)); padding: 28px; box-sizing: border-box; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(10,10,10,.52); backdrop-filter: blur(8px); box-shadow: 0 20px 70px rgba(0,0,0,.5); text-align: center; z-index: 20; }
+.paper-name-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, calc(-50% - 70px)); width: min(420px,calc(100vw - 30px)); padding: 28px; box-sizing: border-box; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(10,10,10,.52); backdrop-filter: blur(8px); box-shadow: 0 20px 70px rgba(0,0,0,.5); text-align: center; z-index: 20; }
 .paper-name-card h2 { margin: 0 0 7px; font-size: 23px; }
 .paper-name-card p { margin: 0 0 18px; color: #666; font-size: 11px; }
 .paper-name-card input { width: 100%; height: 45px; box-sizing: border-box; padding: 0 13px; border: 1px solid #292929; border-radius: 10px; outline: 0; background: rgba(255,255,255,.05); color: #fff; font: inherit; font-size: 13px; }
@@ -3237,7 +3237,7 @@ input {
   .results-awards-grid { grid-template-columns: 1fr; }
   .paper-title-layer { top: 17%; }
   .paper-title { min-height: 65px; font-size: 25px; }
-  .paper-name-card { top: calc(17% + 34px); transform: translate(-50%, 0); padding: 22px; }
+  .paper-name-card { top: 50%; padding: 22px; }
 }
 
 
