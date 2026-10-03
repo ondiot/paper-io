@@ -577,7 +577,7 @@ export async function checkGuessingComplete({
     error: papersError
   } = await supabase
     .from("papers")
-    .select("id")
+    .select("id,author_id")
     .eq("room_id", roomId)
     .eq("round", round);
 
@@ -588,12 +588,16 @@ export async function checkGuessingComplete({
   const playerList =
     players || [];
 
+  // Only papers belonging to players who are still in the room
+  // count toward completion. A kicked player's paper must not freeze
+  // the remaining players in the guessing phase.
   const paperList =
-    papers || [];
+    (papers || []).filter((paper) =>
+      playerList.some((player) => player.id === paper.author_id)
+    );
 
   /*
-   * Every player must guess
-   * every paper except their own.
+   * Every active player must guess every active paper except their own.
    */
 
   const requiredGuesses =
