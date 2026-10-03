@@ -468,7 +468,7 @@ function WritingScreen({
 
           <div
             className={
-              timeLeft <= 10
+              timeLeft <= 1
                 ? "writing-timer danger"
                 : "writing-timer"
             }
