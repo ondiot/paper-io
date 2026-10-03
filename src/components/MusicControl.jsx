@@ -43,6 +43,19 @@ function MusicControl({ enabled = true }) {
     }
   }, [enabled]);
 
+  useEffect(() => {
+    if (!enabled) return;
+
+    async function handleStartMusic() {
+      await startTrack(0);
+    }
+
+    window.addEventListener("paperio-start-music", handleStartMusic);
+    return () => {
+      window.removeEventListener("paperio-start-music", handleStartMusic);
+    };
+  }, [enabled]);
+
   async function startTrack(index) {
     const audio = audioRef.current;
     if (!audio) return;
