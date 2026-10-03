@@ -631,6 +631,7 @@ function WritingScreen({
 
             <button
               type="button"
+              className="writing-submit"
               onClick={handleSubmit}
               disabled={
                 submitted ||
