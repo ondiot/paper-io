@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import LoadingScreen from "./components/LoadingScreen";
 import NameScreen from "./components/NameScreen";
 import ModeScreen from "./components/ModeScreen";
 import JoinRoom from "./components/JoinRoom";
@@ -15,7 +14,6 @@ import MusicControl from "./components/MusicControl";
 import ChatBox from "./components/ChatBox";
 
 import { AVATARS } from "./game/avatars";
-import { preloadAllAssets } from "./game/preloadAssets";
 import {
   createRoom,
   joinRoom,
@@ -34,8 +32,6 @@ function App() {
   const [creatingRoom, setCreatingRoom] = useState(false);
   const [joiningRoom, setJoiningRoom] = useState(false);
   const [restoringSession, setRestoringSession] = useState(true);
-  const [preloadingAssets, setPreloadingAssets] = useState(false);
-  const [preloadProgress, setPreloadProgress] = useState(0);
   const [error, setError] = useState("");
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const leavingRef = useRef(false);
@@ -263,10 +259,6 @@ function App() {
 
   return (
     <>
-      {preloadingAssets && (
-        <LoadingScreen label="Loading game" variant="Drive" progress={preloadProgress} />
-      )}
-
       {screen === "name" && (
         <NameScreen
           name={name}
@@ -307,7 +299,7 @@ function App() {
             {insideRoom && <StatsMenu room={room} player={player} />}
       <MusicControl
         enabled
-        showControls={!preloadingAssets}
+        showControls
       />
       {insideRoom && <ChatBox room={room} player={player} />}
 
