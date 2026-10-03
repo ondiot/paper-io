@@ -5245,3 +5245,13 @@ button.stats-menu-trigger,
   object-fit: cover !important;
   border-radius: 50% !important;
 }
+
+
+/* DEFINITIVE: .post-name-paper-world has higher specificity, so target the
+   actual writing-status-score element with the same specificity. */
+.post-name-paper-world .writing-status-score {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
