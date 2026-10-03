@@ -4991,3 +4991,51 @@ button.stats-menu-trigger,
   border-color: #789c78 !important;
   box-shadow: 0 0 0 2px rgba(120, 156, 120, .12) !important;
 }
+
+
+/* FINAL DARK VINTAGE BUTTON OVERRIDES */
+.post-name-paper-world .guessing-submit,
+.post-name-paper-world .guessing-submit:not(:disabled),
+.post-name-paper-world .writing-submit,
+.post-name-paper-world .writing-submit:not(:disabled) {
+  background: linear-gradient(135deg, #a8894d, #735a2d) !important;
+  color: #fff5df !important;
+  border: 1px solid rgba(255, 224, 153, .30) !important;
+  box-shadow: 0 7px 20px rgba(102, 76, 31, .25) !important;
+}
+
+.post-name-paper-world .guessing-submit:hover:not(:disabled),
+.post-name-paper-world .writing-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b99859, #806634) !important;
+  color: #fff8e9 !important;
+}
+
+.post-name-paper-world .guessing-submit:disabled,
+.post-name-paper-world .writing-submit:disabled {
+  background: #403629 !important;
+  color: #9d927f !important;
+  border-color: rgba(213, 176, 105, .12) !important;
+  box-shadow: none !important;
+}
+
+/* Force every avatar image/container in the post-name world to clip circularly. */
+.post-name-paper-world [class*="avatar"] {
+  box-sizing: border-box;
+}
+
+.post-name-paper-world [class*="avatar"] img {
+  border-radius: 50% !important;
+}
+
+.post-name-paper-world .lobby-player-avatar,
+.post-name-paper-world .writing-player-avatar,
+.post-name-paper-world .writing-status-avatar,
+.post-name-paper-world .guessing-player-avatar,
+.post-name-paper-world .guess-option-avatar,
+.post-name-paper-world .reveal-author-avatar,
+.post-name-paper-world .reveal-score-avatar,
+.post-name-paper-world .results-ranking-avatar,
+.post-name-paper-world .results-award-player-avatar {
+  overflow: hidden !important;
+  border-radius: 50% !important;
+}
