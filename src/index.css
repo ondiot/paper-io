@@ -5368,3 +5368,42 @@ button.stats-menu-trigger,
   font-weight: 900 !important;
   line-height: 14px !important;
 }
+
+
+/* Writing submit: dark vintage, not the default white button. */
+.post-name-paper-world .writing-submit {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 120px !important;
+  min-height: 42px !important;
+  padding: 10px 18px !important;
+  border: 1px solid rgba(213, 176, 105, .38) !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #8f743e, #594522) !important;
+  color: #f7ecd7 !important;
+  -webkit-text-fill-color: #f7ecd7 !important;
+  box-shadow: 0 7px 20px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  text-shadow: none !important;
+}
+
+.post-name-paper-world .writing-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a3874d, #6d572c) !important;
+  color: #fff8e9 !important;
+  -webkit-text-fill-color: #fff8e9 !important;
+  transform: translateY(-1px);
+}
+
+.post-name-paper-world .writing-submit:disabled {
+  background: #403629 !important;
+  color: #9d927f !important;
+  -webkit-text-fill-color: #9d927f !important;
+  border-color: rgba(213,176,105,.16) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
