@@ -1,7 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-function VaporizeIntro({ onComplete }) {
+function VaporizeIntro({ onComplete, onStart }) {
   const canvasRef = useRef(null);
+  const startedRef = useRef(false);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -16,6 +18,8 @@ function VaporizeIntro({ onComplete }) {
     const FADE_IN = 300;
     const HOLD = 1000;
     const VAPORIZE = 2400;
+
+    if (!started) return;
 
     const startTime = performance.now();
 
@@ -411,7 +415,14 @@ function VaporizeIntro({ onComplete }) {
         setupCanvas
       );
     };
-  }, [onComplete]);
+  }, [onComplete, started]);
+
+  function handleStart() {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    onStart?.();
+    setStarted(true);
+  }
 
   return (
     <div
@@ -433,6 +444,31 @@ function VaporizeIntro({ onComplete }) {
           display: "block"
         }}
       />
+
+      {!started && (
+        <button
+          type="button"
+          onClick={handleStart}
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "58%",
+            transform: "translate(-50%, -50%)",
+            padding: "14px 26px",
+            border: "1px solid rgba(255,255,255,.35)",
+            borderRadius: "999px",
+            background: "rgba(255,255,255,.08)",
+            color: "#fff",
+            fontSize: "12px",
+            fontWeight: 800,
+            letterSpacing: ".18em",
+            cursor: "pointer",
+            backdropFilter: "blur(12px)"
+          }}
+        >
+          CLICK TO CONTINUE
+        </button>
+      )}
     </div>
   );
 }
