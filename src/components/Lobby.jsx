@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { startGame, updateRoomSettings, updateHeartbeat } from "../game/rooms";
 import AvatarKickControl from "./InlineKickButton";
+import DarkGradientBackground from "./DarkGradientBackground";
 
 function Lobby({ room, player, onKicked }) {
   const [players, setPlayers] = useState([]);
