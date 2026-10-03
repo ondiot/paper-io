@@ -4621,3 +4621,208 @@ button.stats-menu-trigger,
       linear-gradient(125deg, #18130e, #292016 48%, #17120e);
   }
 }
+
+
+/* =========================================================
+   DARK VINTAGE UI — layered parchment shades + colored controls
+========================================================= */
+.post-name-paper-world {
+  --paper-ink: #eadfca;
+  --paper-muted: #b9aa91;
+  --paper-gold: #c9a45b;
+  --paper-green: #789c78;
+  --paper-blue: #7890aa;
+  --paper-red: #a56d61;
+  --paper-purple: #8d7da3;
+  --paper-surface: rgba(43, 34, 24, .92);
+  --paper-surface-soft: rgba(58, 45, 30, .78);
+  --paper-line: rgba(213, 176, 105, .20);
+}
+
+.post-name-paper-world .mode-card,
+.post-name-paper-world .join-room-card,
+.post-name-paper-world .lobby-card,
+.post-name-paper-world .writing-card,
+.post-name-paper-world .guessing-card,
+.post-name-paper-world .reveal-card,
+.post-name-paper-world .results-card {
+  background:
+    linear-gradient(145deg, rgba(67, 52, 34, .94), rgba(31, 25, 18, .96));
+  border-color: rgba(213, 176, 105, .24);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.52),
+    inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+/* Profile / room information gets a warmer parchment panel. */
+.post-name-paper-world .mode-profile,
+.post-name-paper-world .create-room-profile,
+.post-name-paper-world .room-code-box {
+  background: linear-gradient(135deg, rgba(91, 70, 42, .38), rgba(40, 31, 21, .65));
+  border: 1px solid rgba(205, 170, 108, .18);
+  border-radius: 14px;
+}
+
+/* Mode choices: each option gets its own vintage accent. */
+.post-name-paper-world .mode-option {
+  background: linear-gradient(135deg, rgba(65, 52, 35, .92), rgba(35, 28, 20, .96));
+  border: 1px solid rgba(213, 176, 105, .18);
+  color: #eadfca;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.post-name-paper-world .mode-option:nth-child(1) .mode-option-icon {
+  color: #d5b35e;
+  background: rgba(160, 122, 48, .16);
+  border-color: rgba(213, 176, 105, .28);
+}
+
+.post-name-paper-world .mode-option:nth-child(2) .mode-option-icon {
+  color: #86a9bf;
+  background: rgba(74, 111, 138, .16);
+  border-color: rgba(120, 160, 190, .26);
+}
+
+.post-name-paper-world .mode-option:hover {
+  transform: translateY(-2px);
+  border-color: rgba(213, 176, 105, .42);
+  box-shadow: 0 10px 28px rgba(0,0,0,.28);
+}
+
+.post-name-paper-world .mode-option:nth-child(2):hover {
+  border-color: rgba(120, 160, 190, .42);
+}
+
+/* Topic / setting selectors use different ink shades. */
+.post-name-paper-world .topic-option {
+  background: rgba(55, 43, 29, .82);
+  border-color: rgba(213, 176, 105, .16);
+  color: #e9dfcd;
+}
+
+.post-name-paper-world .topic-option:nth-child(1) {
+  border-left: 3px solid #789c78;
+}
+.post-name-paper-world .topic-option:nth-child(2) {
+  border-left: 3px solid #7890aa;
+}
+.post-name-paper-world .topic-option:nth-child(3) {
+  border-left: 3px solid #a58b63;
+}
+.post-name-paper-world .topic-option:nth-child(4) {
+  border-left: 3px solid #8d7da3;
+}
+
+.post-name-paper-world .topic-option:hover,
+.post-name-paper-world .topic-option.selected {
+  background: linear-gradient(135deg, rgba(78, 61, 39, .92), rgba(43, 34, 24, .96));
+  border-color: rgba(213, 176, 105, .34);
+}
+
+/* Lobby players get alternating subtle paper-card shades. */
+.post-name-paper-world .lobby-player:nth-child(4n + 1) {
+  background: linear-gradient(135deg, rgba(66, 57, 39, .76), rgba(43, 35, 25, .76));
+}
+.post-name-paper-world .lobby-player:nth-child(4n + 2) {
+  background: linear-gradient(135deg, rgba(48, 59, 58, .70), rgba(34, 39, 35, .78));
+}
+.post-name-paper-world .lobby-player:nth-child(4n + 3) {
+  background: linear-gradient(135deg, rgba(61, 48, 61, .68), rgba(39, 31, 39, .78));
+}
+.post-name-paper-world .lobby-player:nth-child(4n + 4) {
+  background: linear-gradient(135deg, rgba(62, 50, 39, .74), rgba(40, 32, 25, .78));
+}
+
+/* Main action buttons — richer colors while keeping the vintage palette. */
+.post-name-paper-world button:not(.avatar-kick-trigger):not(.avatar-kick-action) {
+  transition: transform .15s ease, filter .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.post-name-paper-world .primary-button,
+.post-name-paper-world .start-game-button,
+.post-name-paper-world .create-room-button,
+.post-name-paper-world .join-room-button {
+  background: linear-gradient(135deg, #a8894d, #735a2d);
+  color: #fff5df;
+  border-color: rgba(255, 224, 153, .32);
+  box-shadow: 0 7px 20px rgba(102, 76, 31, .28);
+}
+
+.post-name-paper-world .primary-button:hover,
+.post-name-paper-world .start-game-button:hover,
+.post-name-paper-world .create-room-button:hover,
+.post-name-paper-world .join-room-button:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+/* Common action buttons that don't have a dedicated class. */
+.post-name-paper-world .mode-option,
+.post-name-paper-world .back-button {
+  cursor: pointer;
+}
+
+.post-name-paper-world .back-button {
+  background: rgba(69, 54, 37, .75);
+  color: #d9c9ad;
+  border-color: rgba(213, 176, 105, .22);
+}
+
+.post-name-paper-world .back-button:hover {
+  background: rgba(89, 68, 43, .9);
+}
+
+/* Room code / settings controls. */
+.post-name-paper-world input:focus,
+.post-name-paper-world select:focus,
+.post-name-paper-world textarea:focus {
+  border-color: rgba(120, 156, 120, .72);
+  box-shadow: 0 0 0 3px rgba(120, 156, 120, .10);
+}
+
+/* Writing / guessing / reveal surfaces get slightly different aged-paper tones. */
+.post-name-paper-world .writing-player {
+  background: linear-gradient(135deg, rgba(58, 47, 33, .86), rgba(35, 29, 22, .90));
+}
+
+.post-name-paper-world .guessing-player {
+  background: linear-gradient(135deg, rgba(45, 51, 47, .84), rgba(29, 31, 27, .92));
+  border-color: rgba(120, 156, 120, .16);
+}
+
+.post-name-paper-world .reveal-section {
+  background: linear-gradient(135deg, rgba(61, 49, 35, .84), rgba(34, 28, 21, .92));
+}
+
+/* Vintage gold heading accents. */
+.post-name-paper-world .mode-title h1,
+.post-name-paper-world .join-room-header h1,
+.post-name-paper-world .lobby-title,
+.post-name-paper-world .writing-title,
+.post-name-paper-world .guessing-title,
+.post-name-paper-world .reveal-title,
+.post-name-paper-world .results-title {
+  text-shadow: 0 1px 14px rgba(201, 164, 91, .16);
+}
+
+.post-name-paper-world .mode-title h1::after,
+.post-name-paper-world .join-room-header h1::after {
+  content: "";
+  display: block;
+  width: 54px;
+  height: 2px;
+  margin: 9px auto 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, #b49354, transparent);
+  opacity: .75;
+}
+
+/* Keep cards visually separated from the paper without turning everything black. */
+.post-name-paper-world .writing-card,
+.post-name-paper-world .guessing-card,
+.post-name-paper-world .reveal-card,
+.post-name-paper-world .results-card {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(151, 121, 72, .09), transparent 28%),
+    linear-gradient(145deg, rgba(60, 47, 31, .94), rgba(29, 23, 17, .97));
+}
