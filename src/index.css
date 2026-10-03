@@ -5407,3 +5407,23 @@ button.stats-menu-trigger,
   box-shadow: none !important;
   cursor: not-allowed !important;
 }
+
+
+/* FINAL: writing Submit button must be BLACK. */
+.post-name-paper-world .writing-submit,
+.post-name-paper-world button.writing-submit {
+  background: #111111 !important;
+  background-image: none !important;
+  color: #f0e6d2 !important;
+  -webkit-text-fill-color: #f0e6d2 !important;
+  border: 1px solid rgba(213, 176, 105, .42) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+.post-name-paper-world .writing-submit:hover:not(:disabled),
+.post-name-paper-world button.writing-submit:hover:not(:disabled) {
+  background: #1c1c1c !important;
+  background-image: none !important;
+  color: #fff4dc !important;
+  -webkit-text-fill-color: #fff4dc !important;
+}
