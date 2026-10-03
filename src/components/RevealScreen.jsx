@@ -895,6 +895,26 @@ function RevealScreen({
 
           </div>
 
+          {player.is_host && !startingNextRound && (
+            <button
+              type="button"
+              className="next-round-button"
+              onClick={async () => {
+                setStartingNextRound(true);
+
+                try {
+                  await startNextRound(room.id, player.id);
+                } catch (error) {
+                  console.error("Could not start next round:", error);
+                  setStartingNextRound(false);
+                  setErrorMessage(error?.message || "Could not start the next round.");
+                }
+              }}
+            >
+              {isLastRound ? "Finish Game →" : "Next Round →"}
+            </button>
+          )}
+
         </div>
 
         {/* NEXT ROUND LOADING */}
