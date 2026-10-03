@@ -5125,3 +5125,49 @@ button.stats-menu-trigger,
   background: transparent !important;
   text-shadow: 0 1px 8px rgba(201, 164, 91, .12);
 }
+
+
+/* Final visual cleanup */
+.post-name-paper-world .writing-status-score,
+.post-name-paper-world .guessing-player-score {
+  color: #111 !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Reveal: make Current Scores readable against the dark vintage card. */
+.post-name-paper-world .reveal-score-section {
+  background: linear-gradient(145deg, #e7dcc7, #cfc1a8) !important;
+  color: #17130e !important;
+  border: 1px solid rgba(70, 53, 31, .28) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
+}
+
+.post-name-paper-world .reveal-score-title {
+  color: #3a2b1b !important;
+  text-shadow: none !important;
+}
+
+.post-name-paper-world .reveal-score-player {
+  background: rgba(255, 249, 236, .72) !important;
+  color: #17130e !important;
+  border-color: rgba(70, 53, 31, .20) !important;
+}
+
+.post-name-paper-world .reveal-score-name,
+.post-name-paper-world .reveal-score-player > strong,
+.post-name-paper-world .reveal-rank {
+  color: #17130e !important;
+  text-shadow: none !important;
+}
+
+.post-name-paper-world .reveal-score-player.current {
+  background: #d8c79f !important;
+  border-color: #9a7b3f !important;
+}
+
+.post-name-paper-world .reveal-score-player.current .reveal-score-name,
+.post-name-paper-world .reveal-score-player.current > strong,
+.post-name-paper-world .reveal-score-player.current .reveal-rank {
+  color: #241b10 !important;
+}
