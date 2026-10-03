@@ -4141,3 +4141,28 @@ input {
   box-sizing: content-box;
   box-shadow: 0 0 8px rgba(255, 59, 48, .45);
 }
+
+
+/* CENTERED GLOBAL CONTROLS */
+.stats-menu-trigger {
+  top: 18px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.global-chat-button {
+  left: 50% !important;
+  right: auto !important;
+  bottom: 18px !important;
+  transform: translateX(-50%) !important;
+}
+
+@media (max-width: 700px) {
+  .stats-menu-trigger {
+    top: 12px !important;
+  }
+
+  .global-chat-button {
+    bottom: 12px !important;
+  }
+}
