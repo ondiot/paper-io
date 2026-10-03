@@ -4003,3 +4003,31 @@ input {
 .guessing-player-avatar {
   position: relative;
 }
+
+/* =========================================================
+   COLOURFUL FINAL PODIUM
+========================================================= */
+.podium-first .podium-block {
+  border-color: #c9a227;
+  background: linear-gradient(180deg, #6f5711, #2b2208);
+  box-shadow: 0 -8px 28px rgba(201, 162, 39, 0.16);
+}
+.podium-first .podium-block b { color: #ffd84d; }
+
+.podium-second .podium-block {
+  border-color: #8d9399;
+  background: linear-gradient(180deg, #4d5359, #24282c);
+  box-shadow: 0 -8px 24px rgba(180, 185, 190, 0.10);
+}
+.podium-second .podium-block b { color: #d9dde1; }
+
+.podium-third .podium-block {
+  border-color: #9a6038;
+  background: linear-gradient(180deg, #603d29, #2b1c14);
+  box-shadow: 0 -8px 22px rgba(176, 103, 61, 0.10);
+}
+.podium-third .podium-block b { color: #d58a5a; }
+
+.podium-first > strong { color: #ffd84d; }
+.podium-second > strong { color: #d9dde1; }
+.podium-third > strong { color: #d58a5a; }
