@@ -541,7 +541,7 @@ function RevealScreen({
         <div className="reveal-header">
 
           <span className="reveal-eyebrow">
-            ROUND {room.round}
+            ROUND {room.round} OF {room.rounds || 3}
           </span>
 
           <h1>
