@@ -5039,3 +5039,53 @@ button.stats-menu-trigger,
   overflow: hidden !important;
   border-radius: 50% !important;
 }
+
+
+/* =========================================================
+   COMPLETE VINTAGE SCORE PASS
+   Keep score/value text consistent everywhere.
+========================================================= */
+
+.post-name-paper-world .writing-status-score,
+.post-name-paper-world .guessing-player-score,
+.post-name-paper-world .reveal-player-score,
+.post-name-paper-world .reveal-points,
+.post-name-paper-world .reveal-score-player > strong,
+.post-name-paper-world .results-ranking-row > span,
+.post-name-paper-world .results-score,
+.post-name-paper-world .stat-card strong {
+  color: #d5b35e !important;
+}
+
+.post-name-paper-world .writing-status-score,
+.post-name-paper-world .guessing-player-score,
+.post-name-paper-world .reveal-player-score,
+.post-name-paper-world .reveal-points {
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 8px rgba(201, 164, 91, .10);
+}
+
+/* Stats modal is global, but should still belong visually to the vintage room. */
+.stats-modal {
+  background: linear-gradient(145deg, rgba(67, 52, 34, .97), rgba(31, 25, 18, .98)) !important;
+  border-color: rgba(213, 176, 105, .24) !important;
+  color: #e8dfcf !important;
+}
+
+.stats-modal h2,
+.stats-modal strong {
+  color: #e8dfcf !important;
+}
+
+.stats-modal .stat-card {
+  background: rgba(55, 43, 29, .78) !important;
+  border-color: rgba(213, 176, 105, .16) !important;
+}
+
+.stats-modal .stat-card strong {
+  color: #d5b35e !important;
+}
+
+.stats-modal .stat-card span {
+  color: #b9aa91 !important;
+}
