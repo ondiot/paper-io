@@ -5324,3 +5324,19 @@ button.stats-menu-trigger,
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
 }
+
+
+/* DEFINITIVE: Writing points pill must have a white background AND black text. */
+.post-name-paper-world .writing-status-score {
+  background: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  border: 1px solid rgba(0,0,0,.18) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18) !important;
+  text-shadow: none !important;
+}
+
+.post-name-paper-world .writing-status-score * {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
