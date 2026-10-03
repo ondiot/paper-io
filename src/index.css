@@ -4166,3 +4166,25 @@ input {
     bottom: 12px !important;
   }
 }
+
+
+/* FORCE STATS BUTTON TO TRUE SCREEN CENTER */
+button.stats-menu-trigger,
+.stats-menu-trigger {
+  position: fixed !important;
+  top: 16px !important;
+  left: 50vw !important;
+  right: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483000 !important;
+}
+
+@media (max-width: 700px) {
+  button.stats-menu-trigger,
+  .stats-menu-trigger {
+    top: 10px !important;
+    left: 50vw !important;
+  }
+}
