@@ -45,8 +45,25 @@ function MusicControl({ enabled = true }) {
 
   useEffect(() => {
     if (!enabled) return;
+
+    // Try autoplay when the Name screen appears. Browsers may block
+    // unmuted autoplay until the user interacts with the page.
     startTrack(0);
-  }, [enabled]);
+
+    const resumeAfterInteraction = () => {
+      if (audioRef.current?.paused) {
+        startTrack(trackIndex);
+      }
+    };
+
+    window.addEventListener("pointerdown", resumeAfterInteraction, { passive: true });
+    window.addEventListener("keydown", resumeAfterInteraction);
+
+    return () => {
+      window.removeEventListener("pointerdown", resumeAfterInteraction);
+      window.removeEventListener("keydown", resumeAfterInteraction);
+    };
+  }, [enabled, trackIndex]);
 
   async function startTrack(index) {
     const audio = audioRef.current;
