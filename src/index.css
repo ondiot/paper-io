@@ -4826,3 +4826,32 @@ button.stats-menu-trigger,
     radial-gradient(circle at 15% 10%, rgba(151, 121, 72, .09), transparent 28%),
     linear-gradient(145deg, rgba(60, 47, 31, .94), rgba(29, 23, 17, .97));
 }
+
+
+/* Fix writing-screen avatar wrapper: no white square/rectangular button chrome. */
+.writing-status-avatar .avatar-kick-control,
+.writing-status-avatar .avatar-kick-trigger,
+.writing-status-avatar .avatar-kick-trigger:hover,
+.writing-status-avatar .avatar-kick-trigger.open {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+.writing-status-avatar .avatar-kick-trigger {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 50% !important;
+  line-height: 0 !important;
+}
+
+.writing-status-avatar .avatar-kick-trigger img,
+.writing-status-avatar > img {
+  display: block;
+  border-radius: 50%;
+}
