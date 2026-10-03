@@ -99,7 +99,7 @@ function App() {
     else if (room.status === "reveal") setScreen("reveal");
     else if (room.status === "ended") setScreen("ended");
     else if (room.status === "lobby") setScreen("lobby");
-  }, [room?.status]);
+  }, [room?.status, startupReady, restoringSession]);
 
   useEffect(() => {
     if (!room?.id) return;
