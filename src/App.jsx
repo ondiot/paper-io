@@ -89,7 +89,11 @@ function App() {
   }, [selectedAvatar]);
 
   useEffect(() => {
-    if (!startupReady || !room?.status) return;
+    if (!startupReady || restoringSession) return;
+    if (!room?.status) {
+      setScreen("name");
+      return;
+    }
     if (room.status === "writing") setScreen("writing");
     else if (room.status === "guessing") setScreen("guessing");
     else if (room.status === "reveal") setScreen("reveal");
