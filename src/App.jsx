@@ -11,7 +11,6 @@ import GuessingScreen from "./components/GuessingScreen";
 import RevealScreen from "./components/RevealScreen";
 import ResultsScreen from "./components/ResultsScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
-import HostKickBar from "./components/HostKickBar";
 import StatsMenu from "./components/StatsMenu";
 import MusicControl from "./components/MusicControl";
 import ChatBox from "./components/ChatBox";
@@ -340,8 +339,7 @@ function App() {
       {screen === "reveal" && <RevealScreen room={room} player={player} />}
       {screen === "ended" && <ResultsScreen room={room} player={player} />}
 
-      {showKickBar && <HostKickBar room={room} player={player} />}
-      {insideRoom && <StatsMenu room={room} player={player} />}
+            {insideRoom && <StatsMenu room={room} player={player} />}
       <MusicControl
         enabled
         showControls={screen !== "intro" && !preloadingAssets}
