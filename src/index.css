@@ -4496,7 +4496,27 @@ button.stats-menu-trigger,
 }
 
 /* VINTAGE PAPER TEXT + STARTUP VISIBILITY FIX */
-.post-name-paper-world,
+.post-name-paper-world {
+  color: #e8dfcf;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(180, 145, 90, .10), transparent 28%),
+    radial-gradient(circle at 82% 78%, rgba(75, 52, 30, .24), transparent 38%),
+    linear-gradient(120deg, #18130e 0%, #292016 42%, #17120e 100%);
+}
+
+.post-name-paper-world::before {
+  opacity: .52;
+  background:
+    repeating-linear-gradient(0deg, rgba(220, 190, 135, .035) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .12) 0 1px, transparent 1px 7px);
+  mix-blend-mode: screen;
+}
+
+.post-name-paper-world::after {
+  background:
+    radial-gradient(ellipse at center, transparent 34%, rgba(0, 0, 0, .48) 100%);
+}
+
 .post-name-paper-world h1,
 .post-name-paper-world h2,
 .post-name-paper-world h3,
@@ -4515,59 +4535,89 @@ button.stats-menu-trigger,
 .post-name-paper-world .guessing-title,
 .post-name-paper-world .reveal-title,
 .post-name-paper-world .results-title {
-  color: #211c16;
+  color: #e8dfcf;
 }
 
 .post-name-paper-world button,
 .post-name-paper-world input,
 .post-name-paper-world textarea,
 .post-name-paper-world select {
-  color: #211c16;
+  color: #e8dfcf;
 }
 
 .post-name-paper-world input,
 .post-name-paper-world textarea,
 .post-name-paper-world select {
-  background: rgba(255, 249, 232, .86);
-  border-color: rgba(70, 52, 29, .28);
+  background: rgba(34, 27, 19, .88);
+  border-color: rgba(205, 170, 108, .25);
 }
 
 .post-name-paper-world input::placeholder,
 .post-name-paper-world textarea::placeholder {
-  color: rgba(52, 42, 30, .58);
+  color: rgba(224, 211, 188, .52);
 }
 
 .post-name-paper-world button {
-  border-color: rgba(70, 52, 29, .22);
+  border-color: rgba(205, 170, 108, .22);
 }
 
 .post-name-paper-world .global-leave-button,
 .post-name-paper-world .global-stats-button,
 .post-name-paper-world .global-chat-button,
 .post-name-paper-world .global-music-button {
-  color: #211c16;
-  background: rgba(247, 238, 215, .92);
-  border-color: rgba(70, 52, 29, .24);
+  color: #e8dfcf;
+  background: rgba(28, 22, 16, .94);
+  border-color: rgba(205, 170, 108, .25);
 }
 
-/* Keep the actual startup screens independent from the room background. */
-.app-restore-loading,
-.global-busy-overlay {
-  color: #211c16;
-}
-
-/* Never let a screen container paint an opaque dark layer over the paper. */
-.post-name-paper-world .screen,
-.post-name-paper-world main,
-.post-name-paper-world section {
-  background-color: transparent;
-}
-
-/* Make common muted text readable on the parchment. */
 .post-name-paper-world .muted,
 .post-name-paper-world .secondary,
 .post-name-paper-world .subtitle,
 .post-name-paper-world .hint,
 .post-name-paper-world .description {
-  color: #5b4d3b;
+  color: #b9aa91;
+}
+
+.post-name-paper-world .mode-card,
+.post-name-paper-world .join-room-card,
+.post-name-paper-world .lobby-card,
+.post-name-paper-world .writing-card,
+.post-name-paper-world .guessing-card,
+.post-name-paper-world .reveal-card,
+.post-name-paper-world .results-card {
+  background: rgba(38, 30, 21, .90);
+  border-color: rgba(205, 170, 108, .22);
+  color: #e8dfcf;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, .48);
+}
+
+.post-name-paper-world .mode-option,
+.post-name-paper-world .topic-option,
+.post-name-paper-world .lobby-player,
+.post-name-paper-world .room-code-box,
+.post-name-paper-world .writing-player,
+.post-name-paper-world .guessing-player,
+.post-name-paper-world .reveal-section,
+.post-name-paper-world .results-section {
+  background: rgba(52, 41, 28, .68);
+  border-color: rgba(205, 170, 108, .17);
+}
+
+.post-name-paper-world .dark-gradient-background {
+  background: transparent !important;
+}
+
+.post-name-paper-world .dark-gradient-background::before,
+.post-name-paper-world .dark-gradient-background .dark-gradient-noise,
+.post-name-paper-world .dark-gradient-background .dark-gradient-orb,
+.post-name-paper-world .dark-gradient-background .dark-gradient-shape {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .post-name-paper-world {
+    background:
+      radial-gradient(circle at 50% 10%, rgba(180, 145, 90, .10), transparent 32%),
+      linear-gradient(125deg, #18130e, #292016 48%, #17120e);
+  }
 }
