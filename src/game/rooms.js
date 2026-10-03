@@ -628,12 +628,26 @@ export async function checkGuessingComplete({
     throw assignmentsError;
   }
 
+  const activePlayerIds = new Set(
+    playerList.map((player) => player.id)
+  );
+  const activePaperIds = new Set(
+    paperList.map((paper) => paper.id)
+  );
+
   const counts = {};
 
   for (
     const assignment of
     assignments || []
   ) {
+    if (
+      !activePlayerIds.has(assignment.assigned_to) ||
+      !activePaperIds.has(assignment.paper_id)
+    ) {
+      continue;
+    }
+
     if (
       !counts[
         assignment.assigned_to
