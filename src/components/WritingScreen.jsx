@@ -10,6 +10,7 @@ import {
   checkRoundComplete
 } from "../game/rooms";
 import { getRoundTopic } from "../game/topics";
+import InlineKickButton from "./InlineKickButton";
 
 function WritingScreen({
   room,
@@ -555,6 +556,12 @@ function WritingScreen({
                     <span className="writing-status-score">
                       {writingPlayer.score || 0} pts
                     </span>
+
+                    <InlineKickButton
+                      room={room}
+                      hostPlayer={player}
+                      targetPlayer={writingPlayer}
+                    />
 
                   </div>
                 );
