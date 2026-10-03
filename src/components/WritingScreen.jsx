@@ -454,7 +454,7 @@ function WritingScreen({
         <div className="writing-header">
           <div>
             <span className="writing-round">
-              ROUND {room.round}
+              ROUND {room.round} OF {room.rounds || 3}
             </span>
 
             <h1>
