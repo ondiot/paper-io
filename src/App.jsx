@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 import NameScreen from "./components/NameScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
+import LoadingScreen from "./components/LoadingScreen";
 import ModeScreen from "./components/ModeScreen";
 import JoinRoom from "./components/JoinRoom";
 import Lobby from "./components/Lobby";
@@ -23,11 +24,15 @@ import {
   updateHeartbeat,
 } from "./game/rooms";
 import { supabase } from "./lib/supabase";
+import { preloadAllAssets } from "./game/preloadAssets";
 
 function App() {
   const [name, setName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
-  const [screen, setScreen] = useState("name");
+  const [screen, setScreen] = useState("intro");
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [startupReady, setStartupReady] = useState(false);
+  const startupLoadingRef = useRef(false);
   const [room, setRoom] = useState(null);
   const [player, setPlayer] = useState(null);
   const [creatingRoom, setCreatingRoom] = useState(false);
@@ -63,11 +68,8 @@ function App() {
         setName(savedName || session.player.name || "");
         setSelectedAvatar(savedAvatar || session.player.avatar || AVATARS[0]);
 
-        if (session.room.status === "writing") setScreen("writing");
-        else if (session.room.status === "guessing") setScreen("guessing");
-        else if (session.room.status === "reveal") setScreen("reveal");
-        else if (session.room.status === "ended") setScreen("ended");
-        else setScreen("lobby");
+        // Keep the intro/loading sequence in front of any restored room.
+        // The room status will be applied after startup preloading finishes.
       } catch (restoreError) {
         console.error("Could not restore session:", restoreError);
       } finally {
@@ -87,7 +89,7 @@ function App() {
   }, [selectedAvatar]);
 
   useEffect(() => {
-    if (!room?.status) return;
+    if (!startupReady || !room?.status) return;
     if (room.status === "writing") setScreen("writing");
     else if (room.status === "guessing") setScreen("guessing");
     else if (room.status === "reveal") setScreen("reveal");
@@ -165,6 +167,24 @@ function App() {
 
     return () => supabase.removeChannel(channel);
   }, [room?.id, player?.id, handleKicked]);
+
+  async function handleIntroComplete() {
+    if (startupLoadingRef.current) return;
+    startupLoadingRef.current = true;
+    setScreen("loading");
+    setLoadingProgress(0);
+
+    try {
+      await preloadAllAssets(({ percent }) => {
+        setLoadingProgress(percent);
+      });
+    } catch (preloadError) {
+      console.error("Asset preload failed:", preloadError);
+    } finally {
+      setLoadingProgress(100);
+      setStartupReady(true);
+    }
+  }
 
   function handleContinue() {
     if (!name.trim()) return;
@@ -263,8 +283,16 @@ function App() {
       {screen === "intro" && (
         <VaporizeIntro
           onStart={() => {}}
-          onComplete={() => setScreen("mode")}
+          onComplete={handleIntroComplete}
           autoStart
+        />
+      )}
+
+      {screen === "loading" && (
+        <LoadingScreen
+          label="Preloading"
+          variant="Drive"
+          progress={loadingProgress}
         />
       )}
 
