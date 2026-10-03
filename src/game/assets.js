@@ -17,6 +17,12 @@ export const IMAGE_ASSETS = [
   `${base}assets/avatars/dexter.png`,
 ];
 
-export const AUDIO_ASSETS = [];
+export const AUDIO_ASSETS = [
+  `${base}assets/music/bg.mp3`,
+  `${base}assets/music/bg1.mp3`,
+  `${base}assets/music/bg2.mp3`,
+  `${base}assets/music/bg3.mp3`,
+  `${base}assets/music/bg4.mp3`,
+];
 export const FONT_ASSETS = [];
 export const ALL_ASSETS = [...IMAGE_ASSETS, ...AUDIO_ASSETS, ...FONT_ASSETS];
