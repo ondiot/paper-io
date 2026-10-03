@@ -5089,3 +5089,30 @@ button.stats-menu-trigger,
 .stats-modal .stat-card span {
   color: #b9aa91 !important;
 }
+
+
+/* FIX: reveal "Current Scores" section was still using the old white scoreboard theme. */
+.post-name-paper-world .reveal-score-section,
+.post-name-paper-world .reveal-score-player {
+  background: linear-gradient(135deg, rgba(55, 43, 29, .90), rgba(31, 25, 18, .96)) !important;
+  color: #e8dfcf !important;
+  border-color: rgba(213, 176, 105, .18) !important;
+}
+
+.post-name-paper-world .reveal-score-title {
+  color: #d5b35e !important;
+}
+
+.post-name-paper-world .reveal-score-name,
+.post-name-paper-world .reveal-score-player > strong {
+  color: #e8dfcf !important;
+}
+
+.post-name-paper-world .reveal-score-player.current {
+  border-color: rgba(120, 156, 120, .42) !important;
+  background: linear-gradient(135deg, rgba(67, 75, 54, .72), rgba(39, 35, 24, .92)) !important;
+}
+
+.post-name-paper-world .reveal-rank {
+  color: #b9aa91 !important;
+}
