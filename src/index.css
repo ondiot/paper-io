@@ -3936,3 +3936,70 @@ input {
   font-weight: 900;
   font-variant-numeric: tabular-nums;
 }
+
+/* AVATAR CLICK KICK */
+.avatar-kick-control {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.avatar-kick-trigger {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.avatar-kick-trigger.open {
+  outline: 2px solid #555;
+  outline-offset: 2px;
+}
+
+.avatar-kick-popover {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  z-index: 5000;
+  transform: translateX(-50%);
+  padding: 5px;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background: rgba(8,8,8,.98);
+  box-shadow: 0 12px 35px rgba(0,0,0,.5);
+  white-space: nowrap;
+}
+
+.avatar-kick-action {
+  min-width: 88px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: #191919;
+  color: #ddd;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.avatar-kick-action:hover:not(:disabled) {
+  background: #292929;
+  color: #fff;
+}
+
+.avatar-kick-action:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+/* Keep the popover above player strips/cards. */
+.lobby-player-avatar,
+.writing-status-avatar,
+.guessing-player-avatar {
+  position: relative;
+}
