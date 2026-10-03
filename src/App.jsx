@@ -10,7 +10,6 @@ import WritingScreen from "./components/WritingScreen";
 import GuessingScreen from "./components/GuessingScreen";
 import RevealScreen from "./components/RevealScreen";
 import ResultsScreen from "./components/ResultsScreen";
-import VaporizeIntro from "./components/VaporizeIntro";
 import StatsMenu from "./components/StatsMenu";
 import MusicControl from "./components/MusicControl";
 import ChatBox from "./components/ChatBox";
@@ -29,7 +28,7 @@ import { supabase } from "./lib/supabase";
 function App() {
   const [name, setName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
-  const [screen, setScreen] = useState("intro");
+  const [screen, setScreen] = useState("name");
   const [room, setRoom] = useState(null);
   const [player, setPlayer] = useState(null);
   const [creatingRoom, setCreatingRoom] = useState(false);
@@ -40,7 +39,6 @@ function App() {
   const [error, setError] = useState("");
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const leavingRef = useRef(false);
-  const musicStartTimeRef = useRef(0);
 
   useEffect(() => {
     async function restoreSession() {
@@ -171,39 +169,13 @@ function App() {
     return () => supabase.removeChannel(channel);
   }, [room?.id, player?.id, handleKicked]);
 
-  function handleIntroStart() {
-    musicStartTimeRef.current = performance.now();
-    window.dispatchEvent(new Event("paperio-start-music"));
-  }
-
-  async function handleIntroComplete() {
-    setPreloadingAssets(true);
-    setPreloadProgress(0);
-
-    try {
-      await preloadAllAssets(({ percent }) => setPreloadProgress(percent));
-    } catch (preloadError) {
-      console.error("Asset preloading failed:", preloadError);
-    }
-
-    setPreloadProgress(100);
-
-    // Keep the intro/loading feeling intact: music becomes audible only
-    // after the loading screen is finished and at least 5 seconds have
-    // passed since the user started the vaporizer intro.
-    const elapsed = performance.now() - musicStartTimeRef.current;
-    const remainingDelay = Math.max(0, 5000 - elapsed);
-
-    await new Promise((resolve) => setTimeout(resolve, 350 + remainingDelay));
-
-    window.dispatchEvent(new Event("paperio-reveal-music"));
-    setPreloadingAssets(false);
-    setScreen("name");
-  }
-
   function handleContinue() {
     if (!name.trim()) return;
     setError("");
+
+    // The Continue click is a real user gesture, so the browser allows
+    // background music to start here without a separate intro screen.
+    window.dispatchEvent(new Event("paperio-start-music"));
     setScreen("mode");
   }
 
@@ -291,13 +263,6 @@ function App() {
 
   return (
     <>
-      {screen === "intro" && (
-        <VaporizeIntro
-          onStart={handleIntroStart}
-          onComplete={handleIntroComplete}
-        />
-      )}
-
       {preloadingAssets && (
         <LoadingScreen label="Loading game" variant="Drive" progress={preloadProgress} />
       )}
@@ -342,7 +307,7 @@ function App() {
             {insideRoom && <StatsMenu room={room} player={player} />}
       <MusicControl
         enabled
-        showControls={screen !== "intro" && !preloadingAssets}
+        showControls={!preloadingAssets}
       />
       {insideRoom && <ChatBox room={room} player={player} />}
 
