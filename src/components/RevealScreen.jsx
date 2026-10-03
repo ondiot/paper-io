@@ -482,6 +482,46 @@ function RevealScreen({
     room.round >=
     (room.rounds || 3);
 
+  const roundStats = players.map((roundPlayer) => {
+    const guesses = assignments.filter(
+      (item) => item.assigned_to === roundPlayer.id
+    );
+    const correct = guesses.filter((item) => {
+      const paper = papers.find((p) => p.id === item.paper_id);
+      return paper && item.guessed_player_id === paper.author_id;
+    }).length;
+    const wrong = guesses.length - correct;
+    const received = papers.filter(
+      (paper) => paper.author_id === roundPlayer.id
+    ).length;
+    const identified = assignments.filter((item) => {
+      const paper = papers.find((p) => p.id === item.paper_id);
+      return paper &&
+        paper.author_id === roundPlayer.id &&
+        item.guessed_player_id === paper.author_id;
+    }).length;
+    return { player: roundPlayer, correct, wrong, received, identified };
+  });
+
+  const roundSharpshooter = [...roundStats]
+    .sort((a, b) => b.correct - a.correct || a.wrong - b.wrong)[0];
+
+  const roundOpenBook = [...roundStats]
+    .filter((item) => item.received > 0)
+    .sort(
+      (a, b) =>
+        (b.identified / b.received) -
+        (a.identified / a.received)
+    )[0];
+
+  const roundHardest = [...roundStats]
+    .filter((item) => item.received > 0)
+    .sort(
+      (a, b) =>
+        (a.identified / a.received) -
+        (b.identified / b.received)
+    )[0];
+
   /* =========================================================
      PAPER NAVIGATION
   ========================================================= */
@@ -867,6 +907,46 @@ function RevealScreen({
 
           </div>
 
+        </div>
+
+        {/* =================================================
+           ROUND AWARDS
+        ================================================= */}
+
+        <div className="results-awards-section reveal-round-awards">
+          <div className="results-section-title">ROUND AWARDS</div>
+          <div className="results-awards-grid">
+            {roundSharpshooter && (
+              <div className="results-award">
+                <div className="results-award-icon">🎯</div>
+                <div>
+                  <strong>Sharpshooter</strong>
+                  <span>{roundSharpshooter.player.name}</span>
+                  <small>{roundSharpshooter.correct} correct guesses</small>
+                </div>
+              </div>
+            )}
+            {roundOpenBook && (
+              <div className="results-award">
+                <div className="results-award-icon">📖</div>
+                <div>
+                  <strong>Open Book</strong>
+                  <span>{roundOpenBook.player.name}</span>
+                  <small>Easiest to identify this round</small>
+                </div>
+              </div>
+            )}
+            {roundHardest && (
+              <div className="results-award">
+                <div className="results-award-icon">🕵️</div>
+                <div>
+                  <strong>Hardest to Catch</strong>
+                  <span>{roundHardest.player.name}</span>
+                  <small>Lowest identification rate</small>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* =================================================
