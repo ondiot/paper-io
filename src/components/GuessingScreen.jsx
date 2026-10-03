@@ -189,10 +189,13 @@ function GuessingScreen({
           ours[item.paper_id] = item.guessed_player_id;
         });
 
-      setGuesses((current) => {
-        if (submitted) return current;
-        return ours;
-      });
+      // Realtime updates can arrive when another player submits.
+      // Do not let their event wipe out guesses this player has
+      // selected locally but has not submitted yet.
+      setGuesses((current) => ({
+        ...ours,
+        ...current
+      }));
 
       const finished = new Set();
       const required = Math.max(0, papers.length);
