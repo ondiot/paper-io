@@ -43,41 +43,17 @@ function App() {
   const leavingRef = useRef(false);
 
   useEffect(() => {
-    async function restoreSession() {
-      const savedPlayerId = localStorage.getItem("paperio_player_id");
-      const savedRoomId = localStorage.getItem("paperio_room_id");
-      const savedName = localStorage.getItem("paperio_name");
-      const savedAvatar = localStorage.getItem("paperio_avatar");
+    // A browser refresh always starts a fresh PAPER.IO session.
+    // Do not restore an old room into the startup flow.
+    const savedName = localStorage.getItem("paperio_name");
+    const savedAvatar = localStorage.getItem("paperio_avatar");
 
-      if (!savedPlayerId || !savedRoomId) {
-        setRestoringSession(false);
-        return;
-      }
+    if (savedName) setName(savedName);
+    if (savedAvatar) setSelectedAvatar(savedAvatar);
 
-      try {
-        const session = await getPlayerSession(savedPlayerId, savedRoomId);
-        if (!session) {
-          localStorage.removeItem("paperio_player_id");
-          localStorage.removeItem("paperio_room_id");
-          setRestoringSession(false);
-          return;
-        }
-
-        setRoom(session.room);
-        setPlayer(session.player);
-        setName(savedName || session.player.name || "");
-        setSelectedAvatar(savedAvatar || session.player.avatar || AVATARS[0]);
-
-        // Keep the intro/loading sequence in front of any restored room.
-        // The room status will be applied after startup preloading finishes.
-      } catch (restoreError) {
-        console.error("Could not restore session:", restoreError);
-      } finally {
-        setRestoringSession(false);
-      }
-    }
-
-    restoreSession();
+    setRoom(null);
+    setPlayer(null);
+    setRestoringSession(false);
   }, []);
 
   useEffect(() => {
