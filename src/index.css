@@ -3236,3 +3236,38 @@ input {
   .paper-title { min-height: 65px; font-size: 25px; }
   .paper-name-card { top: 55%; padding: 22px; }
 }
+
+
+/* HOST KICK — keep universal control clear of game buttons */
+.host-kick-bar {
+  top: auto !important;
+  right: 18px !important;
+  bottom: 18px !important;
+  max-width: min(70vw, 560px);
+}
+
+@media (max-width: 700px) {
+  .host-kick-bar {
+    right: 12px !important;
+    bottom: 12px !important;
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* HOST NEXT ROUND BUTTON */
+.next-round-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+.next-round-button:hover { background: #e8e8e8; transform: translateY(-1px); }
+.next-round-button:active { transform: translateY(0); }
