@@ -208,6 +208,9 @@ function ResultsScreen({ room, player }) {
             ].map(([icon, title, stat, detail]) => stat && (
               <div className="results-award" key={title}>
                 <div className="results-award-icon">{icon}</div>
+                <div className="results-award-player-avatar">
+                  {avatar(stat.player, "results-award-avatar-image")}
+                </div>
                 <div>
                   <strong>{title}</strong>
                   <span>{stat.player.name}</span>
