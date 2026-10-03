@@ -6,6 +6,7 @@ function ChatBox({ room, player }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -43,6 +44,9 @@ function ChatBox({ room, player }) {
               ? current
               : [...current, payload.new].slice(-100)
           );
+          if (!open && payload.new.player_id !== player?.id) {
+            setHasUnread(true);
+          }
         }
       )
       .subscribe();
@@ -90,11 +94,15 @@ function ChatBox({ room, player }) {
       <button
         type="button"
         className={`global-chat-button ${open ? "active" : ""}`}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          setOpen((value) => !value);
+          setHasUnread(false);
+        }}
         aria-label={open ? "Close chat" : "Open chat"}
         title={open ? "Close chat" : "Open chat"}
       >
         {open ? "×" : "💬"}
+        {!open && hasUnread && <span className="global-chat-unread-dot" aria-label="New message" />}
       </button>
 
       {open && (
