@@ -5306,3 +5306,21 @@ button.stats-menu-trigger,
   object-fit: cover !important;
   border-radius: 50% !important;
 }
+
+
+/* DEFINITIVE: Writing "Submit →" button text must be black. */
+.post-name-paper-world .writing-submit {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+}
+
+.post-name-paper-world .writing-submit:not(:disabled) {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+.post-name-paper-world .writing-submit:disabled {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
