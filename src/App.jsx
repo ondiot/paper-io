@@ -270,7 +270,7 @@ function App() {
   }
 
   const insideRoom = Boolean(room?.id && player?.id);
-  const showKickBar = insideRoom && ["lobby", "writing", "guessing", "reveal"].includes(screen);
+  const showKickBar = insideRoom && ["lobby", "writing", "guessing", "reveal", "ended"].includes(screen);
 
   return (
     <>

@@ -15,12 +15,17 @@ export const AVATARS = [
   "dexter.png"
 ];
 
+// Avatars may be PNG, JPG/JPEG, or GIF. The picker list above
+// remains the curated set, while avatars already stored in a room
+// can safely use any supported image extension.
+const SUPPORTED_AVATAR_EXTENSIONS = /\.(png|jpe?g|gif)$/i;
+
 export function getAvatarUrl(avatar) {
   if (!avatar) return "";
 
-  const safeName = avatar.split("/").pop();
+  const safeName = String(avatar).split("/").pop();
 
-  if (!AVATARS.includes(safeName)) {
+  if (!SUPPORTED_AVATAR_EXTENSIONS.test(safeName)) {
     return "";
   }
 
