@@ -80,15 +80,18 @@ function ResultsScreen({ room, player }) {
     });
   }, [players, papers, assignments]);
 
-  const sharpshooter = [...stats].sort(
-    (a, b) => b.accuracy - a.accuracy || b.correct - a.correct
-  )[0];
+  const sharpshooter = [...stats]
+    .filter((s) => s.correct + s.wrong > 0)
+    .sort((a, b) => b.accuracy - a.accuracy || b.correct - a.correct)[0];
 
   const openBook = [...stats]
     .filter((s) => s.received > 0)
     .sort((a, b) => b.spotted - a.spotted || b.identified - a.identified)[0];
 
+  // Fool means the player who made the most wrong guesses,
+  // not someone with high accuracy.
   const dummy = [...stats]
+    .filter((s) => s.wrong > 0)
     .sort((a, b) => b.wrong - a.wrong || a.accuracy - b.accuracy)[0];
 
   const hardest = [...stats]
@@ -185,25 +188,25 @@ function ResultsScreen({ room, player }) {
                 "🎯",
                 "Sharpshooter",
                 sharpshooter,
-                `${sharpshooter?.accuracy || 0}% accuracy`,
+                `${Math.min(100, Math.max(0, sharpshooter?.accuracy || 0))}% accuracy`,
               ],
               [
                 "📖",
                 "Open Book",
                 openBook,
-                `${openBook?.spotted || 0}% spotted`,
+                `${Math.min(100, Math.max(0, openBook?.spotted || 0))}% spotted`,
               ],
               [
                 "🤡",
                 "Fool",
                 dummy,
-                `${dummy?.accuracy || 0}% accuracy`,
+                `${dummy?.wrong || 0} wrong guesses`,
               ],
               [
                 "🎭",
                 "Master of Disguise",
                 hardest,
-                `${hardest?.spotted || 0}% spotted`,
+                `${Math.min(100, Math.max(0, hardest?.spotted || 0))}% spotted`,
               ],
             ].map(([icon, title, stat, detail]) => stat && (
               <div className="results-award" key={title}>
