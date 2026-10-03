@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AvatarPicker from "./AvatarPicker";
+import GlyphMatrix from "./GlyphMatrix";
 
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
 const PHRASES = [
@@ -69,6 +70,16 @@ function NameScreen({ name, setName, selectedAvatar, setSelectedAvatar, onContin
 
   return (
     <main className="paper-name-page">
+      <div className="paper-name-glyph-background" aria-hidden="true">
+        <GlyphMatrix
+          glyphs="01·•+*/\\<>="
+          cellSize={14}
+          mutationRate={0.04}
+          interval={90}
+          fadeBottom={0.6}
+          color="#6B7280"
+        />
+      </div>
       <div className="paper-name-rain" aria-hidden="true">
         {characters.map((item) => (
           <span
