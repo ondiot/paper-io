@@ -3487,3 +3487,22 @@ input {
   .global-stats-button { top: 12px; left: 12px; }
   .stats-modal { padding: 18px; }
 }
+
+
+/* HOST KICK — top-right corner as requested */
+.host-kick-bar {
+  top: 18px !important;
+  right: 18px !important;
+  bottom: auto !important;
+  left: auto !important;
+}
+
+@media (max-width: 700px) {
+  .host-kick-bar {
+    top: 12px !important;
+    right: 12px !important;
+    bottom: auto !important;
+    left: 12px !important;
+    max-width: none !important;
+  }
+}
