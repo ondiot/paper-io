@@ -286,35 +286,36 @@ function App() {
         />
       )}
 
-      <div className="post-name-paper-world">
-      {screen === "mode" && (
-        <ModeScreen
-          name={name}
-          selectedAvatar={selectedAvatar}
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={() => setScreen("join-room")}
-        />
+      {["mode", "join-room", "lobby", "writing", "guessing", "reveal", "ended"].includes(screen) && (
+        <div className="post-name-paper-world">
+          {screen === "mode" && (
+            <ModeScreen
+              name={name}
+              selectedAvatar={selectedAvatar}
+              onCreateRoom={handleCreateRoom}
+              onJoinRoom={() => setScreen("join-room")}
+            />
+          )}
+
+          {screen === "join-room" && (
+            <JoinRoom
+              name={name}
+              selectedAvatar={selectedAvatar}
+              onBack={() => setScreen("mode")}
+              onJoin={handleJoin}
+            />
+          )}
+
+          {screen === "lobby" && (
+            <Lobby room={room} player={player} onKicked={handleKicked} />
+          )}
+
+          {screen === "writing" && <WritingScreen room={room} player={player} />}
+          {screen === "guessing" && <GuessingScreen room={room} player={player} />}
+          {screen === "reveal" && <RevealScreen room={room} player={player} />}
+          {screen === "ended" && <ResultsScreen room={room} player={player} />}
+        </div>
       )}
-
-      {screen === "join-room" && (
-        <JoinRoom
-          name={name}
-          selectedAvatar={selectedAvatar}
-          onBack={() => setScreen("mode")}
-          onJoin={handleJoin}
-        />
-      )}
-
-      {screen === "lobby" && (
-        <Lobby room={room} player={player} onKicked={handleKicked} />
-      )}
-
-      {screen === "writing" && <WritingScreen room={room} player={player} />}
-      {screen === "guessing" && <GuessingScreen room={room} player={player} />}
-      {screen === "reveal" && <RevealScreen room={room} player={player} />}
-      {screen === "ended" && <ResultsScreen room={room} player={player} />}
-
-      </div>
 
             {insideRoom && <StatsMenu room={room} player={player} />}
       <MusicControl
