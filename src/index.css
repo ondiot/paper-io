@@ -3837,3 +3837,34 @@ input {
     height: min(500px, calc(100vh - 90px));
   }
 }
+
+
+/* FINAL TOP-RIGHT CONTROL SPACING — keep HOST KICK fully clear of music + volume */
+.host-kick-bar {
+  top: 18px !important;
+  right: 178px !important;
+  bottom: auto !important;
+  left: auto !important;
+  max-width: min(55vw, 520px) !important;
+}
+
+.global-music-control {
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 2147482999 !important;
+}
+
+@media (max-width: 700px) {
+  .host-kick-bar {
+    top: 12px !important;
+    right: 112px !important;
+    bottom: auto !important;
+    left: auto !important;
+    max-width: calc(100vw - 124px) !important;
+  }
+
+  .global-music-control {
+    top: 12px !important;
+    right: 12px !important;
+  }
+}
