@@ -4122,3 +4122,22 @@ input {
     left: 62px !important;
   }
 }
+
+
+/* CHAT UNREAD INDICATOR */
+.global-chat-button {
+  position: relative;
+}
+
+.global-chat-unread-dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff3b30;
+  border: 2px solid #000;
+  box-sizing: content-box;
+  box-shadow: 0 0 8px rgba(255, 59, 48, .45);
+}
