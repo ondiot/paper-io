@@ -13,6 +13,8 @@ import ResultsScreen from "./components/ResultsScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
 import HostKickBar from "./components/HostKickBar";
 import StatsMenu from "./components/StatsMenu";
+import MusicControl from "./components/MusicControl";
+import ChatBox from "./components/ChatBox";
 
 import { AVATARS } from "./game/avatars";
 import { preloadAllAssets } from "./game/preloadAssets";
@@ -320,6 +322,8 @@ function App() {
 
       {showKickBar && <HostKickBar room={room} player={player} />}
       {insideRoom && <StatsMenu room={room} player={player} />}
+      {insideRoom && <MusicControl />}
+      {insideRoom && <ChatBox room={room} player={player} />}
 
       {error && (
         <div className="game-toast">
