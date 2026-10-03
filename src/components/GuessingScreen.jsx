@@ -5,7 +5,7 @@ import {
 } from "react";
 
 import { supabase } from "../lib/supabase";
-import InlineKickButton from "./InlineKickButton";
+import AvatarKickControl from "./InlineKickButton";
 
 import {
   submitGuesses,
@@ -409,7 +409,8 @@ function GuessingScreen({
                     (finished ? " finished" : "")
                   }
                 >
-                  <div className="guessing-player-avatar">
+                  <AvatarKickControl room={room} hostPlayer={player} targetPlayer={gamePlayer}>
+                    <div className="guessing-player-avatar">
                     <img
                       src={
                         `${import.meta.env.BASE_URL}assets/avatars/` +
@@ -424,6 +425,7 @@ function GuessingScreen({
                       </span>
                     )}
                   </div>
+                  </AvatarKickControl>
 
                   <div className="guessing-player-info">
                     <span>
@@ -434,11 +436,6 @@ function GuessingScreen({
                       {gamePlayer.score || 0} pts
                     </span>
 
-                    <InlineKickButton
-                      room={room}
-                      hostPlayer={player}
-                      targetPlayer={gamePlayer}
-                    />
                   </div>
                 </div>
               );
