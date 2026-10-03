@@ -4,7 +4,6 @@ import AvatarPicker from "./AvatarPicker";
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
 const PHRASES = [
   "PAPER.IO",
-  "RAINING LETTERS",
   "A FUN-FILLED GAME",
   "CAN WE GUESS THE PAPER?",
 ];
