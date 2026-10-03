@@ -4031,3 +4031,20 @@ input {
 .podium-first > strong { color: #ffd84d; }
 .podium-second > strong { color: #d9dde1; }
 .podium-third > strong { color: #d58a5a; }
+
+
+/* Glyph matrix background for name screen */
+.paper-name-glyph-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.paper-name-page > .paper-name-rain,
+.paper-name-page > .paper-title-layer,
+.paper-name-page > .paper-name-card {
+  position: relative;
+  z-index: 1;
+}
