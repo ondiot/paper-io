@@ -12,6 +12,7 @@ import RevealScreen from "./components/RevealScreen";
 import ResultsScreen from "./components/ResultsScreen";
 import VaporizeIntro from "./components/VaporizeIntro";
 import HostKickBar from "./components/HostKickBar";
+import StatsMenu from "./components/StatsMenu";
 
 import { AVATARS } from "./game/avatars";
 import { preloadAllAssets } from "./game/preloadAssets";
@@ -318,6 +319,7 @@ function App() {
       {screen === "ended" && <ResultsScreen room={room} player={player} />}
 
       {showKickBar && <HostKickBar room={room} player={player} />}
+      {insideRoom && <StatsMenu room={room} player={player} />}
 
       {error && (
         <div className="game-toast">
