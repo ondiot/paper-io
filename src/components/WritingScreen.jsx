@@ -123,11 +123,16 @@ function WritingScreen({
       .on(
         "postgres_changes",
         {
-          event: "postgres_changes",
+          event: "DELETE",
           schema: "public",
-          table: "players"
+          table: "players",
+          filter: `room_id=eq.${room.id}`
         },
-        () => {}
+        async () => {
+          // A kicked player may have been the only person holding up
+          // the writing phase. Re-check immediately so the round moves on.
+          await tryFinishRound();
+        }
       )
       .subscribe();
 
