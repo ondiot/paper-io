@@ -63,19 +63,37 @@ function ResultsScreen({ room, player }) {
       }
     });
 
-    return Object.values(map);
+    return Object.values(map).map((stat) => {
+      const totalGuesses = stat.correct + stat.wrong;
+      const accuracy = totalGuesses
+        ? Math.round((stat.correct / totalGuesses) * 100)
+        : 0;
+      const spotted = stat.received
+        ? Math.round((stat.identified / stat.received) * 100)
+        : 0;
+
+      return {
+        ...stat,
+        accuracy,
+        spotted,
+      };
+    });
   }, [players, papers, assignments]);
 
   const sharpshooter = [...stats].sort(
-    (a, b) => b.correct - a.correct || b.wrong - a.wrong
+    (a, b) => b.accuracy - a.accuracy || b.correct - a.correct
   )[0];
+
   const openBook = [...stats]
     .filter((s) => s.received > 0)
-    .sort((a, b) => (b.identified / b.received) - (a.identified / a.received))[0];
-  const dummy = [...stats].sort((a, b) => b.wrong - a.wrong)[0];
+    .sort((a, b) => b.spotted - a.spotted || b.identified - a.identified)[0];
+
+  const dummy = [...stats]
+    .sort((a, b) => b.wrong - a.wrong || a.accuracy - b.accuracy)[0];
+
   const hardest = [...stats]
     .filter((s) => s.received > 0)
-    .sort((a, b) => (a.identified / a.received) - (b.identified / b.received))[0];
+    .sort((a, b) => a.spotted - b.spotted || a.identified - b.identified)[0];
 
   function avatar(item, className = "results-avatar") {
     return item?.avatar ? (
@@ -163,10 +181,30 @@ function ResultsScreen({ room, player }) {
           <div className="results-section-title">AWARDS</div>
           <div className="results-awards-grid">
             {[
-              ["🎯", "Sharpshooter", sharpshooter, `${sharpshooter?.correct || 0} correct guesses`],
-              ["📖", "Open Book", openBook, "Easiest to identify"],
-              ["🤡", "Fool", dummy, `${dummy?.wrong || 0} wrong guesses`],
-              ["🎭", "Master of Disguise", hardest, "Hardest to identify"],
+              [
+                "🎯",
+                "Sharpshooter",
+                sharpshooter,
+                `${sharpshooter?.accuracy || 0}% accuracy`,
+              ],
+              [
+                "📖",
+                "Open Book",
+                openBook,
+                `${openBook?.spotted || 0}% spotted`,
+              ],
+              [
+                "🤡",
+                "Fool",
+                dummy,
+                `${dummy?.accuracy || 0}% accuracy`,
+              ],
+              [
+                "🎭",
+                "Master of Disguise",
+                hardest,
+                `${hardest?.spotted || 0}% spotted`,
+              ],
             ].map(([icon, title, stat, detail]) => stat && (
               <div className="results-award" key={title}>
                 <div className="results-award-icon">{icon}</div>
