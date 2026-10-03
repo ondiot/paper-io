@@ -166,6 +166,7 @@ function Lobby({ room, player, onKicked }) {
                 <span><b>Topic mode</b><small>How writing prompts work</small></span>
                 <select disabled={!player.is_host} value={settings.topicMode} onChange={(e) => changeSetting("topicMode", e.target.value)}>
                   <option value="builtin">Built-in</option>
+                  <option value="extempore">Extempore</option>
                   <option value="custom">Custom</option>
                   <option value="freestyle">Freestyle</option>
                 </select>
