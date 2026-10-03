@@ -3235,9 +3235,9 @@ input {
   .podium-second .podium-block { height: 84px; }
   .podium-third .podium-block { height: 66px; }
   .results-awards-grid { grid-template-columns: 1fr; }
-  .paper-title-layer { top: 23%; }
+  .paper-title-layer { top: 17%; }
   .paper-title { min-height: 65px; font-size: 25px; }
-  .paper-name-card { top: 55%; padding: 22px; }
+  .paper-name-card { top: 50%; padding: 22px; }
 }
 
 
