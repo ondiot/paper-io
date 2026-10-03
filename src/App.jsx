@@ -310,6 +310,7 @@ function App() {
         />
       )}
 
+      <div className="post-name-paper-world">
       {screen === "mode" && (
         <ModeScreen
           name={name}
@@ -336,6 +337,8 @@ function App() {
       {screen === "guessing" && <GuessingScreen room={room} player={player} />}
       {screen === "reveal" && <RevealScreen room={room} player={player} />}
       {screen === "ended" && <ResultsScreen room={room} player={player} />}
+
+      </div>
 
             {insideRoom && <StatsMenu room={room} player={player} />}
       <MusicControl
