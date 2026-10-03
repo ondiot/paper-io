@@ -47,3 +47,15 @@ export const BUILT_IN_TOPICS = [
   "A place I'd love to visit",
 ];
 
+
+
+export function getRoundTopic(roomId, round) {
+  const seed = String(roomId || "") + ":" + String(round || 1);
+  let hash = 0;
+
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+  }
+
+  return BUILT_IN_TOPICS[hash % BUILT_IN_TOPICS.length];
+}
