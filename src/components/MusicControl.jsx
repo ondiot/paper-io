@@ -8,7 +8,7 @@ const MUSIC_TRACKS = [
   `${import.meta.env.BASE_URL}assets/music/bg4.mp3`,
 ];
 
-function MusicControl({ enabled = true }) {
+function MusicControl({ enabled = true, startAfterGesture = false, revealDelay = 5000 }) {
   const audioRef = useRef(null);
   const [trackIndex, setTrackIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -45,25 +45,48 @@ function MusicControl({ enabled = true }) {
 
   useEffect(() => {
     if (!enabled) return;
+    if (startAfterGesture) return;
 
-    // Try autoplay when the Name screen appears. Browsers may block
-    // unmuted autoplay until the user interacts with the page.
+    // Fallback for browsers that allow autoplay.
     startTrack(0);
+  }, [enabled, startAfterGesture]);
 
-    const resumeAfterInteraction = () => {
-      if (audioRef.current?.paused) {
-        startTrack(trackIndex);
+  useEffect(() => {
+    if (!startAfterGesture || !enabled) return;
+
+    let cancelled = false;
+
+    async function unlockAndScheduleMusic() {
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      audio.src = MUSIC_TRACKS[0];
+      audio.load();
+      audio.volume = 0;
+
+      try {
+        // This call is made directly from the user's intro click.
+        await audio.play();
+        if (cancelled) return;
+
+        setPlaying(true);
+
+        window.setTimeout(() => {
+          if (cancelled || !audioRef.current) return;
+          audioRef.current.volume = volume;
+        }, revealDelay);
+      } catch (error) {
+        console.error("Could not unlock background music:", error);
+        setPlaying(false);
       }
-    };
+    }
 
-    window.addEventListener("pointerdown", resumeAfterInteraction, { passive: true });
-    window.addEventListener("keydown", resumeAfterInteraction);
+    unlockAndScheduleMusic();
 
     return () => {
-      window.removeEventListener("pointerdown", resumeAfterInteraction);
-      window.removeEventListener("keydown", resumeAfterInteraction);
+      cancelled = true;
     };
-  }, [enabled, trackIndex]);
+  }, [startAfterGesture, enabled, revealDelay]);
 
   async function startTrack(index) {
     const audio = audioRef.current;
