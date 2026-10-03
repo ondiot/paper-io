@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import NameScreen from "./components/NameScreen";
+import VaporizeIntro from "./components/VaporizeIntro";
 import ModeScreen from "./components/ModeScreen";
 import JoinRoom from "./components/JoinRoom";
 import Lobby from "./components/Lobby";
@@ -169,10 +170,10 @@ function App() {
     if (!name.trim()) return;
     setError("");
 
-    // The Continue click is a real user gesture, so the browser allows
-    // background music to start here without a separate intro screen.
+    // The name Continue click unlocks the audio. Then show the
+    // vaporizer intro — no separate black screen or tap is needed.
     window.dispatchEvent(new Event("paperio-start-music"));
-    setScreen("mode");
+    setScreen("intro");
   }
 
   /* Create now; all editable game settings live in the lobby. */
@@ -259,6 +260,14 @@ function App() {
 
   return (
     <>
+      {screen === "intro" && (
+        <VaporizeIntro
+          onStart={() => {}}
+          onComplete={() => setScreen("mode")}
+          autoStart
+        />
+      )}
+
       {screen === "name" && (
         <NameScreen
           name={name}
@@ -299,7 +308,7 @@ function App() {
             {insideRoom && <StatsMenu room={room} player={player} />}
       <MusicControl
         enabled
-        showControls
+        showControls={screen !== "intro"}
       />
       {insideRoom && <ChatBox room={room} player={player} />}
 
