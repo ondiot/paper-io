@@ -5116,3 +5116,12 @@ button.stats-menu-trigger,
 .post-name-paper-world .reveal-rank {
   color: #b9aa91 !important;
 }
+
+
+/* FINAL FIX: points shown directly under player avatars after each round. */
+.post-name-paper-world .writing-status-score,
+.post-name-paper-world .guessing-player-score {
+  color: #d5b35e !important;
+  background: transparent !important;
+  text-shadow: 0 1px 8px rgba(201, 164, 91, .12);
+}
