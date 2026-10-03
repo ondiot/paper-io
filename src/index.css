@@ -5181,3 +5181,67 @@ button.stats-menu-trigger,
   text-shadow: none !important;
   background: transparent !important;
 }
+
+
+/* FINAL BUTTON + SCORE OVERRIDE
+   White buttons use black text; reveal Current Scores stays readable. */
+.post-name-paper-world .guessing-submit,
+.post-name-paper-world .guessing-submit *,
+.post-name-paper-world .writing-submit,
+.post-name-paper-world .writing-submit * {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+.post-name-paper-world .guessing-submit[style],
+.post-name-paper-world .writing-submit[style] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Catch any white-background action button inside the vintage game world. */
+.post-name-paper-world button[style*="background: #fff"],
+.post-name-paper-world button[style*="background:#fff"],
+.post-name-paper-world button[style*="background: white"],
+.post-name-paper-world button[style*="background:white"] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Current Scores — high contrast, no white-on-white. */
+.post-name-paper-world .reveal-score-section,
+.post-name-paper-world .reveal-score-section * {
+  color: #17130e !important;
+}
+
+.post-name-paper-world .reveal-score-section {
+  background: #e7dcc7 !important;
+  border: 1px solid rgba(70, 53, 31, .28) !important;
+}
+
+.post-name-paper-world .reveal-score-player {
+  background: #f4ead8 !important;
+  border-color: rgba(70, 53, 31, .22) !important;
+}
+
+.post-name-paper-world .reveal-score-title {
+  color: #3a2b1b !important;
+}
+
+.post-name-paper-world .reveal-score-player.current {
+  background: #d8c79f !important;
+  border-color: #9a7b3f !important;
+}
+
+.post-name-paper-world .reveal-score-avatar {
+  overflow: hidden !important;
+  border-radius: 50% !important;
+}
+
+.post-name-paper-world .reveal-score-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
