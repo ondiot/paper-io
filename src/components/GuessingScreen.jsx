@@ -396,7 +396,7 @@ function GuessingScreen({
                 PAPER {currentPaperIndex + 1} OF {papers.length}
               </span>
 
-              <span>
+              <span style={{ marginLeft: "1rem" }}>
                 {guessedCount} / {papers.length} guessed
               </span>
             </div>
