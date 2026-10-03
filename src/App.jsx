@@ -190,6 +190,7 @@ function App() {
   function handleContinue() {
     if (!name.trim()) return;
     setError("");
+    window.dispatchEvent(new Event("paperio-start-music"));
     setScreen("mode");
   }
 
@@ -322,7 +323,7 @@ function App() {
 
       {showKickBar && <HostKickBar room={room} player={player} />}
       {insideRoom && <StatsMenu room={room} player={player} />}
-      {insideRoom && <MusicControl />}
+      {!preloadingAssets && screen !== "intro" && <MusicControl enabled />}
       {insideRoom && <ChatBox room={room} player={player} />}
 
       {error && (
