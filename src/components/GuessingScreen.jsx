@@ -162,11 +162,62 @@ function GuessingScreen({
         },
         handleAssignmentUpdate
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "players",
+          filter: `room_id=eq.${room.id}`
+        },
+        handlePlayerRemoval
+      )
       .subscribe();
 
     function handleAssignmentUpdate(payload) {
       if (payload.new.round !== room.round) return;
       reloadAssignments();
+    }
+
+    async function handlePlayerRemoval(payload) {
+      const kickedPlayerId = payload.old?.id;
+      if (!kickedPlayerId) return;
+
+      // Remove the kicked player and their paper locally immediately.
+      // This prevents the remaining players from being stuck on a paper
+      // whose author no longer exists in the game.
+      setPlayers((current) =>
+        current.filter((gamePlayer) => gamePlayer.id !== kickedPlayerId)
+      );
+
+      setPapers((current) =>
+        current.filter((paper) => paper.author_id !== kickedPlayerId)
+      );
+
+      setGuesses((current) => {
+        const next = { ...current };
+        for (const paper of papers) {
+          if (paper.author_id === kickedPlayerId) {
+            delete next[paper.id];
+          }
+        }
+        return next;
+      });
+
+      // If everyone who remains has already submitted, the kick should
+      // immediately allow the guessing phase to advance to reveal.
+      try {
+        const complete = await checkGuessingComplete({
+          roomId: room.id,
+          round: room.round
+        });
+
+        if (complete) {
+          await startReveal(room.id);
+        }
+      } catch (error) {
+        console.error("Could not continue after player kick:", error);
+      }
     }
 
     async function reloadAssignments() {
