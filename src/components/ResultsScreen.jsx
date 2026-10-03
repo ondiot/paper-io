@@ -165,8 +165,8 @@ function ResultsScreen({ room, player }) {
             {[
               ["🎯", "Sharpshooter", sharpshooter, `${sharpshooter?.correct || 0} correct guesses`],
               ["📖", "Open Book", openBook, "Easiest to identify"],
-              ["🤡", "Fool / Dummy", dummy, `${dummy?.wrong || 0} wrong guesses`],
-              ["🕵️", "Hardest to Catch", hardest, "Lowest identification rate"],
+              ["🤡", "Fool", dummy, `${dummy?.wrong || 0} wrong guesses`],
+              ["🎭", "Master of Disguise", hardest, "Hardest to identify"],
             ].map(([icon, title, stat, detail]) => stat && (
               <div className="results-award" key={title}>
                 <div className="results-award-icon">{icon}</div>
