@@ -9,6 +9,7 @@ import {
   submitPaper,
   checkRoundComplete
 } from "../game/rooms";
+import { getRoundTopic } from "../game/topics";
 
 function WritingScreen({
   room,
@@ -441,6 +442,11 @@ function WritingScreen({
     return null;
   }
 
+  const isExtempore = room.topic_mode === "extempore";
+  const roundTopic = isExtempore
+    ? getRoundTopic(room.id, room.round)
+    : null;
+
   return (
     <section className="writing-screen">
       <div className="writing-card">
@@ -584,6 +590,13 @@ function WritingScreen({
         {/* WRITING AREA */}
 
         <div className="writing-area">
+
+          {isExtempore && (
+            <div className="writing-topic-card">
+              <span>EXTEMPORE TOPIC</span>
+              <strong>{roundTopic}</strong>
+            </div>
+          )}
 
           <textarea
             value={text}
