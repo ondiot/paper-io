@@ -4209,17 +4209,7 @@ button.stats-menu-trigger,
 }
 
 
-/* ACTUAL GLOBAL STATS + LEAVE CONTROLS */
-.global-stats-button {
-  position: fixed !important;
-  top: 16px !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: translateX(-50%) !important;
-  z-index: 2147483646 !important;
-}
-
+/* LEAVE ONLY — top center */
 .global-leave-container {
   top: 16px !important;
   left: 50% !important;
@@ -4229,10 +4219,6 @@ button.stats-menu-trigger,
 }
 
 @media (max-width: 700px) {
-  .global-stats-button {
-    top: 10px !important;
-  }
-
   .global-leave-container {
     top: 10px !important;
   }
