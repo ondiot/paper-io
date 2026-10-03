@@ -5255,3 +5255,54 @@ button.stats-menu-trigger,
   background: transparent !important;
   text-shadow: none !important;
 }
+
+
+/* DEFINITIVE reveal Current Scores styling — override every legacy white rule. */
+.post-name-paper-world .reveal-score-section {
+  background: #e7dcc7 !important;
+  color: #17130e !important;
+  border: 1px solid rgba(70, 53, 31, .28) !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-score-title {
+  color: #3a2b1b !important;
+  -webkit-text-fill-color: #3a2b1b !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-score-player {
+  background: #f4ead8 !important;
+  color: #17130e !important;
+  border-color: rgba(70, 53, 31, .22) !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-score-player.current {
+  background: #d8c79f !important;
+  color: #17130e !important;
+  border-color: #9a7b3f !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-rank,
+.post-name-paper-world .reveal-score-section .reveal-score-name,
+.post-name-paper-world .reveal-score-section .reveal-score-player > strong {
+  color: #17130e !important;
+  -webkit-text-fill-color: #17130e !important;
+  text-shadow: none !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-score-name span {
+  color: #5c4727 !important;
+  -webkit-text-fill-color: #5c4727 !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-score-avatar {
+  overflow: hidden !important;
+  border-radius: 50% !important;
+}
+
+.post-name-paper-world .reveal-score-section .reveal-score-avatar img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
