@@ -3868,3 +3868,71 @@ input {
     right: 12px !important;
   }
 }
+
+
+/* =========================================================
+   INLINE HOST KICK — attached to each player's info
+========================================================= */
+
+.inline-kick-button {
+  width: auto !important;
+  margin: 4px 0 0 !important;
+  padding: 3px 7px !important;
+  border: 1px solid #333;
+  border-radius: 999px;
+  background: #151515;
+  color: #777;
+  font: inherit;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.inline-kick-button:hover:not(:disabled) {
+  border-color: #666;
+  background: #222;
+  color: #fff;
+}
+
+.inline-kick-button:disabled {
+  opacity: .45;
+  cursor: wait;
+}
+
+/* Lobby: kick sits directly below the player's name/role. */
+.lobby-player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Writing: name, points, then kick button. */
+.writing-status-name,
+.writing-status-score {
+  display: block;
+}
+
+.writing-status-score {
+  margin-top: 4px;
+}
+
+/* Guessing: name, points, then kick button. */
+.guessing-player-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.guessing-player-info > span:first-child {
+  display: block;
+}
+
+.guessing-player-score {
+  margin-top: 3px;
+  color: #666;
+  font-size: 8px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
