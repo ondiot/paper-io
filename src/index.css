@@ -4223,3 +4223,165 @@ button.stats-menu-trigger,
     top: 10px !important;
   }
 }
+
+
+/* =========================================================
+   DARK GRADIENT BACKGROUND — Lobby
+   Inspired by the 21st.dev Dark Gradient Background
+========================================================= */
+.dark-gradient-background {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 105%, rgba(20, 185, 190, 0.28), transparent 42%),
+    radial-gradient(circle at 78% 18%, rgba(0, 130, 150, 0.18), transparent 32%),
+    linear-gradient(145deg, #020607 0%, #071014 48%, #020708 100%);
+}
+
+.dark-gradient-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0 38%, rgba(70, 220, 220, 0.055) 50%, transparent 62%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.48) 100%);
+}
+
+.dark-gradient-noise {
+  position: absolute;
+  inset: -20%;
+  z-index: 1;
+  width: 140%;
+  height: 140%;
+  opacity: 0.075;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.dark-gradient-noise rect {
+  width: 100%;
+  height: 100%;
+}
+
+.dark-gradient-orb {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+
+.dark-gradient-orb-one {
+  width: 46vw;
+  height: 46vw;
+  right: -15vw;
+  top: -18vw;
+  background: rgba(0, 172, 190, 0.17);
+}
+
+.dark-gradient-orb-two {
+  width: 54vw;
+  height: 54vw;
+  left: -22vw;
+  bottom: -30vw;
+  background: rgba(0, 120, 140, 0.16);
+}
+
+.dark-gradient-shape {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  border: 1px solid rgba(91, 220, 220, 0.08);
+  background: linear-gradient(135deg, rgba(255,255,255,0.025), transparent);
+  transform: rotate(28deg);
+}
+
+.dark-gradient-shape-one {
+  width: 52vw;
+  height: 52vw;
+  top: -38vw;
+  right: -8vw;
+}
+
+.dark-gradient-shape-two {
+  width: 30vw;
+  height: 30vw;
+  left: -18vw;
+  bottom: -15vw;
+  transform: rotate(-22deg);
+}
+
+.dark-gradient-shape-three {
+  width: 18vw;
+  height: 18vw;
+  right: 18vw;
+  bottom: -10vw;
+  transform: rotate(45deg);
+  opacity: 0.55;
+}
+
+.dark-gradient-content {
+  position: relative;
+  z-index: 5;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.lobby-background .lobby-screen {
+  background: transparent;
+}
+
+.lobby-background .lobby-card {
+  border-color: rgba(130, 220, 220, 0.14);
+  background: rgba(5, 10, 12, 0.72);
+  box-shadow:
+    0 24px 90px rgba(0, 0, 0, 0.52),
+    0 0 60px rgba(0, 170, 185, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.lobby-background .room-code-box,
+.lobby-background .lobby-panel,
+.lobby-background .lobby-player {
+  background: rgba(2, 7, 9, 0.62);
+  border-color: rgba(130, 220, 220, 0.10);
+}
+
+.lobby-background .room-code-box button {
+  background: rgba(20, 40, 43, 0.7);
+  border-color: rgba(130, 220, 220, 0.14);
+}
+
+.lobby-background .lobby-start-button {
+  background: rgba(30, 170, 175, 0.18);
+  color: #b9eeee;
+  border: 1px solid rgba(91, 220, 220, 0.24);
+}
+
+@media (max-width: 700px) {
+  .dark-gradient-shape-one {
+    width: 80vw;
+    height: 80vw;
+    top: -50vw;
+    right: -25vw;
+  }
+
+  .dark-gradient-shape-two {
+    width: 55vw;
+    height: 55vw;
+    left: -30vw;
+    bottom: -25vw;
+  }
+
+  .dark-gradient-shape-three {
+    width: 30vw;
+    height: 30vw;
+    right: 10vw;
+  }
+}
