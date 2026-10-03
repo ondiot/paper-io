@@ -1465,20 +1465,14 @@ input {
 }
 
 .writing-footer button {
-  padding: 10px 16px;
-
+  color: #000;
+  background: #3c3434;
   border: none;
   border-radius: 9px;
-
-  background: #fff;
-  color: #000;
-
+  padding: 10px 16px;
   font-size: 13px;
   font-weight: 800;
-
-  transition:
-    transform 0.15s ease,
-    opacity 0.15s ease;
+  transition: transform .15s, opacity .15s;
 }
 
 .writing-footer button:hover:not(:disabled) {
