@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
-function VaporizeIntro({ onComplete, onStart }) {
+function VaporizeIntro({ onComplete, onStart, autoStart = false }) {
   const canvasRef = useRef(null);
   const startedRef = useRef(false);
   const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (!autoStart || startedRef.current) return;
+    startedRef.current = true;
+    onStart?.();
+    setStarted(true);
+  }, [autoStart, onStart]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -445,25 +452,6 @@ function VaporizeIntro({ onComplete, onStart }) {
         }}
       />
 
-      {!started && (
-        <div
-          onClick={handleStart}
-          onTouchStart={handleStart}
-          role="button"
-          tabIndex={0}
-          aria-label="Tap to continue"
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              handleStart();
-            }
-          }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            cursor: "pointer"
-          }}
-        />
-      )}
     </div>
   );
 }
