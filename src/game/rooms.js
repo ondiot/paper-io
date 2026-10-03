@@ -1039,3 +1039,26 @@ export async function updateRoomSettings({
   if (error) throw error;
   return data;
 }
+
+
+/* =========================================================
+   RETURN EVERYONE TO LOBBY
+========================================================= */
+
+export async function returnToLobby(roomId, hostPlayerId) {
+  const { data, error } = await supabase.rpc(
+    "return_room_to_lobby",
+    {
+      p_room_id: roomId,
+      p_host_player_id: hostPlayerId,
+    }
+  );
+
+  if (error) throw error;
+
+  if (!data?.room) {
+    throw new Error("Could not return the room to the lobby.");
+  }
+
+  return data.room;
+}
