@@ -4855,3 +4855,139 @@ button.stats-menu-trigger,
   display: block;
   border-radius: 50%;
 }
+
+
+/* =========================================================
+   FINAL VINTAGE CLEANUP — readable ink + truly circular avatars
+========================================================= */
+
+/* Room screens use warm vintage ink instead of scattered pure white text. */
+.post-name-paper-world h1,
+.post-name-paper-world h2,
+.post-name-paper-world h3,
+.post-name-paper-world h4,
+.post-name-paper-world h5,
+.post-name-paper-world strong,
+.post-name-paper-world b,
+.post-name-paper-world label,
+.post-name-paper-world .mode-option-text h3,
+.post-name-paper-world .mode-option-text p,
+.post-name-paper-world .lobby-player-info strong,
+.post-name-paper-world .lobby-player-info span,
+.post-name-paper-world .writing-player strong,
+.post-name-paper-world .writing-player span,
+.post-name-paper-world .guessing-player span,
+.post-name-paper-world .guess-option span,
+.post-name-paper-world .reveal-author strong,
+.post-name-paper-world .reveal-author span,
+.post-name-paper-world .reveal-score-name,
+.post-name-paper-world .reveal-score-player strong,
+.post-name-paper-world .results-ranking-row > strong,
+.post-name-paper-world .results-award-player-name {
+  color: #e8dfcf !important;
+}
+
+.post-name-paper-world p,
+.post-name-paper-world .mode-subtitle,
+.post-name-paper-world .lobby-subtitle,
+.post-name-paper-world .writing-subtitle,
+.post-name-paper-world .guessing-subtitle,
+.post-name-paper-world .reveal-guesses-title,
+.post-name-paper-world .results-subtitle {
+  color: #b9aa91 !important;
+}
+
+/* Remove the old bright white result/reveal panels. */
+.post-name-paper-world .results-lobby-section,
+.post-name-paper-world .reveal-score-section {
+  background: linear-gradient(145deg, rgba(61, 48, 32, .94), rgba(29, 23, 17, .97)) !important;
+  color: #e8dfcf !important;
+  border: 1px solid rgba(205, 170, 108, .20);
+}
+
+.post-name-paper-world .results-back-lobby-button {
+  background: linear-gradient(135deg, #a8894d, #735a2d) !important;
+  color: #fff5df !important;
+}
+
+/* Every gameplay avatar is a real circle and clips its image. */
+.post-name-paper-world .mode-avatar,
+.post-name-paper-world .create-room-avatar,
+.post-name-paper-world .lobby-player-avatar,
+.post-name-paper-world .writing-player-avatar,
+.post-name-paper-world .writing-status-avatar,
+.post-name-paper-world .guessing-player-avatar,
+.post-name-paper-world .guess-option-avatar,
+.post-name-paper-world .reveal-author-avatar,
+.post-name-paper-world .reveal-score-avatar,
+.post-name-paper-world .results-ranking-avatar,
+.post-name-paper-world .results-award-player-avatar,
+.post-name-paper-world .avatar-preview {
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+}
+
+/* Images themselves cannot leave a square edge. */
+.post-name-paper-world .mode-avatar img,
+.post-name-paper-world .create-room-avatar img,
+.post-name-paper-world .lobby-player-avatar img,
+.post-name-paper-world .writing-player-avatar img,
+.post-name-paper-world .writing-status-avatar img,
+.post-name-paper-world .guessing-player-avatar img,
+.post-name-paper-world .guess-option-avatar img,
+.post-name-paper-world .reveal-author-avatar img,
+.post-name-paper-world .reveal-score-avatar img,
+.post-name-paper-world .results-ranking-avatar img,
+.post-name-paper-world .results-award-player-avatar img,
+.post-name-paper-world .avatar-preview img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+}
+
+/* The podium was explicitly square before; make the actual avatar circular. */
+.post-name-paper-world .podium-avatar {
+  width: 92px !important;
+  height: 92px !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(213, 176, 105, .28) !important;
+  border-radius: 50% !important;
+  background: #211a12 !important;
+  box-shadow: none !important;
+}
+
+.post-name-paper-world .podium-avatar-image {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+}
+
+/* Kick wrapper must remain invisible around circular avatars. */
+.post-name-paper-world .avatar-kick-control,
+.post-name-paper-world .avatar-kick-trigger,
+.post-name-paper-world .avatar-kick-trigger:hover,
+.post-name-paper-world .avatar-kick-trigger.open {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  padding: 0 !important;
+}
+
+/* Do not let old white status rings return. */
+.post-name-paper-world .writing-player-status.submitted .writing-status-avatar {
+  border-color: #789c78 !important;
+  box-shadow: 0 0 0 2px rgba(120, 156, 120, .12) !important;
+}
+
+.post-name-paper-world .guessing-player.finished .guessing-player-avatar {
+  border-color: #789c78 !important;
+  box-shadow: 0 0 0 2px rgba(120, 156, 120, .12) !important;
+}
