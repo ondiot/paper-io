@@ -5340,3 +5340,31 @@ button.stats-menu-trigger,
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
 }
+
+
+/* VISIBILITY FIX: make the Writing pts badge physically obvious. */
+.post-name-paper-world .writing-player-status > .writing-status-score {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: max-content !important;
+  min-width: 38px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  box-sizing: border-box !important;
+  margin: 1px 0 0 !important;
+  padding: 2px 7px !important;
+  border: 1px solid #000000 !important;
+  border-radius: 999px !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: 0 2px 7px rgba(0,0,0,.45) !important;
+  text-shadow: none !important;
+  font-size: 8px !important;
+  font-weight: 900 !important;
+  line-height: 14px !important;
+}
