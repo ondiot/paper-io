@@ -194,10 +194,10 @@ function App() {
     if (!name.trim()) return;
     setError("");
 
-    // The name Continue click unlocks the audio. Then show the
-    // vaporizer intro — no separate black screen or tap is needed.
+    // The startup vaporizer + preload already ran before this screen.
+    // The Continue click only unlocks music and moves into the game menu.
     window.dispatchEvent(new Event("paperio-start-music"));
-    setScreen("intro");
+    setScreen("mode");
   }
 
   /* Create now; all editable game settings live in the lobby. */
