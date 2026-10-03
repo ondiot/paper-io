@@ -10,7 +10,7 @@ import {
   checkRoundComplete
 } from "../game/rooms";
 import { getRoundTopic } from "../game/topics";
-import InlineKickButton from "./InlineKickButton";
+import AvatarKickControl from "./InlineKickButton";
 
 function WritingScreen({
   room,
@@ -527,7 +527,8 @@ function WritingScreen({
                     }
                   >
 
-                    <div className="writing-status-avatar">
+                    <AvatarKickControl room={room} hostPlayer={player} targetPlayer={writingPlayer}>
+                      <div className="writing-status-avatar">
 
                       <img
                         src={
@@ -546,6 +547,7 @@ function WritingScreen({
                       )}
 
                     </div>
+                    </AvatarKickControl>
 
                     <span className="writing-status-name">
                       {isYou
@@ -556,12 +558,6 @@ function WritingScreen({
                     <span className="writing-status-score">
                       {writingPlayer.score || 0} pts
                     </span>
-
-                    <InlineKickButton
-                      room={room}
-                      hostPlayer={player}
-                      targetPlayer={writingPlayer}
-                    />
 
                   </div>
                 );
