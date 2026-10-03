@@ -4385,3 +4385,112 @@ button.stats-menu-trigger,
     right: 10vw;
   }
 }
+
+
+/* =========================================================
+   VINTAGE PAPER WORLD — every screen after NameScreen
+========================================================= */
+.post-name-paper-world {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  color: #29251f;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.55), transparent 26%),
+    radial-gradient(circle at 82% 78%, rgba(112,83,42,.10), transparent 34%),
+    linear-gradient(115deg, #d8c7a6 0%, #eee2c5 38%, #d6c19a 100%);
+}
+
+.post-name-paper-world::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .38;
+  background:
+    repeating-linear-gradient(0deg, rgba(72,52,28,.035) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.055) 0 1px, transparent 1px 6px);
+  mix-blend-mode: multiply;
+}
+
+.post-name-paper-world::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 42%, rgba(74,50,25,.18) 100%);
+}
+
+.post-name-paper-world > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Let the vintage paper show through every post-name screen. */
+.post-name-paper-world .mode-screen,
+.post-name-paper-world .join-room-screen,
+.post-name-paper-world .lobby-screen,
+.post-name-paper-world .writing-screen,
+.post-name-paper-world .guessing-screen,
+.post-name-paper-world .reveal-screen,
+.post-name-paper-world .results-screen {
+  background: transparent !important;
+}
+
+/* Replace the lobby's previous dark-gradient backdrop with paper. */
+.post-name-paper-world .dark-gradient-background {
+  min-height: 100vh;
+  background: transparent !important;
+}
+
+.post-name-paper-world .dark-gradient-background::before,
+.post-name-paper-world .dark-gradient-background .dark-gradient-noise,
+.post-name-paper-world .dark-gradient-background .dark-gradient-orb,
+.post-name-paper-world .dark-gradient-background .dark-gradient-shape {
+  display: none;
+}
+
+.post-name-paper-world .dark-gradient-content {
+  min-height: 100vh;
+}
+
+/* Warm, slightly faded UI surfaces so cards still feel readable on paper. */
+.post-name-paper-world .mode-card,
+.post-name-paper-world .join-room-card,
+.post-name-paper-world .lobby-card,
+.post-name-paper-world .writing-card,
+.post-name-paper-world .guessing-card,
+.post-name-paper-world .reveal-card,
+.post-name-paper-world .results-card {
+  background: rgba(247, 238, 215, .88);
+  border-color: rgba(87, 66, 39, .22);
+  color: #29251f;
+  box-shadow: 0 20px 70px rgba(73, 49, 23, .20);
+  backdrop-filter: blur(5px);
+}
+
+/* Keep existing dark game controls readable, but give them a paper-era tint. */
+.post-name-paper-world .mode-option,
+.post-name-paper-world .topic-option,
+.post-name-paper-world .lobby-player,
+.post-name-paper-world .room-code-box,
+.post-name-paper-world .writing-player,
+.post-name-paper-world .guessing-player,
+.post-name-paper-world .reveal-section,
+.post-name-paper-world .results-section {
+  background: rgba(255, 249, 232, .64);
+  border-color: rgba(87, 66, 39, .18);
+}
+
+@media (max-width: 700px) {
+  .post-name-paper-world {
+    background:
+      radial-gradient(circle at 50% 10%, rgba(255,255,255,.5), transparent 32%),
+      linear-gradient(125deg, #d9c8a8, #eee1c3 48%, #d2bd98);
+  }
+}
