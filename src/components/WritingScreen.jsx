@@ -535,14 +535,14 @@ function WritingScreen({
 
                     </div>
 
-                    <span className="writing-status-score">
-                      {writingPlayer.score || 0}
-                    </span>
-
                     <span className="writing-status-name">
                       {isYou
                         ? "You"
                         : writingPlayer.name}
+                    </span>
+
+                    <span className="writing-status-score">
+                      {writingPlayer.score || 0} pts
                     </span>
 
                   </div>

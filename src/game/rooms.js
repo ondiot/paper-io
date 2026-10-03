@@ -1013,3 +1013,29 @@ export async function startNextRound(
 
   return data;
 }
+
+/* =========================================================
+   UPDATE LOBBY SETTINGS
+========================================================= */
+
+export async function updateRoomSettings({
+  roomId,
+  hostPlayerId,
+  roundTime,
+  rounds,
+  topicMode,
+}) {
+  const { data, error } = await supabase.rpc(
+    "update_room_settings",
+    {
+      p_room_id: roomId,
+      p_host_player_id: hostPlayerId,
+      p_round_seconds: Number(roundTime),
+      p_rounds: Number(rounds),
+      p_topic_mode: topicMode,
+    }
+  );
+
+  if (error) throw error;
+  return data;
+}

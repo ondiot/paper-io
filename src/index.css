@@ -2781,3 +2781,458 @@ input {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
+/* =========================================================
+   PAPER.IO 2.0 — MERGED LOBBY / SETTINGS
+========================================================= */
+
+.app-restore-loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #000;
+  color: #fff;
+  font-size: 13px;
+  z-index: 99999;
+}
+
+.app-restore-loading span,
+.busy-spinner {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.22);
+  border-top-color: #fff;
+  animation: paper-spin .7s linear infinite;
+}
+
+@keyframes paper-spin { to { transform: rotate(360deg); } }
+
+.global-busy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0,0,0,.72);
+  color: #fff;
+  font-size: 13px;
+  backdrop-filter: blur(4px);
+}
+
+.lobby-combined-card {
+  width: min(920px, 96vw);
+}
+
+.lobby-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #666;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.lobby-combined-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.lobby-panel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #242424;
+  border-radius: 15px;
+  background: #0b0b0b;
+}
+
+.lobby-panel .lobby-section-title {
+  margin-bottom: 12px;
+}
+
+.lobby-setting-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #222;
+  border-radius: 11px;
+  background: #080808;
+}
+
+.lobby-setting-row span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-setting-row b {
+  color: #eee;
+  font-size: 12px;
+}
+
+.lobby-setting-row small {
+  margin-top: 3px;
+  color: #555;
+  font-size: 9px;
+}
+
+.lobby-setting-row select {
+  min-width: 112px;
+  padding: 8px 10px;
+  border: 1px solid #333;
+  border-radius: 9px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-size: 10px;
+  outline: none;
+}
+
+.lobby-setting-row select:disabled {
+  opacity: .75;
+  cursor: not-allowed;
+}
+
+.lobby-readonly-note {
+  margin-top: 10px;
+  color: #555;
+  font-size: 9px;
+  text-align: center;
+}
+
+/* Score directly beneath each circular player avatar. */
+.writing-status-score {
+  display: block;
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.92);
+  color: #111;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+
+/* =========================================================
+   UNIVERSAL HOST KICK
+========================================================= */
+
+.host-kick-bar {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(62vw, 520px);
+  padding: 7px 9px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 13px;
+  background: rgba(10,10,10,.88);
+  box-shadow: 0 10px 35px rgba(0,0,0,.28);
+  backdrop-filter: blur(14px);
+}
+
+.host-kick-label {
+  flex: 0 0 auto;
+  color: #666;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.host-kick-players {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.host-kick-players::-webkit-scrollbar { display: none; }
+
+.host-kick-player {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 5px 3px 3px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #aaa;
+  font: inherit;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.host-kick-player:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+.host-kick-avatar {
+  width: 27px;
+  height: 27px;
+  overflow: hidden;
+  border: 1px solid #444;
+  border-radius: 50%;
+  background: #111;
+}
+
+.host-kick-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kick-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(7px);
+}
+
+.kick-confirm-card {
+  width: min(330px, 100%);
+  padding: 24px;
+  border: 1px solid #292929;
+  border-radius: 18px;
+  background: #101010;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 25px 90px rgba(0,0,0,.65);
+}
+
+.kick-confirm-avatar {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 12px;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.kick-confirm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.kick-confirm-card h3 { margin: 0; font-size: 17px; }
+.kick-confirm-card p { margin: 7px 0 18px; color: #666; font-size: 10px; }
+
+.kick-confirm-actions { display: flex; gap: 8px; }
+.kick-confirm-actions button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #292929;
+  border-radius: 9px;
+  background: #181818;
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.kick-confirm-actions button.danger { background: #fff; color: #000; }
+
+/* =========================================================
+   FINAL RESULTS — COMPACT PODIUM
+========================================================= */
+
+.results-screen {
+  min-height: 100vh;
+  padding: 45px 16px 70px;
+  box-sizing: border-box;
+  background: #000;
+  color: #fff;
+}
+
+.results-card {
+  width: min(860px, 96vw);
+  margin: 0 auto;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.results-header { text-align: center; margin-bottom: 15px; }
+.results-header > span { color: #666; font-size: 9px; font-weight: 900; letter-spacing: 1.7px; }
+.results-header h1 { margin: 7px 0 0; font-size: 34px; letter-spacing: -.8px; }
+.results-header p { margin: 6px 0 0; color: #666; font-size: 11px; }
+
+.results-podium {
+  height: 300px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  margin: 5px auto 35px;
+}
+
+.podium-place {
+  width: 132px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.podium-avatar {
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  z-index: 3;
+}
+
+.podium-avatar-image {
+  width: 92px;
+  height: 92px;
+  display: block;
+  object-fit: contain;
+  border-radius: 0;
+}
+
+.podium-place > strong {
+  max-width: 125px;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.podium-place > span { margin-top: 2px; color: #666; font-size: 9px; font-weight: 800; }
+
+.podium-block {
+  width: 132px;
+  margin-top: 7px;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #292929;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(180deg, #151515, #0b0b0b);
+}
+
+.podium-block b { margin-top: 11px; color: #444; font-size: 28px; }
+.podium-first { z-index: 2; }
+.podium-first .podium-block { height: 135px; }
+.podium-second .podium-block { height: 96px; }
+.podium-third .podium-block { height: 75px; }
+
+.podium-crown { position: absolute; top: -20px; z-index: 5; font-size: 22px; }
+
+.results-section-title { margin-bottom: 10px; color: #555; font-size: 9px; font-weight: 900; letter-spacing: 1.2px; }
+.results-ranking-section { margin-top: 8px; }
+.results-ranking-row {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 7px 11px;
+  border: 1px solid #222;
+  border-radius: 11px;
+  background: #080808;
+}
+.results-ranking-row.current { border-color: #444; background: #101010; }
+.results-rank { width: 20px; color: #555; text-align: center; font-size: 10px; }
+.results-ranking-avatar { width: 32px; height: 32px; overflow: hidden; border-radius: 50%; background: #111; }
+.results-avatar { width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 50%; }
+.results-ranking-name { flex: 1; min-width: 0; overflow: hidden; color: #bbb; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.results-ranking-name small { margin-left: 6px; color: #55d98b; font-size: 7px; font-weight: 900; }
+.results-ranking-row > strong { color: #fff; font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.results-awards-section { margin-top: 28px; }
+.results-awards-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.results-award { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #222; border-radius: 13px; background: #080808; }
+.results-award-icon { width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; border-radius: 10px; background: #111; font-size: 18px; }
+.results-award > div:last-child { min-width: 0; display: flex; flex-direction: column; }
+.results-award strong { font-size: 11px; }
+.results-award span { margin-top: 2px; color: #bbb; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.results-award small { margin-top: 2px; color: #555; font-size: 8px; }
+.results-loading { min-height: 60vh; display: grid; place-items: center; text-align: center; }
+
+/* =========================================================
+   NAME SCREEN — LOW CPU MATRIX
+========================================================= */
+
+.paper-name-page {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+
+.paper-name-rain { position: absolute; inset: 0; overflow: hidden; pointer-events: none; opacity: .9; }
+.paper-matrix-char {
+  position: absolute;
+  top: -10%;
+  color: rgba(90,130,100,.35);
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+  animation-name: matrix-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes matrix-fall {
+  from { transform: translate3d(0,-12vh,0); opacity: 0; }
+  12% { opacity: .7; }
+  85% { opacity: .35; }
+  to { transform: translate3d(0,120vh,0); opacity: 0; }
+}
+
+.paper-title-layer { position: absolute; top: 22%; left: 0; width: 100%; display: flex; justify-content: center; z-index: 10; pointer-events: none; }
+.paper-title { min-height: 80px; padding: 0 15px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font-family: "Courier New", monospace; font-size: clamp(28px,5vw,66px); font-weight: 700; letter-spacing: .07em; text-shadow: 0 0 10px rgba(255,255,255,.55), 0 0 30px rgba(0,255,100,.2); }
+.paper-name-card { position: absolute; top: 52%; left: 50%; transform: translate(-50%,-50%); width: min(420px,calc(100vw - 30px)); padding: 28px; box-sizing: border-box; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(10,10,10,.52); backdrop-filter: blur(8px); box-shadow: 0 20px 70px rgba(0,0,0,.5); text-align: center; z-index: 20; }
+.paper-name-card h2 { margin: 0 0 7px; font-size: 23px; }
+.paper-name-card p { margin: 0 0 18px; color: #666; font-size: 11px; }
+.paper-name-card input { width: 100%; height: 45px; box-sizing: border-box; padding: 0 13px; border: 1px solid #292929; border-radius: 10px; outline: 0; background: rgba(255,255,255,.05); color: #fff; font: inherit; font-size: 13px; }
+.paper-name-card input:focus { border-color: #555; }
+.paper-name-card button { width: 100%; height: 45px; margin-top: 10px; border: 0; border-radius: 10px; background: #fff; color: #000; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.paper-name-card button:disabled { opacity: .3; cursor: not-allowed; }
+
+@media (max-width: 700px) {
+  .host-kick-bar { top: auto; right: 10px; bottom: 10px; left: 10px; max-width: none; justify-content: flex-start; }
+  .host-kick-label { display: none; }
+  .lobby-combined-grid { grid-template-columns: 1fr; }
+  .results-card { padding: 20px 8px; }
+  .results-podium { height: 255px; gap: 0; }
+  .podium-place { width: 108px; }
+  .podium-avatar, .podium-avatar-image { width: 75px; height: 75px; }
+  .podium-block { width: 108px; }
+  .podium-first .podium-block { height: 115px; }
+  .podium-second .podium-block { height: 84px; }
+  .podium-third .podium-block { height: 66px; }
+  .results-awards-grid { grid-template-columns: 1fr; }
+  .paper-title-layer { top: 17%; }
+  .paper-title { min-height: 65px; font-size: 25px; }
+  .paper-name-card { top: 55%; padding: 22px; }
+}

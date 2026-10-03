@@ -478,8 +478,6 @@ function GuessingScreen({
         });
 
       if (complete) {
-        // Score the round atomically BEFORE switching the room to Reveal.
-        // This guarantees the first Reveal already shows the new scores.
         await startReveal(room.id);
       }
 

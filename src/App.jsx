@@ -1,74 +1,50 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import LoadingScreen from "./components/LoadingScreen";
 import NameScreen from "./components/NameScreen";
 import ModeScreen from "./components/ModeScreen";
-import CreateRoom from "./components/CreateRoom";
 import JoinRoom from "./components/JoinRoom";
 import Lobby from "./components/Lobby";
 import WritingScreen from "./components/WritingScreen";
 import GuessingScreen from "./components/GuessingScreen";
-import VaporizeIntro from "./components/VaporizeIntro";
 import RevealScreen from "./components/RevealScreen";
+import ResultsScreen from "./components/ResultsScreen";
+import VaporizeIntro from "./components/VaporizeIntro";
+import HostKickBar from "./components/HostKickBar";
 
 import { AVATARS } from "./game/avatars";
 import { preloadAllAssets } from "./game/preloadAssets";
-
 import {
   createRoom,
   joinRoom,
   getPlayerSession,
   leaveRoom,
+  updateHeartbeat,
 } from "./game/rooms";
-
 import { supabase } from "./lib/supabase";
 
 function App() {
   const [name, setName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(
-    AVATARS[0]
-  );
-
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
   const [screen, setScreen] = useState("intro");
   const [room, setRoom] = useState(null);
   const [player, setPlayer] = useState(null);
-
   const [creatingRoom, setCreatingRoom] = useState(false);
   const [joiningRoom, setJoiningRoom] = useState(false);
   const [restoringSession, setRestoringSession] = useState(true);
-
   const [preloadingAssets, setPreloadingAssets] = useState(false);
   const [preloadProgress, setPreloadProgress] = useState(0);
-
   const [error, setError] = useState("");
   const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const leavingRef = useRef(false);
 
-  /*
-   * Restore saved session.
-   */
   useEffect(() => {
     async function restoreSession() {
-      const savedPlayerId = localStorage.getItem(
-        "paperio_player_id"
-      );
-
-      const savedRoomId = localStorage.getItem(
-        "paperio_room_id"
-      );
-
-      const savedName = localStorage.getItem(
-        "paperio_name"
-      );
-
-      const savedAvatar = localStorage.getItem(
-        "paperio_avatar"
-      );
+      const savedPlayerId = localStorage.getItem("paperio_player_id");
+      const savedRoomId = localStorage.getItem("paperio_room_id");
+      const savedName = localStorage.getItem("paperio_name");
+      const savedAvatar = localStorage.getItem("paperio_avatar");
 
       if (!savedPlayerId || !savedRoomId) {
         setRestoringSession(false);
@@ -76,63 +52,26 @@ function App() {
       }
 
       try {
-        const session = await getPlayerSession(
-          savedPlayerId,
-          savedRoomId
-        );
-
+        const session = await getPlayerSession(savedPlayerId, savedRoomId);
         if (!session) {
-          localStorage.removeItem(
-            "paperio_player_id"
-          );
-
-          localStorage.removeItem(
-            "paperio_room_id"
-          );
-
+          localStorage.removeItem("paperio_player_id");
+          localStorage.removeItem("paperio_room_id");
           setRestoringSession(false);
           return;
         }
 
         setRoom(session.room);
         setPlayer(session.player);
+        setName(savedName || session.player.name || "");
+        setSelectedAvatar(savedAvatar || session.player.avatar || AVATARS[0]);
 
-        setName(
-          savedName || session.player.name || ""
-        );
-
-        setSelectedAvatar(
-          savedAvatar ||
-            session.player.avatar ||
-            AVATARS[0]
-        );
-
-        switch (session.room.status) {
-          case "writing":
-            setScreen("writing");
-            break;
-
-          case "guessing":
-            setScreen("guessing");
-            break;
-
-          case "reveal":
-            setScreen("reveal");
-            break;
-
-          case "ended":
-            setScreen("ended");
-            break;
-
-          default:
-            setScreen("lobby");
-            break;
-        }
-      } catch (error) {
-        console.error(
-          "Could not restore session:",
-          error
-        );
+        if (session.room.status === "writing") setScreen("writing");
+        else if (session.room.status === "guessing") setScreen("guessing");
+        else if (session.room.status === "reveal") setScreen("reveal");
+        else if (session.room.status === "ended") setScreen("ended");
+        else setScreen("lobby");
+      } catch (restoreError) {
+        console.error("Could not restore session:", restoreError);
       } finally {
         setRestoringSession(false);
       }
@@ -141,184 +80,119 @@ function App() {
     restoreSession();
   }, []);
 
-  /*
-   * Save name.
-   */
   useEffect(() => {
-    if (name) {
-      localStorage.setItem(
-        "paperio_name",
-        name
-      );
-    }
+    if (name) localStorage.setItem("paperio_name", name);
   }, [name]);
 
-  /*
-   * Save avatar.
-   */
   useEffect(() => {
-    if (selectedAvatar) {
-      localStorage.setItem(
-        "paperio_avatar",
-        selectedAvatar
-      );
-    }
+    if (selectedAvatar) localStorage.setItem("paperio_avatar", selectedAvatar);
   }, [selectedAvatar]);
 
-  /*
-   * Keep screen synchronized with room status.
-   */
   useEffect(() => {
-    if (!room?.status) {
-      return;
-    }
-
-    switch (room.status) {
-      case "writing":
-        setScreen("writing");
-        break;
-
-      case "guessing":
-        setScreen("guessing");
-        break;
-
-      case "reveal":
-        setScreen("reveal");
-        break;
-
-      case "ended":
-        setScreen("ended");
-        break;
-
-      case "lobby":
-        setScreen("lobby");
-        break;
-
-      default:
-        break;
-    }
+    if (!room?.status) return;
+    if (room.status === "writing") setScreen("writing");
+    else if (room.status === "guessing") setScreen("guessing");
+    else if (room.status === "reveal") setScreen("reveal");
+    else if (room.status === "ended") setScreen("ended");
+    else if (room.status === "lobby") setScreen("lobby");
   }, [room?.status]);
 
-  /*
-   * Listen for room updates.
-   */
   useEffect(() => {
-    if (!room?.id) {
-      return;
-    }
+    if (!room?.id) return;
 
     const channel = supabase
       .channel(`room-status-${room.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "rooms",
-          filter: `id=eq.${room.id}`,
-        },
-        (payload) => {
-          setRoom(payload.new);
-        }
-      )
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "rooms",
+        filter: `id=eq.${room.id}`,
+      }, (payload) => setRoom(payload.new))
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => supabase.removeChannel(channel);
   }, [room?.id]);
 
-  /*
-   * Listen for current player updates.
-   */
   useEffect(() => {
-    if (!room?.id || !player?.id) {
-      return;
-    }
+    if (!room?.id || !player?.id) return;
 
     const channel = supabase
       .channel(`player-status-${player.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "players",
-          filter: `id=eq.${player.id}`,
-        },
-        (payload) => {
-          setPlayer(payload.new);
-        }
-      )
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "players",
+        filter: `id=eq.${player.id}`,
+      }, (payload) => setPlayer(payload.new))
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => supabase.removeChannel(channel);
   }, [room?.id, player?.id]);
 
-  /*
-   * Preload assets.
-   */
+  /* Universal heartbeat so cleanup never removes active players mid-game. */
+  useEffect(() => {
+    if (!player?.id) return;
+    updateHeartbeat(player.id);
+    const timer = setInterval(() => updateHeartbeat(player.id), 10000);
+    return () => clearInterval(timer);
+  }, [player?.id]);
+
+  /* Universal kick detection. It works on lobby, writing, guessing, reveal and results. */
+  const handleKicked = useCallback(() => {
+    if (leavingRef.current) return;
+
+    localStorage.removeItem("paperio_player_id");
+    localStorage.removeItem("paperio_room_id");
+    setRoom(null);
+    setPlayer(null);
+    setError("You were kicked from the room.");
+    setScreen("mode");
+
+    window.setTimeout(() => setError(""), 4500);
+  }, []);
+
+  useEffect(() => {
+    if (!room?.id || !player?.id) return;
+
+    const channel = supabase
+      .channel(`universal-player-removal-${room.id}-${player.id}`)
+      .on("postgres_changes", {
+        event: "DELETE",
+        schema: "public",
+        table: "players",
+      }, (payload) => {
+        if (payload.old?.id === player.id) handleKicked();
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, [room?.id, player?.id, handleKicked]);
+
   async function handleIntroComplete() {
     setPreloadingAssets(true);
     setPreloadProgress(0);
 
     try {
-      await preloadAllAssets(({ percent }) => {
-        setPreloadProgress(percent);
-      });
-    } catch (error) {
-      console.error(
-        "Asset preloading failed:",
-        error
-      );
+      await preloadAllAssets(({ percent }) => setPreloadProgress(percent));
+    } catch (preloadError) {
+      console.error("Asset preloading failed:", preloadError);
     }
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 500);
-    });
-
+    setPreloadProgress(100);
+    await new Promise((resolve) => setTimeout(resolve, 350));
     setPreloadingAssets(false);
     setScreen("name");
   }
 
-  /*
-   * Continue from name screen.
-   */
   function handleContinue() {
-    if (!name.trim()) {
-      return;
-    }
-
+    if (!name.trim()) return;
     setError("");
     setScreen("mode");
   }
 
-  /*
-   * Open create room.
-   */
-  function handleCreateRoom() {
-    setError("");
-    setScreen("create-room");
-  }
-
-  /*
-   * Open join room.
-   */
-  function handleJoinRoom() {
-    setError("");
-    setScreen("join-room");
-  }
-
-  /*
-   * Create room.
-   */
-  async function handleCreate(settings) {
-    if (creatingRoom) {
-      return;
-    }
-
+  /* Create now; all editable game settings live in the lobby. */
+  async function handleCreateRoom() {
+    if (creatingRoom) return;
     setCreatingRoom(true);
     setError("");
 
@@ -326,191 +200,84 @@ function App() {
       const result = await createRoom({
         name,
         avatar: selectedAvatar,
-        roundTime: settings.roundTime,
-        rounds: settings.rounds,
-        topicMode: settings.topicMode,
+        roundTime: 60,
+        rounds: 3,
+        topicMode: "builtin",
       });
 
       setRoom(result.room);
       setPlayer(result.player);
-
-      localStorage.setItem(
-        "paperio_player_id",
-        result.player.id
-      );
-
-      localStorage.setItem(
-        "paperio_room_id",
-        result.room.id
-      );
-
+      localStorage.setItem("paperio_player_id", result.player.id);
+      localStorage.setItem("paperio_room_id", result.room.id);
       setScreen("lobby");
-    } catch (error) {
-      console.error(
-        "Create room failed:",
-        error
-      );
-
-      setError(
-        error?.message ||
-          "Something went wrong while creating the room."
-      );
+    } catch (createError) {
+      console.error("Create room failed:", createError);
+      setError(createError?.message || "Could not create the room.");
     } finally {
       setCreatingRoom(false);
     }
   }
 
-  /*
-   * Join room.
-   */
   async function handleJoin(code) {
-    if (joiningRoom) {
-      return;
-    }
-
+    if (joiningRoom) return;
     setJoiningRoom(true);
     setError("");
 
     try {
-      const result = await joinRoom({
-        code,
-        name,
-        avatar: selectedAvatar,
-      });
-
+      const result = await joinRoom({ code, name, avatar: selectedAvatar });
       setRoom(result.room);
       setPlayer(result.player);
-
-      localStorage.setItem(
-        "paperio_player_id",
-        result.player.id
-      );
-
-      localStorage.setItem(
-        "paperio_room_id",
-        result.room.id
-      );
-
+      localStorage.setItem("paperio_player_id", result.player.id);
+      localStorage.setItem("paperio_room_id", result.room.id);
       setScreen("lobby");
-    } catch (error) {
-      console.error(
-        "Join room failed:",
-        error
-      );
-
-      setError(
-        error?.message ||
-          "Something went wrong while joining the room."
-      );
+    } catch (joinError) {
+      console.error("Join room failed:", joinError);
+      setError(joinError?.message || "Could not join the room.");
     } finally {
       setJoiningRoom(false);
     }
   }
 
-  /*
-   * Leave current room.
-   */
   async function handleLeaveRoom() {
     setConfirmingLeave(false);
+    leavingRef.current = true;
 
-    const currentPlayerId = player?.id;
-
-    if (currentPlayerId) {
-      try {
-        await leaveRoom(currentPlayerId);
-      } catch (error) {
-        console.error(
-          "Leave room failed:",
-          error
-        );
-      }
+    try {
+      if (player?.id) await leaveRoom(player.id);
+    } catch (leaveError) {
+      console.error("Leave room failed:", leaveError);
     }
 
-    localStorage.removeItem(
-      "paperio_player_id"
-    );
-
-    localStorage.removeItem(
-      "paperio_room_id"
-    );
-
+    localStorage.removeItem("paperio_player_id");
+    localStorage.removeItem("paperio_room_id");
     setRoom(null);
     setPlayer(null);
     setError("");
     setScreen("mode");
+
+    window.setTimeout(() => {
+      leavingRef.current = false;
+    }, 500);
   }
 
-  /*
-   * Handle kicked player.
-   */
-  const handleKicked = useCallback(() => {
-    localStorage.removeItem(
-      "paperio_player_id"
-    );
-
-    localStorage.removeItem(
-      "paperio_room_id"
-    );
-
-    setRoom(null);
-    setPlayer(null);
-
-    setError(
-      "You were kicked from the room."
-    );
-
-    setScreen("mode");
-
-    setTimeout(() => {
-      setError("");
-    }, 4000);
-  }, []);
-
-  /*
-   * The Leave button exists whenever
-   * the player is inside a room.
-   *
-   * It does not depend on screen.
-   */
-  const showLeaveButton =
-    Boolean(room?.id && player?.id);
-
-  /*
-   * Restore-session loading screen.
-   */
   if (restoringSession) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#000",
-          color: "#fff",
-          fontSize: "14px",
-        }}
-      >
-        Loading...
+      <div className="app-restore-loading">
+        <span />
+        Loading PAPER.IO...
       </div>
     );
   }
 
+  const insideRoom = Boolean(room?.id && player?.id);
+  const showKickBar = insideRoom && ["lobby", "writing", "guessing", "reveal"].includes(screen);
+
   return (
     <>
-      {screen === "intro" && (
-        <VaporizeIntro
-          onComplete={handleIntroComplete}
-        />
-      )}
+      {screen === "intro" && <VaporizeIntro onComplete={handleIntroComplete} />}
 
       {preloadingAssets && (
-        <LoadingScreen
-          label="Preloading"
-          variant="Drive"
-          progress={preloadProgress}
-        />
+        <LoadingScreen label="Loading game" variant="Drive" progress={preloadProgress} />
       )}
 
       {screen === "name" && (
@@ -528,19 +295,7 @@ function App() {
           name={name}
           selectedAvatar={selectedAvatar}
           onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-        />
-      )}
-
-      {screen === "create-room" && (
-        <CreateRoom
-          name={name}
-          selectedAvatar={selectedAvatar}
-          onBack={() => {
-            setError("");
-            setScreen("mode");
-          }}
-          onCreate={handleCreate}
+          onJoinRoom={() => setScreen("join-room")}
         />
       )}
 
@@ -548,119 +303,50 @@ function App() {
         <JoinRoom
           name={name}
           selectedAvatar={selectedAvatar}
-          onBack={() => {
-            setError("");
-            setScreen("mode");
-          }}
+          onBack={() => setScreen("mode")}
           onJoin={handleJoin}
         />
       )}
 
       {screen === "lobby" && (
-        <Lobby
-          room={room}
-          player={player}
-          onKicked={handleKicked}
-        />
+        <Lobby room={room} player={player} onKicked={handleKicked} />
       )}
 
-      {screen === "writing" && (
-        <WritingScreen
-          room={room}
-          player={player}
-        />
-      )}
+      {screen === "writing" && <WritingScreen room={room} player={player} />}
+      {screen === "guessing" && <GuessingScreen room={room} player={player} />}
+      {screen === "reveal" && <RevealScreen room={room} player={player} />}
+      {screen === "ended" && <ResultsScreen room={room} player={player} />}
 
-      {screen === "guessing" && (
-        <GuessingScreen
-          room={room}
-          player={player}
-        />
-      )}
-
-      {screen === "reveal" && (
-        <RevealScreen
-          room={room}
-          player={player}
-        />
-      )}
-
-      {screen === "ended" && <div />}
+      {showKickBar && <HostKickBar room={room} player={player} />}
 
       {error && (
         <div className="game-toast">
-          <span className="game-toast-icon">
-            !
-          </span>
-
+          <span className="game-toast-icon">!</span>
           <span>{error}</span>
         </div>
       )}
 
-      {/*
-       * GLOBAL LEAVE BUTTON
-       *
-       * This is rendered directly into document.body,
-       * so game screens cannot cover it.
-       */}
-      {showLeaveButton &&
-        createPortal(
-          <div className="global-leave-container">
-            {!confirmingLeave ? (
-              <button
-                type="button"
-                className="global-leave-button"
-                onClick={() =>
-                  setConfirmingLeave(true)
-                }
-              >
-                Leave
-              </button>
-            ) : (
-              <div className="global-leave-confirm">
-                <span>Leave game?</span>
-
-                <button
-                  type="button"
-                  className="global-leave-confirm-button"
-                  onClick={handleLeaveRoom}
-                >
-                  Yes
-                </button>
-
-                <button
-                  type="button"
-                  className="global-leave-cancel-button"
-                  onClick={() =>
-                    setConfirmingLeave(false)
-                  }
-                >
-                  No
-                </button>
-              </div>
-            )}
-          </div>,
-          document.body
-        )}
+      {insideRoom && createPortal(
+        <div className="global-leave-container">
+          {!confirmingLeave ? (
+            <button type="button" className="global-leave-button" onClick={() => setConfirmingLeave(true)}>
+              Leave
+            </button>
+          ) : (
+            <div className="global-leave-confirm">
+              <span>Leave game?</span>
+              <button type="button" className="global-leave-confirm-button" onClick={handleLeaveRoom}>Yes</button>
+              <button type="button" className="global-leave-cancel-button" onClick={() => setConfirmingLeave(false)}>No</button>
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
 
       {(creatingRoom || joiningRoom) && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9998,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background:
-              "rgba(0, 0, 0, 0.65)",
-            color: "#fff",
-            fontSize: "15px",
-          }}
-        >
-          {creatingRoom
-            ? "Creating room..."
-            : "Joining room..."}
+        <div className="global-busy-overlay">
+          <span className="busy-spinner" />
+          {creatingRoom ? "Creating room..." : "Joining room..."}
         </div>
       )}
     </>
