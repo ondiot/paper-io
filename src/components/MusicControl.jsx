@@ -56,7 +56,13 @@ function MusicControl({ enabled = true, showControls = true }) {
 
       // This handler runs synchronously from the intro button's click.
       audio.play()
-        .then(() => setPlaying(true))
+        .then(() => {
+          // The name Continue button is a real user gesture, so this
+          // play() unlocks the element. Immediately restore the user's
+          // volume instead of leaving the audio permanently muted.
+          audio.volume = volumeRef.current;
+          setPlaying(true);
+        })
         .catch((error) => {
           console.error("Could not unlock background music:", error);
           setPlaying(false);
