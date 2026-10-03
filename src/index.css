@@ -5171,3 +5171,13 @@ button.stats-menu-trigger,
 .post-name-paper-world .reveal-score-player.current .reveal-rank {
   color: #241b10 !important;
 }
+
+
+/* Writing player points: force the visible "pts" text to black. */
+.post-name-paper-world .writing-status-score,
+.post-name-paper-world .writing-status-score * {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+  background: transparent !important;
+}
