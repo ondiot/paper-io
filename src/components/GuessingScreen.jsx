@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import { supabase } from "../lib/supabase";
+import InlineKickButton from "./InlineKickButton";
 
 import {
   submitGuesses,
@@ -424,9 +425,21 @@ function GuessingScreen({
                     )}
                   </div>
 
-                  <span>
-                    {isYou ? "You" : gamePlayer.name}
-                  </span>
+                  <div className="guessing-player-info">
+                    <span>
+                      {isYou ? "You" : gamePlayer.name}
+                    </span>
+
+                    <span className="guessing-player-score">
+                      {gamePlayer.score || 0} pts
+                    </span>
+
+                    <InlineKickButton
+                      room={room}
+                      hostPlayer={player}
+                      targetPlayer={gamePlayer}
+                    />
+                  </div>
                 </div>
               );
             })}
