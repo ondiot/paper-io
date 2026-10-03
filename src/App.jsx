@@ -41,6 +41,7 @@ function App() {
   const [error, setError] = useState("");
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const leavingRef = useRef(false);
+  const musicStartTimeRef = useRef(0);
 
   useEffect(() => {
     async function restoreSession() {
@@ -171,6 +172,11 @@ function App() {
     return () => supabase.removeChannel(channel);
   }, [room?.id, player?.id, handleKicked]);
 
+  function handleIntroStart() {
+    musicStartTimeRef.current = performance.now();
+    window.dispatchEvent(new Event("paperio-start-music"));
+  }
+
   async function handleIntroComplete() {
     setPreloadingAssets(true);
     setPreloadProgress(0);
@@ -182,7 +188,16 @@ function App() {
     }
 
     setPreloadProgress(100);
-    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    // Keep the intro/loading feeling intact: music becomes audible only
+    // after the loading screen is finished and at least 5 seconds have
+    // passed since the user started the vaporizer intro.
+    const elapsed = performance.now() - musicStartTimeRef.current;
+    const remainingDelay = Math.max(0, 5000 - elapsed);
+
+    await new Promise((resolve) => setTimeout(resolve, 350 + remainingDelay));
+
+    window.dispatchEvent(new Event("paperio-reveal-music"));
     setPreloadingAssets(false);
     setScreen("name");
   }
@@ -277,7 +292,12 @@ function App() {
 
   return (
     <>
-      {screen === "intro" && <VaporizeIntro onComplete={handleIntroComplete} />}
+      {screen === "intro" && (
+        <VaporizeIntro
+          onStart={handleIntroStart}
+          onComplete={handleIntroComplete}
+        />
+      )}
 
       {preloadingAssets && (
         <LoadingScreen label="Loading game" variant="Drive" progress={preloadProgress} />
@@ -322,7 +342,10 @@ function App() {
 
       {showKickBar && <HostKickBar room={room} player={player} />}
       {insideRoom && <StatsMenu room={room} player={player} />}
-      {screen !== "intro" && !preloadingAssets && <MusicControl enabled />}
+      <MusicControl
+        enabled
+        showControls={screen !== "intro" && !preloadingAssets}
+      />
       {insideRoom && <ChatBox room={room} player={player} />}
 
       {error && (
