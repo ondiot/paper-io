@@ -45,15 +45,7 @@ function MusicControl({ enabled = true }) {
 
   useEffect(() => {
     if (!enabled) return;
-
-    async function handleStartMusic() {
-      await startTrack(0);
-    }
-
-    window.addEventListener("paperio-start-music", handleStartMusic);
-    return () => {
-      window.removeEventListener("paperio-start-music", handleStartMusic);
-    };
+    startTrack(0);
   }, [enabled]);
 
   async function startTrack(index) {
