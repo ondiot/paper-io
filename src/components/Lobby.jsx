@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { startGame, updateRoomSettings, updateHeartbeat } from "../game/rooms";
+import InlineKickButton from "./InlineKickButton";
 
 function Lobby({ room, player, onKicked }) {
   const [players, setPlayers] = useState([]);
@@ -191,6 +192,13 @@ function Lobby({ room, player, onKicked }) {
                   <div className="lobby-player-info">
                     <strong>{item.name}{item.id === player.id && <span className="you-label">YOU</span>}</strong>
                     <span>{item.is_host ? "Host" : "Player"}</span>
+                    {!item.is_host && (
+                      <InlineKickButton
+                        room={room}
+                        hostPlayer={player}
+                        targetPlayer={item}
+                      />
+                    )}
                   </div>
                   <div className="lobby-player-status">{item.is_host ? "Host" : "Ready"}</div>
                 </div>
