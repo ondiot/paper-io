@@ -446,28 +446,23 @@ function VaporizeIntro({ onComplete, onStart }) {
       />
 
       {!started && (
-        <button
-          type="button"
+        <div
           onClick={handleStart}
+          onTouchStart={handleStart}
+          role="button"
+          tabIndex={0}
+          aria-label="Tap to continue"
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              handleStart();
+            }
+          }}
           style={{
             position: "absolute",
-            left: "50%",
-            top: "58%",
-            transform: "translate(-50%, -50%)",
-            padding: "14px 26px",
-            border: "1px solid rgba(255,255,255,.35)",
-            borderRadius: "999px",
-            background: "rgba(255,255,255,.08)",
-            color: "#fff",
-            fontSize: "12px",
-            fontWeight: 800,
-            letterSpacing: ".18em",
-            cursor: "pointer",
-            backdropFilter: "blur(12px)"
+            inset: 0,
+            cursor: "pointer"
           }}
-        >
-          CLICK TO CONTINUE
-        </button>
+        />
       )}
     </div>
   );
