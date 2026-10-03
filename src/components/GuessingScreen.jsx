@@ -344,9 +344,13 @@ function GuessingScreen({
   }
 
   const guessedCount = useMemo(
-    () => Object.keys(guesses).length,
-    [guesses]
+    () => papers.filter((paper) => Boolean(guesses[paper.id])).length,
+    [papers, guesses]
   );
+
+  const allPapersAnswered =
+    papers.length > 0 &&
+    papers.every((paper) => Boolean(guesses[paper.id]));
 
   const currentPaper = papers[currentPaperIndex];
   const isLastPaper =
@@ -537,7 +541,7 @@ function GuessingScreen({
                   disabled={
                     submitting ||
                     !currentPaperAnswered ||
-                    guessedCount !== papers.length
+                    !allPapersAnswered
                   }
                 >
                   {submitting
