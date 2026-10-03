@@ -8,16 +8,18 @@ const MUSIC_TRACKS = [
   `${import.meta.env.BASE_URL}assets/music/bg4.mp3`,
 ];
 
-function MusicControl({ enabled = true, startAfterGesture = false, revealDelay = 5000 }) {
+function MusicControl({ enabled = true, showControls = true }) {
   const audioRef = useRef(null);
   const [trackIndex, setTrackIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.35);
+  const volumeRef = useRef(0.35);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = volume;
+    volumeRef.current = volume;
+    if (audioRef.current && audioRef.current.volume > 0) {
+      audioRef.current.volume = volume;
+    }
   }, [volume]);
 
   useEffect(() => {
@@ -44,57 +46,46 @@ function MusicControl({ enabled = true, startAfterGesture = false, revealDelay =
   }, [enabled]);
 
   useEffect(() => {
-    if (!enabled) return;
-    if (startAfterGesture) return;
-
-    // Fallback for browsers that allow autoplay.
-    startTrack(0);
-  }, [enabled, startAfterGesture]);
-
-  useEffect(() => {
-    if (!startAfterGesture || !enabled) return;
-
-    let cancelled = false;
-
-    async function unlockAndScheduleMusic() {
+    function unlockMusic() {
       const audio = audioRef.current;
-      if (!audio) return;
+      if (!audio || !enabled || !audio.paused) return;
 
       audio.src = MUSIC_TRACKS[0];
-      audio.load();
       audio.volume = 0;
+      audio.load();
 
-      try {
-        // This call is made directly from the user's intro click.
-        await audio.play();
-        if (cancelled) return;
-
-        setPlaying(true);
-
-        window.setTimeout(() => {
-          if (cancelled || !audioRef.current) return;
-          audioRef.current.volume = volume;
-        }, revealDelay);
-      } catch (error) {
-        console.error("Could not unlock background music:", error);
-        setPlaying(false);
-      }
+      // This handler runs synchronously from the intro button's click.
+      audio.play()
+        .then(() => setPlaying(true))
+        .catch((error) => {
+          console.error("Could not unlock background music:", error);
+          setPlaying(false);
+        });
     }
 
-    unlockAndScheduleMusic();
+    function revealMusic() {
+      const audio = audioRef.current;
+      if (!audio || !enabled) return;
+      audio.volume = volumeRef.current;
+      setPlaying(!audio.paused);
+    }
+
+    window.addEventListener("paperio-start-music", unlockMusic);
+    window.addEventListener("paperio-reveal-music", revealMusic);
 
     return () => {
-      cancelled = true;
+      window.removeEventListener("paperio-start-music", unlockMusic);
+      window.removeEventListener("paperio-reveal-music", revealMusic);
     };
-  }, [startAfterGesture, enabled, revealDelay]);
+  }, [enabled]);
 
-  async function startTrack(index) {
+  async function startTrack(index, targetVolume = volumeRef.current) {
     const audio = audioRef.current;
     if (!audio) return;
 
     audio.src = MUSIC_TRACKS[index];
     audio.load();
-    audio.volume = volume;
+    audio.volume = targetVolume;
 
     try {
       await audio.play();
@@ -120,31 +111,14 @@ function MusicControl({ enabled = true, startAfterGesture = false, revealDelay =
   async function handleEnded() {
     const nextIndex = (trackIndex + 1) % MUSIC_TRACKS.length;
     setTrackIndex(nextIndex);
-
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.src = MUSIC_TRACKS[nextIndex];
-    audio.load();
-
-    try {
-      await audio.play();
-      setPlaying(true);
-    } catch (error) {
-      console.error("Could not start next background track:", error);
-      setPlaying(false);
-    }
+    await startTrack(nextIndex);
   }
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        onEnded={handleEnded}
-        aria-hidden="true"
-      />
+      <audio ref={audioRef} onEnded={handleEnded} aria-hidden="true" />
 
-      {enabled && (
+      {enabled && showControls && (
         <div className="global-music-control">
           <button
             type="button"
