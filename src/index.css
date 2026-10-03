@@ -4494,3 +4494,80 @@ button.stats-menu-trigger,
       linear-gradient(125deg, #d9c8a8, #eee1c3 48%, #d2bd98);
   }
 }
+
+/* VINTAGE PAPER TEXT + STARTUP VISIBILITY FIX */
+.post-name-paper-world,
+.post-name-paper-world h1,
+.post-name-paper-world h2,
+.post-name-paper-world h3,
+.post-name-paper-world h4,
+.post-name-paper-world p,
+.post-name-paper-world span,
+.post-name-paper-world label,
+.post-name-paper-world strong,
+.post-name-paper-world b,
+.post-name-paper-world small,
+.post-name-paper-world .mode-title,
+.post-name-paper-world .mode-subtitle,
+.post-name-paper-world .lobby-title,
+.post-name-paper-world .lobby-subtitle,
+.post-name-paper-world .writing-title,
+.post-name-paper-world .guessing-title,
+.post-name-paper-world .reveal-title,
+.post-name-paper-world .results-title {
+  color: #211c16;
+}
+
+.post-name-paper-world button,
+.post-name-paper-world input,
+.post-name-paper-world textarea,
+.post-name-paper-world select {
+  color: #211c16;
+}
+
+.post-name-paper-world input,
+.post-name-paper-world textarea,
+.post-name-paper-world select {
+  background: rgba(255, 249, 232, .86);
+  border-color: rgba(70, 52, 29, .28);
+}
+
+.post-name-paper-world input::placeholder,
+.post-name-paper-world textarea::placeholder {
+  color: rgba(52, 42, 30, .58);
+}
+
+.post-name-paper-world button {
+  border-color: rgba(70, 52, 29, .22);
+}
+
+.post-name-paper-world .global-leave-button,
+.post-name-paper-world .global-stats-button,
+.post-name-paper-world .global-chat-button,
+.post-name-paper-world .global-music-button {
+  color: #211c16;
+  background: rgba(247, 238, 215, .92);
+  border-color: rgba(70, 52, 29, .24);
+}
+
+/* Keep the actual startup screens independent from the room background. */
+.app-restore-loading,
+.global-busy-overlay {
+  color: #211c16;
+}
+
+/* Never let a screen container paint an opaque dark layer over the paper. */
+.post-name-paper-world .screen,
+.post-name-paper-world main,
+.post-name-paper-world section {
+  background-color: transparent;
+}
+
+/* Make common muted text readable on the parchment. */
+.post-name-paper-world .muted,
+.post-name-paper-world .secondary,
+.post-name-paper-world .subtitle,
+.post-name-paper-world .hint,
+.post-name-paper-world .description {
+  color: #5b4d3b;
+}
